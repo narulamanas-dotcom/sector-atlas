@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Care — GICS Sector Atlas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #0e0e16;
+  --bg-hover: #14141e;
+  --border: rgba(255,255,255,0.06);
+  --border-light: rgba(255,255,255,0.1);
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --text-muted: #666;
+  --upstream: #4a90d9;
+  --upstream-bg: rgba(74,144,217,0.08);
+  --upstream-border: rgba(74,144,217,0.2);
+  --midstream: #9b59b6;
+  --midstream-bg: rgba(155,89,182,0.08);
+  --midstream-border: rgba(155,89,182,0.2);
+  --downstream: #27ae60;
+  --downstream-bg: rgba(39,174,96,0.08);
+  --downstream-border: rgba(39,174,96,0.2);
+  --macro: #e67e22;
+  --macro-bg: rgba(230,126,34,0.08);
+  --macro-border: rgba(230,126,34,0.2);
+  --accent: #e74c3c;
+  --tollbridge: #3498db;
+  --cashengine: #27ae60;
+  --ruleof40: #e67e22;
+  --deepvalue: #e74c3c;
+  --font: 'DM Sans', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  padding: 24px;
+  line-height: 1.5;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #4a90d9, #9b59b6, #27ae60);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+.header .subtitle {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+
+/* LEGEND */
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* ATLAS SECTION */
+.atlas-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.atlas-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* VALUE CHAIN LAYERS */
+.vc-layer {
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid;
+}
+.vc-layer:last-child { margin-bottom: 0; }
+.vc-layer-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.vc-layer-icon {
+  font-size: 16px;
+}
+.vc-layer-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.vc-layer-subtitle {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: auto;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.vc-layer.upstream { background: var(--upstream-bg); border-color: var(--upstream-border); }
+.vc-layer.upstream .vc-layer-title { color: var(--upstream); }
+.vc-layer.midstream { background: var(--midstream-bg); border-color: var(--midstream-border); }
+.vc-layer.midstream .vc-layer-title { color: var(--midstream); }
+.vc-layer.downstream { background: var(--downstream-bg); border-color: var(--downstream-border); }
+.vc-layer.downstream .vc-layer-title { color: var(--downstream); }
+
+/* ATLAS BUCKETS */
+.vc-buckets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+.vc-bucket {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 12px;
+  transition: border-color 0.2s;
+}
+.vc-bucket:hover {
+  border-color: rgba(255,255,255,0.15);
+}
+.vc-bucket-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+.vc-bucket-tickers {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  line-height: 1.6;
+}
+.vc-bucket-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.upstream .vc-bucket-name { color: #6ba8e6; }
+.midstream .vc-bucket-name { color: #b57dd4; }
+.downstream .vc-bucket-name { color: #4ec987; }
+
+/* MACRO DRIVERS */
+.macro-drivers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.macro-card {
+  background: var(--macro-bg);
+  border: 1px solid var(--macro-border);
+  border-radius: 8px;
+  padding: 12px;
+}
+.macro-card h4 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--macro);
+  margin-bottom: 4px;
+}
+.macro-card p {
+  font-size: 10px;
+  color: #999;
+  line-height: 1.5;
+}
+
+/* FLOW ARROWS between layers */
+.flow-indicator {
+  text-align: center;
+  padding: 6px 0;
+  color: var(--text-muted);
+  font-size: 18px;
+  letter-spacing: 8px;
+  opacity: 0.4;
+}
+
+/* DRILL-DOWN MODULES */
+.drilldown-section {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+.drilldown-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  text-align: center;
+}
+.drilldown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 14px;
+}
+.dd-module {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.dd-module:hover {
+  border-color: var(--border-light);
+}
+.dd-module-header {
+  padding: 14px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+}
+.dd-module-header:hover {
+  background: rgba(255,255,255,0.02);
+}
+.dd-module-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.dd-module-title {
+  font-size: 12px;
+  font-weight: 700;
+  flex: 1;
+}
+.dd-chevron {
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: transform 0.25s;
+}
+.dd-module.open .dd-chevron {
+  transform: rotate(180deg);
+}
+.dd-module-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+.dd-module.open .dd-module-body {
+  max-height: 600px;
+}
+.dd-module-content {
+  padding: 0 16px 16px;
+  font-size: 11px;
+  color: #aaa;
+  line-height: 1.7;
+}
+.dd-module-content strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.dd-module-content .dd-point {
+  margin-bottom: 8px;
+  padding-left: 12px;
+  border-left: 2px solid rgba(255,255,255,0.08);
+}
+.dd-module.mod-reimburse .dd-module-title { color: #e74c3c; }
+.dd-module.mod-reimburse .dd-module-content .dd-point { border-left-color: rgba(231,76,60,0.3); }
+.dd-module.mod-outsource .dd-module-title { color: #3498db; }
+.dd-module.mod-outsource .dd-module-content .dd-point { border-left-color: rgba(52,152,219,0.3); }
+.dd-module.mod-biotech .dd-module-title { color: #9b59b6; }
+.dd-module.mod-biotech .dd-module-content .dd-point { border-left-color: rgba(155,89,182,0.3); }
+.dd-module.mod-devices .dd-module-title { color: #e67e22; }
+.dd-module.mod-devices .dd-module-content .dd-point { border-left-color: rgba(230,126,34,0.3); }
+.dd-module.mod-delivery .dd-module-title { color: #27ae60; }
+.dd-module.mod-delivery .dd-module-content .dd-point { border-left-color: rgba(39,174,96,0.3); }
+
+/* DISCOVERY GRID */
+.discovery-section {
+  margin-top: 28px;
+}
+.discovery-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.discovery-header h2 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #4a90d9, #27ae60);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+}
+.discovery-header p {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* FILTERS */
+.filters-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.filter-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.filter-select, .filter-input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 11px;
+  padding: 6px 10px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.filter-select:focus, .filter-input:focus {
+  border-color: var(--upstream);
+}
+.filter-select { min-width: 140px; cursor: pointer; }
+.filter-input { min-width: 180px; }
+.filter-select option { background: #1a1a24; }
+.filters-meta {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.result-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--upstream);
+}
+.clear-btn {
+  background: rgba(231,76,60,0.12);
+  border: 1px solid rgba(231,76,60,0.25);
+  color: #e74c3c;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font);
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: background 0.2s;
+}
+.clear-btn:hover { background: rgba(231,76,60,0.2); }
+
+/* TABLE */
+.table-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.grid-table thead th {
+  background: rgba(255,255,255,0.03);
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.grid-table thead th:hover {
+  color: var(--text);
+}
+.grid-table thead th .sort-arrow {
+  margin-left: 4px;
+  font-size: 8px;
+  opacity: 0.4;
+}
+.grid-table thead th.sorted .sort-arrow { opacity: 1; color: var(--upstream); }
+.grid-table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.grid-table tbody tr:hover {
+  background: rgba(255,255,255,0.03);
+}
+.grid-table td {
+  padding: 8px 12px;
+  vertical-align: top;
+}
+.td-ticker {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 11px;
+  color: #7cb3f0;
+  white-space: nowrap;
+}
+.td-name {
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.td-node, .td-industry, .td-subindustry {
+  font-size: 10px;
+  color: #aaa;
+  white-space: nowrap;
+}
+.td-cap {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #aaa;
+  white-space: nowrap;
+}
+.archetype-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.arch-tollbridge { background: rgba(52,152,219,0.15); color: #5dade2; border: 1px solid rgba(52,152,219,0.3); }
+.arch-cashengine { background: rgba(39,174,96,0.15); color: #58d68d; border: 1px solid rgba(39,174,96,0.3); }
+.arch-ruleof40 { background: rgba(230,126,34,0.15); color: #f0a04b; border: 1px solid rgba(230,126,34,0.3); }
+.arch-deepvalue { background: rgba(231,76,60,0.15); color: #ec7063; border: 1px solid rgba(231,76,60,0.3); }
+
+/* EXPANDED ROW */
+.expanded-row td {
+  padding: 0 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.expanded-content {
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.015);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.expanded-block h5 {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.expanded-block p {
+  font-size: 11px;
+  color: #bbb;
+  line-height: 1.6;
+}
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* SCROLLABLE TABLE WRAPPER */
+.table-scroll {
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+.table-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.table-scroll::-webkit-scrollbar-track { background: transparent; }
+.table-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  body { padding: 12px; }
+  .vc-buckets { grid-template-columns: 1fr; }
+  .drilldown-grid { grid-template-columns: 1fr; }
+  .filters-bar { flex-direction: column; }
+  .filters-meta { margin-left: 0; justify-content: space-between; width: 100%; }
+  .expanded-content { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>Health Care — GICS Sector Visual Atlas</h1>
+  <div class="subtitle">Discovery → Manufacturing → Commercialization → Distribution → Delivery</div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--upstream);"></div>Upstream — Discovery & Enablement</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--midstream);"></div>Midstream — Commercial Asset Owners</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--downstream);"></div>Downstream — Distribution & Delivery</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--macro);"></div>Macro / Regulatory Drivers</div>
+</div>
+
+<!-- ═══════════════ LAYER 1: CURATED VISUAL ATLAS ═══════════════ -->
+<div class="atlas-container">
+  <div class="atlas-title">🗺️ Health Care Ecosystem — Curated Value-Chain Atlas</div>
+
+  <!-- UPSTREAM -->
+  <div class="vc-layer upstream">
+    <div class="vc-layer-header">
+      <span class="vc-layer-icon">🔬</span>
+      <span class="vc-layer-title">Upstream — Discovery, Research Enablement & Outsourced Infrastructure</span>
+      <span class="vc-layer-subtitle">Where innovation originates</span>
+    </div>
+    <div class="vc-buckets">
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Life Sciences Tools & Instruments</div>
+        <div class="vc-bucket-tickers">TMO · DHR · A · WAT · MTDL</div>
+        <div class="vc-bucket-desc">Instruments, reagents, and consumables that power drug discovery, quality control, and diagnostics R&D. High switching costs and razor/blade models create durable tollbridge economics.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Genomics & Research Workflow</div>
+        <div class="vc-bucket-tickers">ILMN · TWIST · PACB</div>
+        <div class="vc-bucket-desc">Sequencing platforms, synthetic biology tools, and genomic data infrastructure. These enablers sit at the base of precision medicine and translational research.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">CROs — Contract Research</div>
+        <div class="vc-bucket-tickers">IQV · MEDP · CRL · ICLR</div>
+        <div class="vc-bucket-desc">Outsourced clinical trial design, execution, site management, and data analytics. CROs absorb operational risk for sponsors and are essential to pipeline velocity.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">CDMOs — Contract Manufacturing</div>
+        <div class="vc-bucket-tickers">WST · CTLT · AZTA</div>
+        <div class="vc-bucket-desc">Outsourced drug substance and drug product manufacturing, including biologics fill/finish and advanced delivery systems. Capacity constraints create real pricing power.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Clinical-Stage Biotech Innovators</div>
+        <div class="vc-bucket-tickers">MRNA · RCKT · IONS · BEAM</div>
+        <div class="vc-bucket-desc">Pre-revenue or early-commercial companies advancing novel modalities (mRNA, gene therapy, antisense). Binary clinical event risk with asymmetric upside.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Specialty Lab & Diagnostics Enablers</div>
+        <div class="vc-bucket-tickers">DGX · LH · NTRA · GH</div>
+        <div class="vc-bucket-desc">Reference labs, molecular testing, and liquid biopsy platforms. These sit at the clinical decision point — their results determine treatment pathways.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-indicator">▼ ▼ ▼</div>
+
+  <!-- MIDSTREAM -->
+  <div class="vc-layer midstream">
+    <div class="vc-layer-header">
+      <span class="vc-layer-icon">🏛️</span>
+      <span class="vc-layer-title">Midstream — Commercial Asset Owners & Manufacturers</span>
+      <span class="vc-layer-subtitle">Where IP monetizes</span>
+    </div>
+    <div class="vc-buckets">
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Diversified Pharma</div>
+        <div class="vc-bucket-tickers">LLY · JNJ · MRK · PFE · ABBV · BMY</div>
+        <div class="vc-bucket-desc">Large-cap pipelines spanning oncology, immunology, cardiometabolic, and vaccines. Patent cliffs and pipeline replenishment drive long-term equity value. These companies set pricing and absorb reimbursement risk.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Commercial Biotech</div>
+        <div class="vc-bucket-tickers">AMGN · GILD · VRTX · REGN · BIIB</div>
+        <div class="vc-bucket-desc">Scaled biotechs with marketed franchises and active pipelines. Often concentrated in 1–3 therapeutic areas with specialty distribution and high-ASP products.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Specialty & Niche Pharma</div>
+        <div class="vc-bucket-tickers">JAZZ · NBIX · UTHR · RARE</div>
+        <div class="vc-bucket-desc">Focused-market companies serving orphan diseases, CNS, or pulmonary hypertension. Small patient populations, high prices, and limited competition create durable niches.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Medical Devices & Implants</div>
+        <div class="vc-bucket-tickers">MDT · SYK · BSX · EW · ZBH</div>
+        <div class="vc-bucket-desc">Implantable devices (cardiac, orthopedic, structural heart), capital equipment, and procedure-linked consumables. Installed-base economics and physician training create switching costs.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Surgical Robotics & Platforms</div>
+        <div class="vc-bucket-tickers">ISRG · GKOS · IRTC</div>
+        <div class="vc-bucket-desc">Robotic-assisted surgery systems and digital procedure platforms. Razor/blade model: capital system placement drives recurring instrument and consumable revenue.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Diagnostics Platforms</div>
+        <div class="vc-bucket-tickers">DXCM · PODD · ABT · BIO</div>
+        <div class="vc-bucket-desc">Point-of-care, continuous monitoring, and immunoassay platforms. Diagnostics straddle upstream and midstream — platform owners monetize installed-base pull-through.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-indicator">▼ ▼ ▼</div>
+
+  <!-- DOWNSTREAM -->
+  <div class="vc-layer downstream">
+    <div class="vc-layer-header">
+      <span class="vc-layer-icon">🏥</span>
+      <span class="vc-layer-title">Downstream — Distribution, Care Delivery & Reimbursement Chokepoints</span>
+      <span class="vc-layer-subtitle">Where money flows and access is gated</span>
+    </div>
+    <div class="vc-buckets">
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Wholesale Distribution</div>
+        <div class="vc-bucket-tickers">MCK · CAH · COR</div>
+        <div class="vc-bucket-desc">The Big 3 control ~90% of US drug distribution. Thin margins, massive throughput, and fee-for-service economics. They are logistics chokepoints between manufacturers and pharmacies/hospitals.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Managed Care / Insurers</div>
+        <div class="vc-bucket-tickers">UNH · ELV · CI · HUM · CNC</div>
+        <div class="vc-bucket-desc">Payers that control access, negotiate rates, and bear utilization risk. Formulary decisions, prior auth, and network design govern which drugs and providers get volume.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">PBMs & Pharmacy Services</div>
+        <div class="vc-bucket-tickers">CVS/Caremark · CI/ESI · UNH/Optum Rx</div>
+        <div class="vc-bucket-desc">Pharmacy benefit managers control formulary placement, rebate negotiation, and step therapy. Vertically integrated into MCOs — the most powerful chokepoint for drug commercial access.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Hospitals & Health Systems</div>
+        <div class="vc-bucket-tickers">HCA · UHS · THC · CYH</div>
+        <div class="vc-bucket-desc">Acute-care facilities and health systems. Revenue tied to patient volumes, payer mix, acuity, and labor costs. Scale advantages in supply chain and payer negotiation.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Integrated Payer-Service Models</div>
+        <div class="vc-bucket-tickers">UNH/Optum · CVS/Aetna · ELV</div>
+        <div class="vc-bucket-desc">Vertically integrated payer + care delivery + PBM platforms. These conglomerates control insurance, pharmacy benefits, primary care, and data — wielding end-to-end influence over the care continuum.</div>
+      </div>
+      <div class="vc-bucket">
+        <div class="vc-bucket-name">Ambulatory & Physician Services</div>
+        <div class="vc-bucket-tickers">DVA · ACHC · AMEH · SGRY</div>
+        <div class="vc-bucket-desc">Outpatient clinics, dialysis centers, behavioral health, and physician practice platforms. Site-of-care migration and value-based contracting are structural tailwinds.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MACRO DRIVERS -->
+  <div class="macro-drivers">
+    <div class="macro-card">
+      <h4>🧬 FDA & Regulatory Gating</h4>
+      <p>Approval timelines, accelerated pathways (breakthrough, fast track), and post-market requirements shape pipeline value and competitive dynamics.</p>
+    </div>
+    <div class="macro-card">
+      <h4>💰 Reimbursement & Drug Pricing</h4>
+      <p>IRA Part D negotiation, commercial rebate walls, CMS rate-setting, and 340B dynamics determine who captures value from innovation.</p>
+    </div>
+    <div class="macro-card">
+      <h4>📊 Patent Cliffs & LOE</h4>
+      <p>Loss of exclusivity creates massive revenue risk for pharma incumbents while enabling biosimilar/generic entrants. The cycle drives M&A and pipeline urgency.</p>
+    </div>
+    <div class="macro-card">
+      <h4>👷 Labor & Staffing Pressure</h4>
+      <p>Nurse/physician shortages, agency staffing costs, and burnout economics directly pressure hospital and post-acute margins. A secular headwind for provider systems.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ LAYER 1.5: DRILL-DOWN MODULES ═══════════════ -->
+<div class="drilldown-section">
+  <div class="drilldown-section-title">📖 Sector Deep-Dive Modules</div>
+  <div class="drilldown-grid" id="drilldownGrid">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- ═══════════════ LAYER 2: DISCOVERY GRID ═══════════════ -->
+<div class="discovery-section">
+  <div class="discovery-header">
+    <h2>🔍 Discovery Grid — Health Care Company Registry</h2>
+    <p>Filterable, searchable registry of 160+ health care companies across the full value chain</p>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-group">
+      <span class="filter-label">Search</span>
+      <input type="text" class="filter-input" id="searchInput" placeholder="Ticker, name, or keyword…">
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Node</span>
+      <select class="filter-select" id="nodeFilter"><option value="">All Nodes</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Industry</span>
+      <select class="filter-select" id="industryFilter"><option value="">All Industries</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Sub-Industry</span>
+      <select class="filter-select" id="subIndustryFilter"><option value="">All Sub-Industries</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Archetype</span>
+      <select class="filter-select" id="archetypeFilter"><option value="">All Archetypes</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Market Cap</span>
+      <select class="filter-select" id="capFilter"><option value="">All Caps</option></select>
+    </div>
+    <div class="filters-meta">
+      <span class="result-count" id="resultCount">0 companies</span>
+      <button class="clear-btn" id="clearBtn">Clear Filters</button>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-scroll">
+      <table class="grid-table">
+        <thead>
+          <tr>
+            <th data-col="ticker">Ticker <span class="sort-arrow">▲</span></th>
+            <th data-col="name">Company <span class="sort-arrow">▲</span></th>
+            <th data-col="node">Node <span class="sort-arrow">▲</span></th>
+            <th data-col="industry">Industry <span class="sort-arrow">▲</span></th>
+            <th data-col="subIndustry">Sub-Industry <span class="sort-arrow">▲</span></th>
+            <th data-col="archetype">Archetype <span class="sort-arrow">▲</span></th>
+            <th data-col="marketCap">Mkt Cap <span class="sort-arrow">▲</span></th>
+          </tr>
+        </thead>
+        <tbody id="gridBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  DRILL-DOWN MODULES DATA
+// ════════════════════════════════════════════════════════════════
+const drilldownModules = [
+  {
+    id: 'reimburse', cls: 'mod-reimburse', icon: '🚧', title: 'Reimbursement & Access Chokepoints',
+    points: [
+      '<strong>Managed Care Organizations (MCOs)</strong> control access through formulary placement, prior authorization requirements, and step-therapy protocols. The decision to include or exclude a drug from a formulary is the single most powerful lever governing commercial volume.',
+      '<strong>Pharmacy Benefit Managers (PBMs)</strong> — Caremark (CVS), Express Scripts (Cigna), and Optum Rx (UNH) — negotiate manufacturer rebates, design pharmacy networks, and enforce utilization controls. Their vertical integration into parent MCOs creates compounding leverage.',
+      '<strong>Why reimbursement governs adoption:</strong> A drug with FDA approval but without favorable formulary access is commercially dead. Reimbursement economics (not clinical efficacy alone) determine which innovations scale. Net pricing after rebates, discounts, and 340B dynamics often diverge dramatically from list price.',
+      '<strong>IRA / Part D Negotiation:</strong> Medicare drug price negotiation under the Inflation Reduction Act is structurally reshaping pharma economics for high-spend categories, compressing long-tail revenue for mature blockbusters and altering lifecycle management strategy.'
+    ]
+  },
+  {
+    id: 'outsource', cls: 'mod-outsource', icon: '🏗️', title: 'Outsourced Drug Development Infrastructure',
+    points: [
+      '<strong>CROs (Contract Research Organizations)</strong> like IQVIA, Medpace, Charles River, and Icon manage clinical trial design, site selection, patient recruitment, data management, and regulatory submissions. They are the operational backbone of pipeline execution — over 70% of clinical development is now outsourced.',
+      '<strong>CDMOs (Contract Development & Manufacturing)</strong> like Catalent, West Pharma, and Lonza handle drug substance synthesis, formulation, fill/finish, and packaging. Biologics manufacturing requires specialized capacity (mammalian cell culture, mRNA lipid nanoparticle) that creates real supply bottlenecks.',
+      '<strong>CRO vs CDMO distinction:</strong> CROs manage the intellectual and operational work of trials; CDMOs handle the physical manufacturing. A biotech sponsor may use both simultaneously — CRO for Phase 3 execution while CDMO scales up commercial supply.',
+      '<strong>Commercialization handoff:</strong> The transition from clinical-stage to commercial manufacturing is a capital-intensive, high-failure-rate milestone. CDMOs that can bridge this gap (tech transfer, process validation, regulatory filing support) command premium economics.'
+    ]
+  },
+  {
+    id: 'biotech', cls: 'mod-biotech', icon: '🧬', title: 'Biotech Lifecycle & Capital Dependence',
+    points: [
+      '<strong>Preclinical → Phase 1 → Phase 2 → Phase 3 → NDA/BLA → Launch:</strong> Each phase is a de-risking event with binary outcomes. Historical base rates: ~10% of Phase 1 candidates reach approval. Phase 2 is the highest-attrition stage, where ~70% of programs fail.',
+      '<strong>Regulatory event risk:</strong> AdCom votes, PDUFA dates, and Complete Response Letters (CRLs) create massive single-day equity events. A stock can move 30–70% on a single binary readout.',
+      '<strong>Partnership & licensing dependency:</strong> Clinical-stage biotechs frequently rely on ex-US licensing deals, collaboration agreements, and milestone payments to fund operations. The quality of the partner (large pharma vs mid-cap) and deal structure (upfront vs back-loaded) matter enormously.',
+      '<strong>Dilutive financing risk:</strong> Pre-revenue biotechs fund operations through equity offerings (ATM programs, follow-ons, PIPEs). Cash runway analysis is existential — a company with 12 months of cash and no catalyst faces forced dilution or worse. Investor dilution fatigue is a real valuation headwind.',
+      '<strong>Platform vs asset biotechs:</strong> Platform companies (e.g., mRNA, gene editing, antisense) have optionality across multiple programs. Single-asset biotechs are binary bets on one molecule. The risk/reward profiles are fundamentally different.'
+    ]
+  },
+  {
+    id: 'devices', cls: 'mod-devices', icon: '🔩', title: 'Devices & Tools vs. Therapeutics',
+    points: [
+      '<strong>Recurring consumables vs capital systems:</strong> Device companies like Intuitive Surgical (ISRG) place capital equipment (da Vinci systems) and generate recurring revenue from instruments and accessories used per procedure. This razor/blade model creates predictable, high-margin recurring streams.',
+      '<strong>Procedure-linked demand:</strong> Unlike drugs (which patients take daily), device revenue is tied to procedure volumes — surgeries, implants, diagnostics tests. Hospital CapEx budgets, surgical backlogs, and site-of-care shifts directly drive the top line.',
+      '<strong>Switching costs & installed-base economics:</strong> Surgeon training on a specific platform (robotic, catheter-based, implant system) creates enormous switching costs. Hospitals invest in training, workflow integration, and capital — making displacement extremely difficult.',
+      '<strong>Life Sciences Tools distinction:</strong> Companies like Thermo Fisher (TMO) and Danaher (DHR) sell instruments and consumables to research labs and biopharma companies — not to hospitals or patients. Their customer is the drug developer, not the end patient. This creates different cyclicality (tied to R&D spending, not procedure volumes).',
+      '<strong>510(k) vs PMA pathways:</strong> Regulatory burden varies enormously. Class I/II devices (510(k) clearance) face lighter regulatory requirements vs Class III devices (PMA approval) which require clinical trials, creating longer development timelines and higher barriers to entry.'
+    ]
+  },
+  {
+    id: 'delivery', cls: 'mod-delivery', icon: '🏥', title: 'Delivery System Economics',
+    points: [
+      '<strong>Hospital economics:</strong> Revenue = volume × acuity × payer mix × reimbursement rate. Hospitals face fixed-cost leverage — high occupancy is profitable; low census is devastating. HCA\'s scale advantages in procurement and payer negotiation are a structural moat.',
+      '<strong>Provider staffing crisis:</strong> Post-COVID nurse shortages, travel nurse cost inflation, and physician burnout have structurally elevated labor costs. For many systems, labor is 50–60% of operating expense. Staffing is now a strategic asset, not just a cost center.',
+      '<strong>Site-of-care shifts:</strong> Procedures are migrating from inpatient hospitals to ambulatory surgery centers (ASCs), outpatient clinics, and even home settings. This benefits ASC operators and technology-enabled home health, while pressuring hospital inpatient volumes.',
+      '<strong>Facilities economics vs payer pressure:</strong> Medicare and Medicaid set below-cost reimbursement for many services, meaning hospitals rely on commercially insured patients to cross-subsidize. The payer mix of a facility is often the most important single determinant of profitability.',
+      '<strong>Value-based care transition:</strong> The shift from fee-for-service to capitated/value-based contracts transfers utilization risk from payers to providers. Organizations like Optum, Oak Street (now part of CVS), and Amedisys represent this structural transition in care delivery economics.'
+    ]
+  }
+];
+
+// Render drill-down modules
+const ddGrid = document.getElementById('drilldownGrid');
+drilldownModules.forEach(m => {
+  const div = document.createElement('div');
+  div.className = `dd-module ${m.cls}`;
+  div.innerHTML = `
+    <div class="dd-module-header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="dd-module-icon">${m.icon}</span>
+      <span class="dd-module-title">${m.title}</span>
+      <span class="dd-chevron">▼</span>
+    </div>
+    <div class="dd-module-body">
+      <div class="dd-module-content">
+        ${m.points.map(p => `<div class="dd-point">${p}</div>`).join('')}
+      </div>
+    </div>`;
+  ddGrid.appendChild(div);
+});
+
+// ════════════════════════════════════════════════════════════════
+//  SECTOR DATA — 160+ HEALTH CARE COMPANIES
+// ════════════════════════════════════════════════════════════════
+const sectorData = [
+  // ── UPSTREAM: Life Sciences Tools ──
+  {ticker:"TMO",name:"Thermo Fisher Scientific",industry:"Life Sciences Tools",subIndustry:"Instruments & Consumables",node:"Upstream",archetype:"Tollbridge",marketCap:"Mega-Cap",description:"Largest life sciences tools company globally. Instruments, reagents, consumables, and lab services across biopharma, diagnostics, and academic research.",whyItMatters:"Tollbridge across drug discovery and manufacturing — customers embed TMO products in validated workflows, creating massive switching costs."},
+  {ticker:"DHR",name:"Danaher Corporation",industry:"Life Sciences Tools",subIndustry:"Instruments & Consumables",node:"Upstream",archetype:"Tollbridge",marketCap:"Mega-Cap",description:"Diversified life sciences and diagnostics platform operating Beckman Coulter, Cytiva, Pall, Leica, and others via the Danaher Business System.",whyItMatters:"DBS-driven operating model generates continuous margin expansion. Bioprocessing (Cytiva) sits at a critical bottleneck for biologics manufacturing."},
+  {ticker:"A",name:"Agilent Technologies",industry:"Life Sciences Tools",subIndustry:"Analytical Instruments",node:"Upstream",archetype:"Tollbridge",marketCap:"Large-Cap",description:"Analytical instruments (LC, MS, spectroscopy), diagnostics & genomics solutions, and CrossLab services for pharma QA/QC and research.",whyItMatters:"Installed base of instruments drives high-margin recurring consumables and service revenue. Pharma QA/QC workflows are deeply entrenched."},
+  {ticker:"WAT",name:"Waters Corporation",industry:"Life Sciences Tools",subIndustry:"Analytical Instruments",node:"Upstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"High-performance liquid chromatography (HPLC/UPLC) and mass spectrometry systems for pharma, food safety, and materials analysis.",whyItMatters:"Dominant in chromatography — embedded in regulated pharma manufacturing quality control. Instrument replacement cycles and consumables create sticky revenue."},
+  {ticker:"MTDL",name:"Mettler-Toledo",industry:"Life Sciences Tools",subIndustry:"Precision Instruments",node:"Upstream",archetype:"Tollbridge",marketCap:"Large-Cap",description:"Precision instruments and services: laboratory balances, pipettes, process analytics, and automated chemistry for pharma, food, and industrial labs.",whyItMatters:"Niche dominance in precision measurement with 60%+ service/consumables mix. Essential infrastructure for GMP-regulated environments."},
+  {ticker:"BRKR",name:"Bruker Corporation",industry:"Life Sciences Tools",subIndustry:"Analytical Instruments",node:"Upstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"High-performance scientific instruments including NMR, mass spectrometry, X-ray, and infrared spectroscopy for proteomics and structural biology.",whyItMatters:"Specialized in high-end analytical platforms for structural biology and spatial multi-omics — a growing enablement layer for drug discovery."},
+  {ticker:"RGEN",name:"Repligen Corporation",industry:"Life Sciences Tools",subIndustry:"Bioprocessing",node:"Upstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Bioprocessing equipment and consumables: filtration, chromatography, analytics, and fluid management for biologics manufacturing.",whyItMatters:"Pure-play bioprocessing exposure at the intersection of biologics growth and CDMO capacity expansion. Products are embedded in validated manufacturing processes."},
+  {ticker:"BIO",name:"Bio-Rad Laboratories",industry:"Life Sciences Tools",subIndustry:"Instruments & Consumables",node:"Upstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Life science research products (electrophoresis, PCR, cell biology) and clinical diagnostics systems (quality controls, blood typing).",whyItMatters:"Dual exposure to research and clinical diagnostics. Proprietary Droplet Digital PCR platform is a differentiated technology in molecular testing."},
+  {ticker:"TXG",name:"10x Genomics",industry:"Life Sciences Tools",subIndustry:"Genomics & Spatial Biology",node:"Upstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Single-cell and spatial genomics platforms (Chromium, Visium, Xenium) enabling researchers to analyze gene expression at cellular resolution.",whyItMatters:"Category creator in spatial biology — a rapidly growing field underpinning next-gen drug target discovery. Platform adoption drives consumable pull-through."},
+
+  // ── UPSTREAM: Genomics & Sequencing ──
+  {ticker:"ILMN",name:"Illumina",industry:"Life Sciences Tools",subIndustry:"Genomics & Sequencing",node:"Upstream",archetype:"Tollbridge",marketCap:"Large-Cap",description:"Dominant DNA sequencing platform: instruments (NovaSeq, NextSeq) and consumables for clinical, research, and consumer genomics applications.",whyItMatters:"Controls ~80% of global sequencing by throughput. Installed base and data network effects create a powerful ecosystem lock-in."},
+  {ticker:"TWIST",name:"Twist Bioscience",industry:"Life Sciences Tools",subIndustry:"Synthetic Biology",node:"Upstream",archetype:"Rule of 40",marketCap:"Small-Cap",description:"Silicon-based synthetic biology platform for DNA synthesis, antibody libraries, and data storage applications.",whyItMatters:"Next-gen DNA synthesis at scale — enabling faster, cheaper gene construction for drug discovery, diagnostics, and synthetic biology workflows."},
+  {ticker:"PACB",name:"PacBio",industry:"Life Sciences Tools",subIndustry:"Genomics & Sequencing",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Long-read sequencing platforms (Revio, Onso) for whole-genome, epigenetics, and structural variant analysis in research and clinical settings.",whyItMatters:"Complementary to Illumina's short-read dominance. Long-read sequencing is gaining clinical traction for rare disease and pharmacogenomics."},
+  {ticker:"AVTR",name:"Avantor",industry:"Life Sciences Tools",subIndustry:"Lab Supplies & Chemicals",node:"Upstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Mission-critical lab products, chemicals, and services for biopharma, healthcare, and advanced technologies manufacturing.",whyItMatters:"High-volume, low-ASP consumables embedded in lab workflows. Revenue is tied to R&D spending velocity across biopharma."},
+
+  // ── UPSTREAM: CROs ──
+  {ticker:"IQV",name:"IQVIA Holdings",industry:"Health Care Services",subIndustry:"Contract Research (CRO)",node:"Upstream",archetype:"Tollbridge",marketCap:"Large-Cap",description:"Largest CRO globally plus health care data analytics and technology solutions. Operates clinical trials, real-world evidence, and commercial analytics.",whyItMatters:"Unique combination of CRO services + proprietary health data assets. Their data moat (anonymized patient records) is irreplaceable for pharma analytics."},
+  {ticker:"MEDP",name:"Medpace Holdings",industry:"Health Care Services",subIndustry:"Contract Research (CRO)",node:"Upstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Full-service CRO focused on mid-size biotech sponsors across therapeutic areas including oncology, cardiology, and metabolic diseases.",whyItMatters:"Best-in-class margins among CROs. Focused model serving biotech sponsors creates alignment and execution quality that large-cap CROs struggle to match."},
+  {ticker:"CRL",name:"Charles River Labs",industry:"Health Care Services",subIndustry:"Contract Research (CRO)",node:"Upstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Preclinical and early-stage CRO services: research models, safety assessment, DMPK, and lab sciences for drug discovery.",whyItMatters:"Essential preclinical gatekeeper — nearly every drug candidate must pass through CRL-type safety/tox studies before entering human trials."},
+  {ticker:"ICLR",name:"Icon PLC",industry:"Health Care Services",subIndustry:"Contract Research (CRO)",node:"Upstream",archetype:"Cash Engine",marketCap:"Large-Cap",description:"Global CRO providing outsourced clinical development services including trial management, data management, and regulatory consulting.",whyItMatters:"Scale CRO with deep Phase 2/3 expertise. The PRA Health Sciences merger created a top-3 global clinical development platform."},
+
+  // ── UPSTREAM: CDMOs ──
+  {ticker:"WST",name:"West Pharmaceutical Services",industry:"Health Care Services",subIndustry:"Contract Manufacturing (CDMO)",node:"Upstream",archetype:"Tollbridge",marketCap:"Large-Cap",description:"Elastomeric packaging components (stoppers, seals, plungers) and delivery systems for injectable drugs and biologics.",whyItMatters:"Invisible tollbridge — virtually every injectable drug needs WST components. FDA-validated elastomeric formulations create near-impossible switching costs."},
+  {ticker:"AZTA",name:"Azenta (fka Brooks Automation)",industry:"Health Care Services",subIndustry:"Contract Manufacturing (CDMO)",node:"Upstream",archetype:"Tollbridge",marketCap:"Small-Cap",description:"Life sciences sample management, genomic services, and biological sample storage for pharma, biotech, and academic institutions.",whyItMatters:"Critical infrastructure for biorepository and sample management — the physical layer underneath genomics and precision medicine R&D."},
+
+  // ── UPSTREAM: Specialty Lab & Diagnostics ──
+  {ticker:"DGX",name:"Quest Diagnostics",industry:"Life Sciences Tools",subIndustry:"Lab Services & Testing",node:"Upstream",archetype:"Cash Engine",marketCap:"Large-Cap",description:"Largest US independent clinical lab: routine and advanced testing, employer health services, and consumer-initiated testing.",whyItMatters:"Scale advantages in lab logistics and payer contracting. Quest processes ~200M tests/year — enormous operating leverage on incremental volume."},
+  {ticker:"LH",name:"Labcorp",industry:"Life Sciences Tools",subIndustry:"Lab Services & Testing",node:"Upstream",archetype:"Cash Engine",marketCap:"Large-Cap",description:"Clinical laboratory services and drug development CRO (Fortrea spinoff retained some capabilities). Routine, esoteric, and genomic testing.",whyItMatters:"#2 national lab with complementary CRO capabilities. Labcorp's data assets across hundreds of millions of test results have strategic value."},
+  {ticker:"NTRA",name:"Natera",industry:"Life Sciences Tools",subIndustry:"Molecular Diagnostics",node:"Upstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Cell-free DNA testing for oncology (Signatera tumor recurrence monitoring), reproductive health (Panorama NIPT), and organ transplant (Prospera).",whyItMatters:"Signatera is becoming standard-of-care for MRD detection in colorectal and other cancers. Enormous TAM expansion from oncology adoption."},
+  {ticker:"GH",name:"Guardant Health",industry:"Life Sciences Tools",subIndustry:"Molecular Diagnostics",node:"Upstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Liquid biopsy and precision oncology company. Guardant360 (therapy selection), Shield (colorectal screening), and Reveal (MRD detection).",whyItMatters:"Pioneer in blood-based cancer screening. Shield's FDA approval for CRC screening is a potential paradigm shift from colonoscopy to simple blood draws."},
+  {ticker:"EXAS",name:"Exact Sciences",industry:"Life Sciences Tools",subIndustry:"Molecular Diagnostics",node:"Upstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Cancer screening and diagnostics: Cologuard (CRC screening), Oncotype DX (breast cancer recurrence), and multi-cancer early detection pipeline.",whyItMatters:"Cologuard is a commercial franchise with huge TAM in unscreened CRC populations. Multi-cancer early detection (MCED) is the next frontier."},
+  {ticker:"NVCR",name:"NovoCure",industry:"Life Sciences Tools",subIndustry:"Medical Devices / Diagnostics",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Tumor Treating Fields (TTFields) — a cancer treatment modality using alternating electric fields to disrupt cancer cell division.",whyItMatters:"Novel mechanism of action positioned as add-on to standard of care. Expansion from GBM into mesothelioma and lung cancer drives the growth thesis."},
+  {ticker:"CERT",name:"Certara",industry:"Health Care Services",subIndustry:"Regulatory Science / Software",node:"Upstream",archetype:"Tollbridge",marketCap:"Small-Cap",description:"Biosimulation and regulatory science software: pharmacometric modeling, PBPK, clinical pharmacology, and regulatory submissions support.",whyItMatters:"Biosimulation is becoming essential for drug development efficiency — FDA increasingly accepts model-informed drug development. Certara's Simcyp platform is the industry standard."},
+
+  // ── MIDSTREAM: Diversified Pharma ──
+  {ticker:"LLY",name:"Eli Lilly",industry:"Pharmaceuticals",subIndustry:"Diversified Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Diversified pharma leader in cardiometabolic (tirzepatide/Mounjaro/Zepbound), oncology (Verzenio), immunology, and neuroscience (donanemab).",whyItMatters:"GLP-1 franchise (Mounjaro/Zepbound) is potentially the largest drug class in history. LLY's obesity/diabetes dominance and pipeline depth make it the sector bellwether."},
+  {ticker:"JNJ",name:"Johnson & Johnson",industry:"Pharmaceuticals",subIndustry:"Diversified Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Post-Kenvue consumer spinoff: focused pharma (immunology, oncology, neuroscience) and MedTech (orthopedics, surgery, cardiovascular).",whyItMatters:"Diversified pharma + medtech with investment-grade balance sheet. Stelara LOE is the near-term overhang; pipeline replenishment is the key debate."},
+  {ticker:"MRK",name:"Merck & Co",industry:"Pharmaceuticals",subIndustry:"Diversified Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Global pharma: Keytruda (PD-1 oncology), Gardasil (HPV vaccine), Januvia (diabetes, now generic), Lynparza (oncology), and animal health (Organon spinoff).",whyItMatters:"Keytruda is the world's top-selling drug (~$25B), but faces 2028 LOE. Merck's ability to extend and replace Keytruda revenue is the defining strategic question."},
+  {ticker:"ABBV",name:"AbbVie",industry:"Pharmaceuticals",subIndustry:"Diversified Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Immunology (Skyrizi, Rinvoq replacing Humira), oncology (Imbruvica, Venclexta), aesthetics (Allergan/Botox), and neuroscience.",whyItMatters:"Navigating post-Humira cliff with Skyrizi/Rinvoq ramp. AbbVie's M&A track record and immunology franchise depth position it as a long-term compounder."},
+  {ticker:"PFE",name:"Pfizer",industry:"Pharmaceuticals",subIndustry:"Diversified Pharma",node:"Midstream",archetype:"Deep Value",marketCap:"Mega-Cap",description:"Diversified pharma: oncology (Ibrance, Padcev via Seagen), vaccines, internal medicine, and rare disease. Post-COVID revenue normalization.",whyItMatters:"Trading at deep value after COVID revenue collapse and Seagen acquisition integration. The bull case rests on Seagen oncology assets and pipeline productivity."},
+  {ticker:"BMY",name:"Bristol-Myers Squibb",industry:"Pharmaceuticals",subIndustry:"Diversified Pharma",node:"Midstream",archetype:"Deep Value",marketCap:"Mega-Cap",description:"Oncology/hematology (Opdivo, Revlimid, Abecma), cardiovascular (Eliquis), immunology (Sotyktu), and neuroscience.",whyItMatters:"Facing a patent cliff wall (Eliquis, Revlimid, Opdivo). Capital allocation and pipeline execution through the LOE trough define the investment case."},
+  {ticker:"NVS",name:"Novartis",industry:"Pharmaceuticals",subIndustry:"Diversified Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Swiss diversified pharma focused on innovative medicines: Entresto (heart failure), Cosentyx (immunology), Kisqali (oncology), Pluvicto (radioligand therapy).",whyItMatters:"Post-Sandoz spinoff pure-play innovative pharma. Radioligand therapy (Pluvicto) represents a novel oncology modality with significant expansion potential."},
+  {ticker:"AZN",name:"AstraZeneca",industry:"Pharmaceuticals",subIndustry:"Diversified Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"UK pharma with deep oncology portfolio (Tagrisso, Enhertu, Imfinzi), cardiometabolic, respiratory, and rare disease (Alexion acquisition).",whyItMatters:"Industry-leading oncology pipeline with 20+ potential blockbusters. Enhertu partnership with Daiichi Sankyo is reshaping HER2 treatment across tumor types."},
+  {ticker:"NVO",name:"Novo Nordisk",industry:"Pharmaceuticals",subIndustry:"Diversified Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Danish leader in diabetes care (insulin, Ozempic/Wegovy GLP-1) and rare disease (hemophilia). Dominant GLP-1 franchise alongside Lilly.",whyItMatters:"Co-leader of the GLP-1 revolution with Ozempic/Wegovy. Obesity represents a multi-hundred-billion-dollar TAM reshaping the entire healthcare landscape."},
+  {ticker:"SNY",name:"Sanofi",industry:"Pharmaceuticals",subIndustry:"Diversified Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"French diversified pharma: Dupixent (immunology blockbuster), vaccines, rare disease (Genzyme), and consumer health.",whyItMatters:"Dupixent is a mega-blockbuster with expanding indications (atopic dermatitis, asthma, COPD, eosinophilic esophagitis). Pipeline depth beyond Dupixent is the key debate."},
+
+  // ── MIDSTREAM: Commercial Biotech ──
+  {ticker:"AMGN",name:"Amgen",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Scaled biotech: oncology (Lumakras), bone health (Prolia/XGEVA), inflammation (Otezla), migraine (Aimovig), and emerging obesity (MariTide).",whyItMatters:"Cash-generative legacy franchise with optionality through MariTide (obesity) and Horizon Therapeutics acquisition (rare disease). Biosimilar portfolio adds diversification."},
+  {ticker:"GILD",name:"Gilead Sciences",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"HIV/HCV antiviral leader (Biktarvy, Descovy) with growing oncology portfolio (Trodelvy, cell therapy via Kite) and inflammation pipeline.",whyItMatters:"Biktarvy is a dominant, durable HIV franchise. Lenacapavir (twice-yearly HIV treatment/PrEP) could reshape the entire HIV prevention market."},
+  {ticker:"VRTX",name:"Vertex Pharmaceuticals",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Dominant CF franchise (Trikafta/Kaftrio). Expanding into pain (VX-548/suzetrigine), kidney disease, sickle cell (Casgevy), and myotonic dystrophy.",whyItMatters:"Near-monopoly in cystic fibrosis with 90%+ market share. Suzetrigine (non-opioid pain) represents a potential blockbuster diversification catalyst."},
+  {ticker:"REGN",name:"Regeneron Pharmaceuticals",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Eylea (wet AMD/DME), Dupixent (shared with Sanofi), Libtayo (oncology), and deep pipeline leveraging VelociSuite antibody technology platform.",whyItMatters:"World-class antibody discovery platform (VelociSuite) consistently generates high-quality clinical candidates. Dupixent co-commercialization drives enormous royalty cash flows."},
+  {ticker:"BIIB",name:"Biogen",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Deep Value",marketCap:"Large-Cap",description:"Neuroscience-focused: multiple sclerosis (Tecfidera, Vumerity), Alzheimer's (Leqembi with Eisai), SMA (Spinraza), and biosimilars.",whyItMatters:"MS franchise in secular decline. The investment case hinges on Leqembi uptake in Alzheimer's and pipeline execution in neuropsychiatry."},
+  {ticker:"MRNA",name:"Moderna",industry:"Biotechnology",subIndustry:"Platform Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Large-Cap",description:"mRNA technology platform: COVID vaccine (Spikevax), RSV vaccine (mRESVIA), flu/COVID combo, oncology (personalized cancer vaccines), and rare disease.",whyItMatters:"Owns the broadest mRNA platform globally. Pivoting beyond COVID into respiratory, oncology, and rare disease — success would validate mRNA as a truly general-purpose therapeutic modality."},
+  {ticker:"ALNY",name:"Alnylam Pharmaceuticals",industry:"Biotechnology",subIndustry:"Platform Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Large-Cap",description:"Pioneer of RNAi therapeutics: Onpattro, Amvuttra (ATTR), Leqvio (cardiovascular, partnered with Novartis), and deep pipeline in cardio-metabolic diseases.",whyItMatters:"Validated RNAi as a therapeutic modality. ATTR franchise is scaling rapidly, and Leqvio has blockbuster potential in cardiovascular disease prevention."},
+  {ticker:"BMRN",name:"BioMarin Pharmaceutical",industry:"Biotechnology",subIndustry:"Rare Disease Biotech",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Rare disease specialist: Voxzogo (achondroplasia), Roctavian (hemophilia A gene therapy), Palynziq, Brineura, and enzyme replacement therapies.",whyItMatters:"Voxzogo is a rare pediatric growth franchise with very long treatment duration. BioMarin's rare disease portfolio generates premium pricing in small, well-defined patient populations."},
+  {ticker:"SGEN_PFE",name:"Seagen/Pfizer ADC Platform",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Cash Engine",marketCap:"Acquired",description:"Acquired by Pfizer. ADC oncology platform: Padcev, Adcetris, Tukysa — now part of Pfizer oncology.",whyItMatters:"ADC technology reshaping oncology. Padcev + Keytruda combo is transformational in bladder cancer."},
+
+  // ── MIDSTREAM: Specialty & Niche Pharma ──
+  {ticker:"JAZZ",name:"Jazz Pharmaceuticals",industry:"Pharmaceuticals",subIndustry:"Specialty Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Specialty pharma: Xywav (narcolepsy/IH), Epidiolex (epilepsy), oncology (Rylaze, Zepzelca), and sleep/neuroscience pipeline.",whyItMatters:"Dominant in narcolepsy with Xywav, a controlled substance with significant barriers to generic entry. Specialty distribution and REMS requirements create durable competitive moats."},
+  {ticker:"NBIX",name:"Neurocrine Biosciences",industry:"Pharmaceuticals",subIndustry:"Specialty Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Neuropsychiatry specialist: Ingrezza (tardive dyskinesia), crinecerfont (CAH), and pipeline in schizophrenia, Parkinson's, and epilepsy.",whyItMatters:"Ingrezza is the first-in-class VMAT2 inhibitor for tardive dyskinesia with blockbuster revenue and limited competition. CNS remains underserved with high unmet medical need."},
+  {ticker:"UTHR",name:"United Therapeutics",industry:"Pharmaceuticals",subIndustry:"Specialty Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Pulmonary arterial hypertension (PAH) franchise: Tyvaso (inhaled + oral), Orenitram, Remodulin. Also developing xenotransplantation (pig organs).",whyItMatters:"Tyvaso DPI (dry powder inhaler) expansion is driving growth. Xenotransplantation is a moonshot option with transformational potential if successful."},
+  {ticker:"RARE",name:"Ultragenyx Pharmaceutical",industry:"Biotechnology",subIndustry:"Rare Disease Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Rare disease biotech: Crysvita (X-linked hypophosphatemia), Dojolvi (fatty acid oxidation), Mepsevii, and gene therapy pipeline.",whyItMatters:"Rare disease platform with multiple approved products and gene therapy optionality. Small patient populations with high unmet need support premium pricing."},
+  {ticker:"HALO",name:"Halozyme Therapeutics",industry:"Biotechnology",subIndustry:"Platform Biotech",node:"Midstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"ENHANZE drug delivery technology platform licensing subcutaneous administration to pharma partners (Roche, J&J, Pfizer, AbbVie, BMS, Lilly).",whyItMatters:"Pure royalty/licensing model — Halozyme's hyaluronidase enzyme enables subcutaneous injection of drugs previously given IV. Near-100% incremental margins on growing royalty streams."},
+  {ticker:"INCY",name:"Incyte Corporation",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Oncology/inflammation biotech: Jakafi (myelofibrosis/GVHD — JAK inhibitor franchise), Opzelura (atopic dermatitis), Monjuvi, and pipeline.",whyItMatters:"Jakafi is a durable franchise in myelofibrosis with limited competitive threats near-term. Dermatology expansion via Opzelura adds a second growth vector."},
+
+  // ── MIDSTREAM: Clinical-Stage Biotech ──
+  {ticker:"IONS",name:"Ionis Pharmaceuticals",industry:"Biotechnology",subIndustry:"Platform Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Antisense technology platform. Partnered drugs: Spinraza (SMA, with Biogen), Tegsedi, Waylivra. Own pipeline in cardiology, neurology, and inflammation.",whyItMatters:"Pioneer of antisense oligonucleotide therapeutics. Deep platform with 40+ programs in development. Olezarsen (cardiovascular) and donidalorsen are key near-term catalysts."},
+  {ticker:"BEAM",name:"Beam Therapeutics",industry:"Biotechnology",subIndustry:"Gene Editing / Gene Therapy",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Base editing technology for precision genetic medicine. Programs in sickle cell disease, T-cell oncology, and liver-targeted diseases.",whyItMatters:"Next-generation gene editing (base editing) with potentially superior safety profile vs. traditional CRISPR. Platform optionality across multiple therapeutic areas."},
+  {ticker:"CRSP",name:"CRISPR Therapeutics",industry:"Biotechnology",subIndustry:"Gene Editing / Gene Therapy",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Gene editing pioneer: Casgevy (first approved CRISPR therapy for sickle cell/beta-thal, with Vertex). Pipeline in oncology, autoimmune, and cardiovascular.",whyItMatters:"Co-developed the first-ever approved CRISPR gene-editing therapy. Casgevy validation opens the door for the entire gene-editing therapeutic class."},
+  {ticker:"RCKT",name:"Rocket Pharmaceuticals",industry:"Biotechnology",subIndustry:"Gene Editing / Gene Therapy",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Gene therapy focused on rare diseases: Rocket's lentiviral platform targets Fanconi anemia, LAD-I, PKD, and Danon disease.",whyItMatters:"Pure-play rare disease gene therapy with multiple programs advancing toward approval. Fanconi anemia program addresses devastating unmet need with no approved alternatives."},
+  {ticker:"EDIT",name:"Editas Medicine",industry:"Biotechnology",subIndustry:"Gene Editing / Gene Therapy",node:"Upstream",archetype:"Deep Value",marketCap:"Micro-Cap",description:"CRISPR-based gene editing company developing in vivo and ex vivo therapies for sickle cell, cancer (engineered cell therapies), and eye disease.",whyItMatters:"In vivo gene editing is the frontier — delivering CRISPR directly inside the body. Reni-cel (sickle cell) is a key clinical program."},
+  {ticker:"SRPT",name:"Sarepta Therapeutics",industry:"Biotechnology",subIndustry:"Gene Editing / Gene Therapy",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Gene therapy for Duchenne muscular dystrophy (Elevidys) and RNA-targeted therapeutics (exon-skipping: Exondys 51, Vyondys 53, Amondys 45).",whyItMatters:"Elevidys is the first gene therapy approved for Duchenne muscular dystrophy. The commercial launch is a landmark for the gene therapy field."},
+  {ticker:"PCVX",name:"Vaxcyte",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Mid-Cap",description:"Next-generation pneumococcal conjugate vaccines (VAX-31, VAX-24) using novel cell-free protein synthesis technology.",whyItMatters:"Potentially disruptive to Pfizer's Prevnar franchise with higher-valent pneumococcal vaccines. The pneumococcal vaccine market is ~$7B+ annually."},
+  {ticker:"ARVN",name:"Arvinas",industry:"Biotechnology",subIndustry:"Platform Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Targeted protein degradation (PROTAC) platform: vepdegestrant (breast cancer), ARV-766 (prostate cancer), and partnered programs with Pfizer and Novartis.",whyItMatters:"PROTAC technology enables degradation of disease-causing proteins previously considered undruggable. If validated, the platform has broad oncology and beyond-oncology applications."},
+  {ticker:"FOLD",name:"Amicus Therapeutics",industry:"Biotechnology",subIndustry:"Rare Disease Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Small-Cap",description:"Rare disease biotech: Galafold (Fabry disease), Pombiliti + Opfolda (Pompe disease), and next-gen gene therapy pipeline.",whyItMatters:"Oral enzyme replacement therapy for Fabry disease is a differentiated approach. Pompe disease franchise adds second rare-disease revenue pillar."},
+  {ticker:"APLS",name:"Apellis Pharmaceuticals",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Complement inhibition platform: Syfovre (geographic atrophy — first approved GA treatment), Empaveli (PNH), and pipeline in nephrology and neurology.",whyItMatters:"First-in-class approved treatment for geographic atrophy (a leading cause of blindness with no prior therapy). The GA market could reach multi-billion dollars."},
+  {ticker:"KRTX",name:"Karuna Therapeutics (now BMS)",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Midstream",archetype:"Cash Engine",marketCap:"Acquired",description:"Acquired by BMS. KarXT (xanomeline-trospium) for schizophrenia — a novel muscarinic agonist mechanism distinct from existing antipsychotics.",whyItMatters:"KarXT represents the first new mechanism of action for schizophrenia in decades. The unmet need in neuropsychiatry is enormous."},
+  {ticker:"TGTX",name:"TG Therapeutics",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Hematology/oncology and autoimmune biotech: Briumvi (anti-CD20 for relapsing MS) with rapid commercial launch trajectory.",whyItMatters:"Briumvi is gaining share in the large relapsing MS market. Subcutaneous formulation and potential expansion into other autoimmune conditions are upside drivers."},
+  {ticker:"DCPH",name:"Deciphera Pharmaceuticals",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Midstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Oncology biotech focused on kinase inhibitors: Qinlock (GIST, 4th-line+) and vimseltinib (TGCT) in development.",whyItMatters:"Niche oncology franchise in gastrointestinal stromal tumors (GIST). Vimseltinib for TGCT would add meaningful TAM expansion."},
+  {ticker:"KRYS",name:"Krystal Biotech",industry:"Biotechnology",subIndustry:"Gene Editing / Gene Therapy",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Gene therapy using proprietary non-integrating HSV-1 vector platform: Vyjuvek (first topical gene therapy for dystrophic EB) and aesthetic pipeline.",whyItMatters:"Vyjuvek is a first-in-class redosable gene therapy validating a novel vector platform. Aesthetics pipeline (KB105 for TGM1 deficiency) leverages dermatology commercial infrastructure."},
+  {ticker:"RVMD",name:"Revolution Medicines",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Mid-Cap",description:"RAS(ON) inhibitors for KRAS-mutant cancers: RMC-6236 (pan-RAS inhibitor) and RMC-6291 targeting KRAS G12C. KRAS is the most commonly mutated oncogene.",whyItMatters:"KRAS mutations drive ~25% of all cancers but were historically considered undruggable. RAS(ON) inhibition could address one of the largest unmet needs in oncology."},
+  {ticker:"RLAY",name:"Relay Therapeutics",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Precision medicine biotech using protein motion dynamics to design highly selective small-molecule drugs for oncology and genetic diseases.",whyItMatters:"Computational drug discovery platform identifying novel inhibitors for difficult targets. RLY-2608 (PI3Kα inhibitor for breast cancer) is a key clinical asset."},
+  {ticker:"CYTK",name:"Cytokinetics",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Muscle biology company: aficamten (obstructive HCM) and omecamtiv mecarbil (heart failure, partnered with Royalty Pharma).",whyItMatters:"Aficamten is a potential best-in-class cardiac myosin inhibitor for hypertrophic cardiomyopathy, a condition affecting ~1 in 500 people globally."},
+  {ticker:"VIR",name:"Vir Biotechnology",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Immunology platform focused on infectious diseases and oncology. Partnered with GSK on hepatitis B. Developing T-cell-engaging therapies.",whyItMatters:"Hepatitis B functional cure would be transformational — ~300M people worldwide are chronically infected. VIR-2218 + VIR-3434 combination is advancing."},
+  {ticker:"DNLI",name:"Denali Therapeutics",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Neurodegeneration-focused biotech: blood-brain barrier transport vehicle (TV) platform, LRRK2 inhibitor (Parkinson's), and RIPK1 inhibitor pipeline.",whyItMatters:"The TV technology platform enables large molecules to cross the blood-brain barrier — one of the most important unsolved challenges in neuroscience drug delivery."},
+
+  // ── MIDSTREAM: Medical Devices & MedTech ──
+  {ticker:"ISRG",name:"Intuitive Surgical",industry:"Medical Devices",subIndustry:"Surgical Robotics",node:"Midstream",archetype:"Tollbridge",marketCap:"Mega-Cap",description:"da Vinci and Ion robotic-assisted surgery platforms. >9,000 installed systems globally. Instruments & accessories generate recurring revenue per procedure.",whyItMatters:"Dominant surgical robotics platform with enormous installed base and surgeon training moat. Recurring instrument revenue per procedure creates tollbridge economics."},
+  {ticker:"SYK",name:"Stryker Corporation",industry:"Medical Devices",subIndustry:"Orthopedics & Surgical",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Diversified MedTech: orthopedics (Mako robotic joint replacement), surgical instruments, neurotechnology, spine, and medical/surgical equipment.",whyItMatters:"Mako robotic platform is reshaping joint replacement. Stryker's breadth across ortho, surgical, and neurotech creates a diversified, procedure-linked revenue base."},
+  {ticker:"MDT",name:"Medtronic",industry:"Medical Devices",subIndustry:"Diversified MedTech",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Largest pure-play MedTech company: cardiac rhythm management, neurovascular, surgical robotics (Hugo), spine, and diabetes (insulin pumps).",whyItMatters:"Broadest device portfolio globally across nearly every medical specialty. Scale advantages in R&D, regulatory, and hospital procurement relationships."},
+  {ticker:"BSX",name:"Boston Scientific",industry:"Medical Devices",subIndustry:"Cardiovascular & Interventional",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Interventional cardiology, peripheral interventions, cardiac rhythm management, electrophysiology (FARAPULSE PFA), endoscopy, and urology/pelvic health.",whyItMatters:"FARAPULSE pulsed-field ablation is disrupting the electrophysiology market. BSX has consistently outgrown the MedTech sector through innovation and M&A."},
+  {ticker:"EW",name:"Edwards Lifesciences",industry:"Medical Devices",subIndustry:"Structural Heart",node:"Midstream",archetype:"Cash Engine",marketCap:"Large-Cap",description:"Structural heart leader: TAVR (transcatheter aortic valve replacement — SAPIEN), TMTT (mitral/tricuspid), and critical care monitoring.",whyItMatters:"TAVR is the standard of care for aortic stenosis. TMTT (transcatheter mitral and tricuspid repair) represents the next large TAM expansion in structural heart."},
+  {ticker:"ZBH",name:"Zimmer Biomet",industry:"Medical Devices",subIndustry:"Orthopedics & Surgical",node:"Midstream",archetype:"Cash Engine",marketCap:"Large-Cap",description:"Orthopedic implants and surgical products: knees, hips, extremities, spine, CMF, dental, and ROSA robotic platform.",whyItMatters:"#2 in large-joint reconstruction. ROSA robotic platform competes with Stryker's Mako but trails in adoption. Margin expansion and execution are the key debates."},
+  {ticker:"ABT",name:"Abbott Laboratories",industry:"Medical Devices",subIndustry:"Diversified MedTech / Diagnostics",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Diversified: diagnostics (core lab, rapid, molecular), medical devices (FreeStyle Libre, structural heart, neuromod), nutrition, and established pharma.",whyItMatters:"FreeStyle Libre (continuous glucose monitoring) is a multi-billion-dollar franchise with secular diabetes tailwinds. Diagnostics and device breadth provide diversification."},
+  {ticker:"DXCM",name:"DexCom",industry:"Medical Devices",subIndustry:"Continuous Monitoring",node:"Midstream",archetype:"Tollbridge",marketCap:"Large-Cap",description:"Continuous glucose monitoring (CGM) systems: G7, Stelo (over-the-counter). Expanding beyond Type 1 into Type 2 diabetes and wellness.",whyItMatters:"CGM is becoming standard of care for all insulin-using diabetics. OTC expansion (Stelo) could address a much larger wellness-oriented TAM."},
+  {ticker:"PODD",name:"Insulet Corporation",industry:"Medical Devices",subIndustry:"Continuous Monitoring",node:"Midstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Omnipod tubeless insulin pump system — disposable, wearable patch pump for Type 1 and Type 2 diabetes management.",whyItMatters:"Omnipod 5 automated insulin delivery system is gaining share in the insulin pump market. Tubeless design and pharmacy channel access are key differentiators vs traditional pumps."},
+  {ticker:"GKOS",name:"Glaukos Corporation",industry:"Medical Devices",subIndustry:"Ophthalmic Devices",node:"Midstream",archetype:"Rule of 40",marketCap:"Small-Cap",description:"Micro-invasive glaucoma surgery (MIGS) devices: iStent inject, and corneal health (iDose sustained-release drug delivery, photorefractive keratectomy).",whyItMatters:"MIGS is a growing procedural category in ophthalmology. iDose (sustained-release travoprost implant for glaucoma) eliminates daily eye drop adherence burden."},
+  {ticker:"IRTC",name:"iRhythm Technologies",industry:"Medical Devices",subIndustry:"Cardiac Monitoring",node:"Midstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Zio ambulatory cardiac monitoring patch: extended continuous ECG monitoring for arrhythmia detection using AI-powered analytics.",whyItMatters:"Disrupting Holter monitors with a better patient experience and AI-enhanced diagnostic yield. Reimbursement clarity and volume growth are key catalysts."},
+  {ticker:"ALGN",name:"Align Technology",industry:"Medical Devices",subIndustry:"Dental Technology",node:"Midstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Invisalign clear aligners and iTero intraoral scanners. Leading digital orthodontic platform for teeth straightening.",whyItMatters:"Created the clear aligner category with enormous consumer awareness. iTero scanner creates a digital ecosystem that locks orthodontists into the Invisalign workflow."},
+  {ticker:"HOLX",name:"Hologic",industry:"Medical Devices",subIndustry:"Women's Health Diagnostics",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Women's health focused: molecular diagnostics (Panther), breast health (3D mammography), and surgical solutions for GYN procedures.",whyItMatters:"Dominant in women's health diagnostics with Genius 3D mammography installed base and high-volume Panther molecular testing platform."},
+  {ticker:"RVTY",name:"Revvity (fka PerkinElmer)",industry:"Life Sciences Tools",subIndustry:"Diagnostics & Life Sciences",node:"Upstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Life sciences and diagnostics: newborn screening, reproductive health, applied genomics, and research reagents and instruments.",whyItMatters:"Essential newborn screening franchise with mandated testing creating annuity-like demand. Niche diagnostics positions in reproductive health and genomics."},
+  {ticker:"ICUI",name:"ICU Medical",industry:"Medical Devices",subIndustry:"Hospital Supply / Infusion",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"IV therapy, infusion pumps, critical care devices, and oncology consumables for hospital and home health settings.",whyItMatters:"Infusion therapy is essential hospital infrastructure. Smiths Medical acquisition expanded product portfolio and created integration-driven margin expansion opportunity."},
+  {ticker:"MMSI",name:"Merit Medical Systems",industry:"Medical Devices",subIndustry:"Cardiovascular & Interventional",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Disposable medical devices for cardiology, radiology, and endoscopy: access catheters, drainage products, embolization, and biopsy systems.",whyItMatters:"High-volume disposable devices with procedure-linked demand. Growing embolization and endoscopy portfolios diversify beyond traditional interventional radiology."},
+  {ticker:"NVST",name:"Envista Holdings",industry:"Medical Devices",subIndustry:"Dental Technology",node:"Midstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Dental products: specialty products (implants, biomaterials), equipment/consumables (imaging, instruments), and orthodontics (Spark aligners).",whyItMatters:"Danaher dental spinoff with turnaround potential. Dental market recovery and Spark aligner adoption are key drivers."},
+  {ticker:"SWAV",name:"Shockwave Medical (now J&J)",industry:"Medical Devices",subIndustry:"Cardiovascular & Interventional",node:"Midstream",archetype:"Tollbridge",marketCap:"Acquired",description:"Acquired by J&J 2024. Intravascular lithotripsy (IVL) for calcified cardiovascular disease — a novel approach to treating severe coronary and peripheral calcification.",whyItMatters:"IVL technology created a new procedural category for calcified plaque. ~$400K in single-use catheter revenue per IVL-capable cath lab is a powerful economic model."},
+  {ticker:"INSP",name:"Inspire Medical Systems",industry:"Medical Devices",subIndustry:"Neuromodulation",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Upper airway stimulation therapy (Inspire) for obstructive sleep apnea — an implantable neurostimulation device alternative to CPAP.",whyItMatters:"Addresses the massive CPAP non-adherence problem in sleep apnea. Inspire is the only FDA-approved implantable alternative — a potential blockbuster device franchise."},
+  {ticker:"NUVB",name:"Nuvation Bio",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Micro-Cap",description:"Oncology biotech developing novel small molecule therapies: taletrectinib (ROS1+ NSCLC) and NUV-1511 (novel mechanism cancer programs).",whyItMatters:"Taletrectinib addresses acquired resistance mutations in ROS1+ NSCLC. Niche oncology with targeted mechanism of action."},
+  {ticker:"AXNX",name:"Axonics Modulation (now BDX)",industry:"Medical Devices",subIndustry:"Neuromodulation",node:"Midstream",archetype:"Tollbridge",marketCap:"Acquired",description:"Acquired by Becton Dickinson. Sacral neuromodulation for urinary and bowel dysfunction — rechargeable implantable neurostimulator.",whyItMatters:"Disrupted Medtronic's long-standing dominance in sacral neuromod with a superior rechargeable device. Validated the opportunity for challenger MedTech companies."},
+  {ticker:"SILK",name:"Silk Road Medical (now BDX)",industry:"Medical Devices",subIndustry:"Cardiovascular & Interventional",node:"Midstream",archetype:"Tollbridge",marketCap:"Acquired",description:"Acquired by Boston Scientific. TCAR (transcarotid artery revascularization) — a novel approach to carotid artery stenting with direct carotid access.",whyItMatters:"TCAR approach reduces stroke risk during carotid revascularization vs transfemoral CAS. Created a new procedural category in vascular surgery."},
+
+  // ── DOWNSTREAM: Managed Care ──
+  {ticker:"UNH",name:"UnitedHealth Group",industry:"Managed Care",subIndustry:"Integrated Payer-Services",node:"Downstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Largest US health care company: UnitedHealthcare (insurance) + Optum (Optum Health care delivery, Optum Rx PBM, Optum Insight analytics/tech).",whyItMatters:"Vertically integrated insurance + PBM + care delivery + analytics. Optum's growth engine and data assets make UNH the most powerful entity in US health care."},
+  {ticker:"ELV",name:"Elevance Health",industry:"Managed Care",subIndustry:"Managed Care / Insurance",node:"Downstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Blue Cross Blue Shield licensee: commercial, Medicaid, Medicare Advantage, and specialty benefits. Carelon (health services, behavioral health, PBM — CarelonRx).",whyItMatters:"Largest BCBS licensee with ~47M members. Building Carelon health services to diversify beyond insurance into care delivery and pharmacy services."},
+  {ticker:"CI",name:"Cigna Group",industry:"Managed Care",subIndustry:"Integrated Payer-Services",node:"Downstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Evernorth (Express Scripts PBM, Accredo specialty pharmacy, CareCore utilization management) + Cigna Healthcare (employer, government, international insurance).",whyItMatters:"Express Scripts is the #2 PBM by covered lives. Evernorth's pharmacy services and specialty distribution drive the majority of earnings growth."},
+  {ticker:"HUM",name:"Humana",industry:"Managed Care",subIndustry:"Managed Care / Insurance",node:"Downstream",archetype:"Cash Engine",marketCap:"Large-Cap",description:"Medicare Advantage specialist: ~5.5M MA members, plus CenterWell primary care, pharmacy, and home health services.",whyItMatters:"Most concentrated MA exposure among large MCOs. CenterWell value-based primary care creates vertical integration similar to UNH/Optum playbook."},
+  {ticker:"CNC",name:"Centene Corporation",industry:"Managed Care",subIndustry:"Managed Care / Insurance",node:"Downstream",archetype:"Cash Engine",marketCap:"Large-Cap",description:"Largest Medicaid managed care company: 26M+ Medicaid members, plus Medicare Advantage, marketplace exchange, correctional health, and specialty pharmacy.",whyItMatters:"Dominant Medicaid MCO with scale advantages in low-income population health. Medicaid redetermination and state contract awards drive the growth narrative."},
+  {ticker:"MOH",name:"Molina Healthcare",industry:"Managed Care",subIndustry:"Managed Care / Insurance",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Government-focused MCO: Medicaid, Medicare, and marketplace plans. Known for disciplined underwriting and consistent margin delivery.",whyItMatters:"Best-in-class Medicaid MCO execution. Consistent organic growth through new state contract wins and disciplined M&A in government programs."},
+  {ticker:"CVS",name:"CVS Health",industry:"Managed Care",subIndustry:"Integrated Payer-Services",node:"Downstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Vertically integrated: Aetna (insurance), Caremark (PBM), CVS Pharmacy (retail + specialty), Signify Health (value-based care), Oak Street Health (primary care).",whyItMatters:"Most ambitious vertical integration strategy in health care. CVS is building a pharmacy → PBM → insurance → primary care continuum, but execution complexity is enormous."},
+
+  // ── DOWNSTREAM: PBMs & Pharmacy Services ──
+  {ticker:"CAH",name:"Cardinal Health",industry:"Health Care Distribution",subIndustry:"Wholesale Distribution",node:"Downstream",archetype:"Tollbridge",marketCap:"Large-Cap",description:"#3 US pharma distributor. Pharmaceutical distribution, specialty pharma, nuclear pharmacy, and medical products (Cardinal Health Medical segment).",whyItMatters:"Essential drug distribution infrastructure with oligopoly economics. Specialty distribution and nuclear pharmacy are higher-margin growth vectors."},
+  {ticker:"MCK",name:"McKesson Corporation",industry:"Health Care Distribution",subIndustry:"Wholesale Distribution",node:"Downstream",archetype:"Tollbridge",marketCap:"Mega-Cap",description:"#1 US pharma distributor: pharmaceutical distribution, specialty distribution (US Oncology), medical-surgical, and technology/analytics (Prescription Technology Solutions).",whyItMatters:"Largest drug distributor controlling ~35% of US pharmaceutical distribution volume. US Oncology network creates unique specialty distribution and practice management moat."},
+  {ticker:"COR",name:"Cencora (fka AmerisourceBergen)",industry:"Health Care Distribution",subIndustry:"Wholesale Distribution",node:"Downstream",archetype:"Tollbridge",marketCap:"Large-Cap",description:"#2 US pharma distributor: pharmaceutical distribution, specialty distribution (Lash Group, World Courier), and international (Alliance Healthcare).",whyItMatters:"Big 3 distributor oligopoly controls ~92% of US pharma distribution. Specialty services and international expansion diversify beyond the low-margin core distribution business."},
+
+  // ── DOWNSTREAM: Hospitals & Facilities ──
+  {ticker:"HCA",name:"HCA Healthcare",industry:"Health Care Facilities",subIndustry:"Hospitals & Health Systems",node:"Downstream",archetype:"Cash Engine",marketCap:"Mega-Cap",description:"Largest for-profit hospital operator: ~180 hospitals, 2,300+ sites of care. Dominant in urban/suburban markets across Sun Belt states with favorable payer mix.",whyItMatters:"Scale advantages in supply chain, technology, payer negotiation, and physician recruitment. HCA's data-driven operating model is the gold standard for hospital management."},
+  {ticker:"UHS",name:"Universal Health Services",industry:"Health Care Facilities",subIndustry:"Hospitals & Behavioral Health",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Acute care hospitals and behavioral health facilities: ~350+ locations. Largest US for-profit behavioral health operator.",whyItMatters:"Behavioral health is structurally undersupplied with secular demand tailwinds. UHS's dual acute-care + behavioral model provides diversification most hospital operators lack."},
+  {ticker:"THC",name:"Tenet Healthcare",industry:"Health Care Facilities",subIndustry:"Hospitals & ASCs",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Hospital operator with growing ambulatory surgery center (USPI) platform. Divesting hospitals and pivoting toward higher-margin outpatient surgery.",whyItMatters:"USPI ambulatory surgery center platform is the growth engine — site-of-care shift from hospitals to ASCs is a multi-decade secular trend."},
+  {ticker:"CYH",name:"Community Health Systems",industry:"Health Care Facilities",subIndustry:"Hospitals & Health Systems",node:"Downstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Rural and mid-size community hospital operator with ~70 hospitals across smaller markets. High leverage and operational turnaround story.",whyItMatters:"Classic deep-value / turnaround: high debt, operational challenges, but rural hospital assets have scarcity value and limited competition."},
+  {ticker:"SEM",name:"Select Medical",industry:"Health Care Facilities",subIndustry:"Post-Acute / Rehabilitation",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Specialty hospital operator: long-term acute care hospitals (LTACHs), inpatient rehabilitation facilities (IRFs), outpatient rehab clinics, and Concentra occupational health.",whyItMatters:"Post-acute care is essential but underserved. Select Medical's specialty hospital focus avoids direct competition with large acute-care systems."},
+
+  // ── DOWNSTREAM: Ambulatory & Physician Services ──
+  {ticker:"DVA",name:"DaVita",industry:"Health Care Facilities",subIndustry:"Ambulatory / Dialysis",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Largest US dialysis provider: ~2,800 outpatient dialysis centers. CMS-reimbursed kidney care for ~200,000 patients.",whyItMatters:"Duopoly with Fresenius in dialysis. Medicare reimbursement drives revenue, but Berkshire Hathaway ownership and capital return story add financial interest."},
+  {ticker:"ACHC",name:"Acadia Healthcare",industry:"Health Care Facilities",subIndustry:"Behavioral Health",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Behavioral health facility operator: inpatient psychiatric, eating disorder, substance abuse, and specialty behavioral facilities across the US and UK.",whyItMatters:"Behavioral health beds are chronically undersupplied. Structural demand tailwinds from the mental health crisis create a long runway for capacity additions."},
+  {ticker:"SGRY",name:"Surgery Partners",industry:"Health Care Facilities",subIndustry:"Ambulatory Surgery Centers",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Ambulatory surgery center operator and surgical hospital platform: 190+ facilities across 32 states with focus on MSK, GI, and ophthalmology.",whyItMatters:"Direct beneficiary of site-of-care shift to ambulatory settings. ASCs offer lower cost, faster recovery, and better outcomes for many procedures."},
+  {ticker:"AMEH",name:"Apollo Medical Holdings",industry:"Health Care Services",subIndustry:"Value-Based Care",node:"Downstream",archetype:"Rule of 40",marketCap:"Small-Cap",description:"Technology-enabled physician management platform operating value-based care models primarily for Medicare Advantage populations in Southern California.",whyItMatters:"Value-based care is the future of provider economics. AMEH's capitated model aligns physician incentives with cost management and outcomes."},
+  {ticker:"OSCR",name:"Oscar Health",industry:"Managed Care",subIndustry:"Marketplace / Insurtech",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Technology-driven health insurance company focused on ACA marketplace individual plans. Direct-to-consumer approach with proprietary tech platform.",whyItMatters:"Insurtech challenger leveraging technology for member engagement and claims management. Rapid growth in ACA marketplace enrollment."},
+  {ticker:"ALHC",name:"Alignment Healthcare",industry:"Health Care Services",subIndustry:"Value-Based Care",node:"Downstream",archetype:"Rule of 40",marketCap:"Small-Cap",description:"Value-based Medicare Advantage platform using proprietary AVA technology for population health management, care coordination, and risk adjustment.",whyItMatters:"Technology-enabled value-based care for Medicare Advantage seniors. The AVA platform integrates clinical data for predictive analytics and care management."},
+  {ticker:"AMED",name:"Amedisys",industry:"Health Care Services",subIndustry:"Home Health & Hospice",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Home health, hospice, and personal care services. One of the largest home health providers in the US with ~500 care centers.",whyItMatters:"Home health is a beneficiary of site-of-care shift from institutional to home settings. UNH acquisition (pending regulatory) validates the strategic value of home health assets."},
+  {ticker:"ENSG",name:"Ensign Group",industry:"Health Care Facilities",subIndustry:"Post-Acute / Skilled Nursing",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Skilled nursing and senior living facility operator using a decentralized management model with ~280 operations across 14 states.",whyItMatters:"Best-in-class SNF operator with a unique decentralized model that incentivizes local facility leaders. Consistently gains market share in a fragmented, struggling industry."},
+
+  // ── DOWNSTREAM: Health Care Services & Tech ──
+  {ticker:"VEEV",name:"Veeva Systems",industry:"Health Care Technology",subIndustry:"Life Sciences Software",node:"Upstream",archetype:"Tollbridge",marketCap:"Large-Cap",description:"Cloud software for life sciences: Vault (clinical, regulatory, quality, commercial content management), CRM, and data/analytics for pharma commercial teams.",whyItMatters:"De facto standard for life sciences commercial and clinical software. ~90% of top-20 pharma companies use Veeva. Switching costs are enormous due to validated system requirements."},
+  {ticker:"DOCS",name:"Doximity",industry:"Health Care Technology",subIndustry:"Digital Health Platform",node:"Downstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Digital platform for medical professionals: physician networking, telemedicine, clinical news, and pharmaceutical company-sponsored marketing.",whyItMatters:"LinkedIn for doctors. ~80% of US physicians are members. Pharmaceutical companies pay for targeted physician marketing — a capital-light, high-margin advertising model."},
+  {ticker:"HIMS",name:"Hims & Hers Health",industry:"Health Care Services",subIndustry:"Digital Health / DTC",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Direct-to-consumer telehealth and wellness platform: dermatology, sexual health, mental health, and weight management prescriptions delivered by mail.",whyItMatters:"DTC telehealth model disintermediates traditional care delivery for chronic, stigma-adjacent conditions. Compounded GLP-1 offering is a significant near-term catalyst."},
+  {ticker:"GDRX",name:"GoodRx Holdings",industry:"Health Care Technology",subIndustry:"Prescription Marketplace",node:"Downstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Prescription drug pricing marketplace: consumer-facing price comparison platform, telehealth, manufacturer solutions, and pharma advertising.",whyItMatters:"Aggregator of pharmacy pricing transparency with strong consumer brand. Transaction-based model generates high-margin revenue from pharmacy network fees."},
+  {ticker:"RCM",name:"R1 RCM",industry:"Health Care Services",subIndustry:"Revenue Cycle Management",node:"Downstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Revenue cycle management outsourcing for hospitals and physician groups: billing, coding, claims management, and patient financial services.",whyItMatters:"Revenue cycle complexity continues to increase. Outsourced RCM is a growing category as hospitals seek to improve collections and reduce administrative burden."},
+  {ticker:"PINC",name:"Premier Inc",industry:"Health Care Services",subIndustry:"Group Purchasing / Supply Chain",node:"Downstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Group purchasing organization (GPO) and supply chain management for hospitals and health systems. Performance improvement, data analytics, and consulting.",whyItMatters:"GPO model creates embedded purchasing relationships with hospitals. Supply chain data analytics position Premier as essential infrastructure for hospital procurement optimization."},
+  {ticker:"OMCL",name:"Omnicell",industry:"Health Care Technology",subIndustry:"Pharmacy Automation",node:"Downstream",archetype:"Tollbridge",marketCap:"Small-Cap",description:"Pharmacy automation and medication management: automated dispensing cabinets, central pharmacy robots, and IV compounding systems for hospitals.",whyItMatters:"Hospital pharmacy automation is essential for medication safety and labor efficiency. Installed base of dispensing cabinets creates recurring consumable and service revenue."},
+
+  // ── ADDITIONAL BIOTECH: Oncology Focus ──
+  {ticker:"EXEL",name:"Exelixis",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Oncology biotech: Cabometyx (kidney cancer, HCC) and pipeline of cabozantinib combinations and next-gen compounds (zanzalintinib, XL309).",whyItMatters:"Cabometyx is a cornerstone of kidney cancer treatment with expanding indications. Highly cash-generative franchise funding pipeline investments."},
+  {ticker:"MRUS",name:"Merus N.V.",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Mid-Cap",description:"Bispecific antibody platform using proprietary Biclonics technology. Lead programs in NRG1 fusion cancers (zenocutuzumab) and head & neck cancer.",whyItMatters:"NRG1 fusion cancers have no approved targeted therapy. Bispecific antibody platform creates optionality across multiple oncology targets."},
+  {ticker:"IMVT",name:"Immunovant",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Mid-Cap",description:"Anti-FcRn antibody (imvotamab/IMVT-1402) for autoimmune diseases: myasthenia gravis, thyroid eye disease, CIDP, and warm autoimmune hemolytic anemia.",whyItMatters:"FcRn inhibition is a validated mechanism (argenx's Vyvgart). IMVT-1402's subcutaneous and selectivity profile could enable differentiation in a large autoimmune market."},
+  {ticker:"ARGX",name:"argenx SE",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Large-Cap",description:"Vyvgart (efgartigimod — FcRn blocker) for generalized myasthenia gravis, CIDP, and expanding autoimmune indications.",whyItMatters:"First-in-class FcRn blocker with blockbuster potential across multiple IgG-mediated autoimmune diseases. Vyvgart launch is exceeding expectations."},
+  {ticker:"SMMT",name:"Summit Therapeutics",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Mid-Cap",description:"Oncology biotech with ivonescimab — a bispecific PD-1/VEGF antibody licensed from Akeso showing competitive data against Keytruda in NSCLC.",whyItMatters:"If ivonescimab demonstrates superiority to Keytruda in global trials, it would be one of the most significant oncology disruption events in a decade."},
+  {ticker:"INSM",name:"Insmed",industry:"Biotechnology",subIndustry:"Rare Disease Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Rare pulmonary disease specialist: Arikayce (MAC lung disease) and brensocatib (bronchiectasis — potential blockbuster) in late-stage development.",whyItMatters:"Brensocatib showed strong Phase 3 data in bronchiectasis, a condition with no approved treatments. Potential peak sales estimates of $3–5B make this transformational for Insmed."},
+
+  // ── ADDITIONAL: Health Care IT & Services ──
+  {ticker:"TDOC",name:"Teladoc Health",industry:"Health Care Technology",subIndustry:"Telehealth",node:"Downstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Virtual care platform: telehealth visits, chronic condition management (BetterHelp mental health, Primary360, chronic care programs).",whyItMatters:"Largest pure-play telehealth platform, but Livongo acquisition at peak COVID valuations destroyed significant value. Turnaround potential if chronic care engagement improves."},
+  {ticker:"GEHC",name:"GE HealthCare",industry:"Medical Devices",subIndustry:"Imaging & Diagnostic Equipment",node:"Midstream",archetype:"Cash Engine",marketCap:"Large-Cap",description:"Medical imaging (CT, MRI, X-ray, ultrasound), patient monitoring, pharmaceutical diagnostics (contrast agents), and digital solutions.",whyItMatters:"#1 or #2 in most imaging modalities globally. AI-enhanced imaging and digital twin technologies represent the next growth frontier for diagnostic imaging."},
+  {ticker:"STE",name:"STERIS plc",industry:"Health Care Services",subIndustry:"Sterilization & Infection Control",node:"Upstream",archetype:"Tollbridge",marketCap:"Large-Cap",description:"Sterilization, infection prevention, surgical support, and life sciences decontamination services for hospitals, pharma manufacturing, and research labs.",whyItMatters:"Invisible infrastructure company — every hospital and pharma manufacturing facility requires sterilization. Recurring service contracts and high switching costs create steady cash generation."},
+  {ticker:"HSIC",name:"Henry Schein",industry:"Health Care Distribution",subIndustry:"Dental & Medical Distribution",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Dental and medical product distribution, practice management technology, and value-added services for dental offices and physician practices.",whyItMatters:"Dominant dental distribution with embedded technology platform (Dentrix). Dental recovery and technology adoption drive recurring revenue."},
+  {ticker:"LNTH",name:"Lantheus Holdings",industry:"Life Sciences Tools",subIndustry:"Radiopharmaceuticals",node:"Upstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Radiopharmaceutical diagnostics: PYLARIFY (PSMA PET imaging for prostate cancer), DEFINITY (cardiac ultrasound contrast), and pipeline of diagnostic and therapeutic radiopharmaceuticals.",whyItMatters:"PYLARIFY has transformed prostate cancer staging/diagnosis. Radiopharmaceuticals (both diagnostic and therapeutic) are one of the fastest-growing areas in health care."},
+  {ticker:"RXRX",name:"Recursion Pharmaceuticals",industry:"Biotechnology",subIndustry:"AI Drug Discovery",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"AI/ML-driven drug discovery platform using high-throughput biology, computer vision, and massive proprietary datasets to identify drug candidates.",whyItMatters:"At the frontier of AI-driven drug discovery. If computational approaches can improve clinical success rates, the economic value to the industry is transformational."},
+  {ticker:"SDGR",name:"Schrödinger",industry:"Health Care Technology",subIndustry:"Computational Drug Discovery",node:"Upstream",archetype:"Tollbridge",marketCap:"Small-Cap",description:"Physics-based computational drug discovery platform: molecular simulation software used by pharma and biotech for in silico drug design and materials science.",whyItMatters:"Schrödinger's platform enables computational prediction of molecular properties — reducing the need for costly experimental screening in early drug discovery."},
+  {ticker:"IOVA",name:"Iovance Biotherapeutics",industry:"Biotechnology",subIndustry:"Cell Therapy",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Tumor-infiltrating lymphocyte (TIL) cell therapy: Amtagvi (lifileucel) approved for advanced melanoma. First-in-class autologous TIL therapy.",whyItMatters:"Amtagvi is the first approved TIL cell therapy — a new modality in immuno-oncology. Expansion into lung, head/neck, and other solid tumors would dramatically expand the TAM."},
+  {ticker:"LEGN",name:"Legend Biotech",industry:"Biotechnology",subIndustry:"Cell Therapy",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"CAR-T cell therapy: Carvykti (ciltacabtagene autoleucel, partnered with J&J) for relapsed/refractory multiple myeloma.",whyItMatters:"Carvykti is demonstrating unprecedented response rates in multiple myeloma. Earlier-line expansion could make it a multi-billion-dollar franchise."},
+  {ticker:"ROIV",name:"Roivant Sciences",industry:"Biotechnology",subIndustry:"Platform Biotech",node:"Midstream",archetype:"Deep Value",marketCap:"Mid-Cap",description:"Biotech holding company model: creates subsidiary 'Vants' focused on specific therapeutic areas. Dermavant (Vtama for plaque psoriasis), Immunovant, and others.",whyItMatters:"Unique holding company structure creates portfolio diversification across multiple clinical programs. Vtama's non-steroidal approach to psoriasis fills a real clinical need."},
+  {ticker:"MNKD",name:"MannKind Corporation",industry:"Biotechnology",subIndustry:"Specialty Pharma",node:"Midstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Inhaled therapeutics: Afrezza (inhaled insulin), V-Go (wearable insulin delivery), and Tyvaso DPI (inhaled treprostinil for PAH, partnered with United Therapeutics).",whyItMatters:"Tyvaso DPI royalties from United Therapeutics partnership provide substantial, growing cash flow. Afrezza remains underappreciated for rapid-acting insulin convenience."},
+  {ticker:"PRCT",name:"PROCEPT BioRobotics",industry:"Medical Devices",subIndustry:"Surgical Robotics",node:"Midstream",archetype:"Rule of 40",marketCap:"Small-Cap",description:"HYDROS robotic system for aquablation therapy — a minimally invasive, heat-free robotic treatment for benign prostatic hyperplasia (BPH).",whyItMatters:"Aquablation is a differentiated surgical approach to BPH with surgeon-independent outcomes due to robotic guidance. Growing installed base and procedure volume trajectory."},
+  {ticker:"ATEC",name:"Alphatec Holdings",industry:"Medical Devices",subIndustry:"Spine Surgery",node:"Midstream",archetype:"Rule of 40",marketCap:"Small-Cap",description:"Spine surgery technology company: EOS imaging (full-body biplanar imaging), lateral surgery platform, and informatics for surgical planning.",whyItMatters:"Disruptive spine surgery innovator gaining share from legacy players (MDT, NuVasive). Surgeon adoption of lateral approach and EOS imaging platform drives growth."},
+  {ticker:"TMDX",name:"TransMedics Group",industry:"Medical Devices",subIndustry:"Organ Transplant Technology",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Organ Care System (OCS) for ex-vivo organ perfusion during transplant: enables assessment and preservation of donor organs (heart, lung, liver) outside the body.",whyItMatters:"Only FDA-approved portable organ perfusion platform. Dramatically expands the usable donor organ pool by enabling extended preservation and assessment."},
+  {ticker:"CRNX",name:"Crinetics Pharmaceuticals",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Oral non-peptide therapeutics for rare endocrine diseases: paltusotine (acromegaly, carcinoid syndrome) and atumelnant (ACTH-dependent Cushing's).",whyItMatters:"Oral treatment for acromegaly would be transformative vs current injectable standard of care. First oral somatostatin receptor ligand with pivotal data."},
+  {ticker:"ADMA",name:"ADMA Biologics",industry:"Biotechnology",subIndustry:"Specialty Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Small-Cap",description:"Specialty plasma-derived biologics: ASCENIV (immunoglobulin for immunodeficiency), respiratory syncytial virus immune globulin, and plasma collection.",whyItMatters:"Niche immunoglobulin manufacturer with differentiated product (ASCENIV has a higher RSV antibody titer). Plasma-derived products face chronic supply constraints."},
+  {ticker:"ITCI",name:"Intra-Cellular Therapies",industry:"Pharmaceuticals",subIndustry:"Specialty Pharma",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Neuropsychiatry: Caplyta (lumateperone) for schizophrenia and bipolar depression. Novel mechanism of action with better tolerability profile vs older antipsychotics.",whyItMatters:"Caplyta is capturing significant share in bipolar depression. Favorable metabolic side-effect profile vs legacy antipsychotics drives physician and patient preference."},
+  {ticker:"SAVA",name:"Cassava Sciences",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Alzheimer's disease biotech developing simufilam, a small molecule targeting altered filamin A protein. Controversial clinical data and regulatory path.",whyItMatters:"Highly polarizing Alzheimer's story with significant data integrity debates. Binary risk/reward profile with Phase 3 readout as the key catalyst."},
+  {ticker:"VKTX",name:"Viking Therapeutics",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Mid-Cap",description:"Metabolic disease biotech: VK2735 (dual GLP-1/GIP receptor agonist for obesity) and VK2809 (thyroid hormone receptor beta agonist for NASH).",whyItMatters:"VK2735 is positioned as a fast-follower in the massive GLP-1 obesity market. Subcutaneous and oral formulations could differentiate in a class dominated by Lilly and Novo."},
+  {ticker:"SLAB",name:"Shockwave Lithotripsy (acquired by J&J)",industry:"Medical Devices",subIndustry:"Cardiovascular",node:"Midstream",archetype:"Tollbridge",marketCap:"Acquired",description:"Duplicate/acquired - filtered out.",whyItMatters:"N/A."},
+
+  // Replace duplicate with new entry
+  {ticker:"XENE",name:"Xenon Pharmaceuticals",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Mid-Cap",description:"Neuroscience biotech developing novel ion channel modulators: XEN1101 (focal epilepsy), XEN496 (KCNQ2 epilepsy). Partnered programs with Neurocrine.",whyItMatters:"XEN1101 showed best-in-class Phase 2 data in focal epilepsy. If confirmed in Phase 3, it could become a leading anti-seizure medication."},
+  {ticker:"PCRX",name:"Pacira BioSciences",industry:"Pharmaceuticals",subIndustry:"Specialty Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Small-Cap",description:"Non-opioid pain management: Exparel (liposomal bupivacaine for post-surgical pain) and iovera (cryoanalgesia nerve block device).",whyItMatters:"Addresses the opioid crisis by providing non-opioid post-surgical pain alternatives. Exparel is used in ~3M procedures annually with expansion into new surgical categories."},
+
+  // Replace non-HC entry
+  {ticker:"PTCT",name:"PTC Therapeutics",industry:"Biotechnology",subIndustry:"Rare Disease Biotech",node:"Midstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Rare disease therapies: Translarna (DMD in EU), Evrysdi (SMA, royalties from Roche), and gene therapy pipeline for AADC deficiency and Friedreich's ataxia.",whyItMatters:"Evrysdi royalties provide a significant cash flow stream. Gene therapy programs in ultra-rare CNS diseases offer high-risk/high-reward pipeline optionality."},
+  {ticker:"NTRA2",name:"Natera (dup)",industry:"Life Sciences Tools",subIndustry:"Molecular Diagnostics",node:"Upstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"Duplicate - filtered.",whyItMatters:"N/A."},
+
+  // Replace duplicate
+  {ticker:"TNDM",name:"Tandem Diabetes Care",industry:"Medical Devices",subIndustry:"Insulin Delivery",node:"Midstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Insulin pump systems: t:slim X2, Mobi, and Control-IQ automated insulin delivery technology for Type 1 diabetes management.",whyItMatters:"Competing with Insulet and Medtronic in insulin pumps. Mobi (smallest pump) and software updatability are key differentiators. Pricing pressure is a headwind."},
+  {ticker:"BGNE",name:"BeiGene",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Large-Cap",description:"China-based global oncology biotech: Brukinsa (BTK inhibitor), tislelizumab (PD-1), and expanding global commercial footprint and pipeline.",whyItMatters:"Brukinsa is gaining global share in the BTK inhibitor market vs AbbVie's Imbruvica. BeiGene represents China's emergence as a global innovative pharma competitor."},
+  {ticker:"ACAD",name:"Acadia Pharmaceuticals",industry:"Pharmaceuticals",subIndustry:"Specialty Pharma",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Neuropsychiatry specialist: Nuplazid (pimavanserin for Parkinson's psychosis) and daridorexant partnership. Pipeline in Rett syndrome and other CNS disorders.",whyItMatters:"Nuplazid is the only FDA-approved treatment for hallucinations/delusions in Parkinson's disease. High unmet need and limited competition in neuropsychiatry."},
+  {ticker:"RPRX",name:"Royalty Pharma",industry:"Pharmaceuticals",subIndustry:"Pharmaceutical Royalties",node:"Midstream",archetype:"Cash Engine",marketCap:"Large-Cap",description:"Acquires pharmaceutical royalty interests: portfolio includes royalties on Trikafta (CF), Tremfya, Evrysdi, Xtandi, and 35+ other approved products.",whyItMatters:"Unique business model — capital-light, diversified exposure to pharmaceutical innovation without R&D or commercial risk. Royalty streams create highly predictable cash flows."},
+  {ticker:"MDGL",name:"Madrigal Pharmaceuticals",industry:"Biotechnology",subIndustry:"Commercial Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid-Cap",description:"First approved NASH/MASH therapy: Rezdiffra (resmetirom — thyroid hormone receptor beta agonist) for nonsteatohepatitis with liver fibrosis.",whyItMatters:"First-in-class approved NASH treatment addressing a massive unmet need (~15M US patients with at-risk NASH). Rezdiffra launch trajectory is the key metric."},
+
+  // Replace with new entry
+  {ticker:"PRGO",name:"Perrigo Company",industry:"Pharmaceuticals",subIndustry:"Consumer Health / OTC",node:"Midstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Consumer self-care company: OTC pharmaceuticals, store-brand health products, and Opill (first OTC daily oral contraceptive).",whyItMatters:"Opill launch is a significant catalyst — first OTC birth control pill in the US. Turnaround story with activist involvement and portfolio simplification."},
+  {ticker:"BDX",name:"Becton Dickinson",industry:"Medical Devices",subIndustry:"Hospital Supply / Med Supplies",node:"Midstream",archetype:"Cash Engine",marketCap:"Large-Cap",description:"Medical technology: syringes, needles, prefilled drug delivery devices, specimen collection (BD Vacutainer), medication management, and microbiology diagnostics.",whyItMatters:"Essential hospital supply infrastructure — syringes, blood collection tubes, and IV catheters are used in virtually every patient encounter. Installed base creates enormous recurring demand."},
+  {ticker:"BAX",name:"Baxter International",industry:"Medical Devices",subIndustry:"Hospital Supply / Renal",node:"Midstream",archetype:"Deep Value",marketCap:"Large-Cap",description:"Hospital products: IV solutions, infusion pumps, renal care (peritoneal dialysis), pharmaceuticals, and surgical care. Kidney Care spinoff (Vantive) in process.",whyItMatters:"Deep value / restructuring story post Hillrom acquisition. Vantive kidney care separation aims to unlock value from the core medtech franchise."},
+  {ticker:"COO",name:"Cooper Companies",industry:"Medical Devices",subIndustry:"Vision & Fertility",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"CooperVision (contact lenses — #2 globally) and CooperSurgical (fertility, women's health devices and genomics).",whyItMatters:"Premium contact lens growth (daily silicone hydrogels, myopia management) and fertility services (IVF genomics). Dual growth engines in large, expanding markets."},
+  {ticker:"PHG",name:"Philips",industry:"Medical Devices",subIndustry:"Imaging & Patient Monitoring",node:"Midstream",archetype:"Deep Value",marketCap:"Large-Cap",description:"Dutch MedTech: diagnostic imaging (CT, MRI, ultrasound), patient monitoring, respiratory care, and connected care solutions.",whyItMatters:"Deep value turnaround after the Respironics CPAP recall crisis. Core imaging and monitoring businesses remain competitively positioned."},
+  {ticker:"STVN",name:"Stevanato Group",industry:"Health Care Services",subIndustry:"Drug Delivery Packaging",node:"Upstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Italian manufacturer of glass vials, cartridges, syringes, and drug delivery systems for pharma/biotech. Primary packaging for injectable drugs.",whyItMatters:"Essential packaging infrastructure for the global injectable drug supply chain. Growth in biologics and GLP-1 demand drives volume expansion."},
+  {ticker:"TECH",name:"Bio-Techne",industry:"Life Sciences Tools",subIndustry:"Protein Sciences & Diagnostics",node:"Upstream",archetype:"Tollbridge",marketCap:"Mid-Cap",description:"Protein research reagents (R&D Systems), molecular diagnostics (ExoDx, Advanced Cell Diagnostics), and instruments for proteomics research.",whyItMatters:"Gold-standard protein reagents used in virtually every biology lab globally. Spatial biology (ACD) and liquid biopsy (ExoDx) add high-growth platforms."},
+  {ticker:"LIVN",name:"LivaNova",industry:"Medical Devices",subIndustry:"Neuromodulation / Cardiac",node:"Midstream",archetype:"Cash Engine",marketCap:"Small-Cap",description:"Neuromodulation (VNS therapy for epilepsy and depression) and cardiopulmonary (heart-lung machines and oxygenators for cardiac surgery).",whyItMatters:"VNS therapy for treatment-resistant depression is gaining evidence. Unique dual exposure to neuromodulation and critical cardiac surgery infrastructure."},
+
+  // Replace with new entry
+  {ticker:"MASI",name:"Masimo Corporation",industry:"Medical Devices",subIndustry:"Patient Monitoring",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid-Cap",description:"Noninvasive patient monitoring: pulse oximetry (SET technology), brain function monitoring, hemoglobin monitoring, and consumer health (Sound United — divesting).",whyItMatters:"SET pulse oximetry is the gold standard in hospital monitoring. Apple Watch SpO2 patent litigation is a significant IP value catalyst."},
+  {ticker:"VCYT",name:"Veracyte",industry:"Life Sciences Tools",subIndustry:"Molecular Diagnostics",node:"Upstream",archetype:"Rule of 40",marketCap:"Small-Cap",description:"Genomic diagnostics: Afirma (thyroid), Decipher (prostate), Percepta (lung), and Prosigna (breast). Centralized genomic testing to avoid unnecessary procedures.",whyItMatters:"Genomic classifier tests that reduce unnecessary surgeries generate healthcare savings. Growing evidence base and guideline adoption drive test volume growth."},
+  {ticker:"NRIX",name:"Nurix Therapeutics",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Targeted protein degradation (DELigase) platform: degrader-antibody conjugates (DACs) for oncology. Partnered with Gilead and Sanofi.",whyItMatters:"Next-generation degrader technology combining targeted protein degradation with antibody targeting. DACs could enable tissue-specific protein degradation."},
+  {ticker:"DAWN",name:"Day One Biopharmaceuticals",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Small-Cap",description:"Pediatric oncology specialist: tovorafenib (RAF inhibitor for pediatric low-grade glioma) — FDA approved as OJEMDA, the first-ever approved targeted therapy for pLGG.",whyItMatters:"First targeted therapy for pediatric brain tumors addresses devastating unmet need. Expansion into adult glioma and other RAF-altered tumors provides additional optionality."},
+  {ticker:"RYTM",name:"Rhythm Pharmaceuticals",industry:"Biotechnology",subIndustry:"Rare Disease Biotech",node:"Midstream",archetype:"Rule of 40",marketCap:"Small-Cap",description:"Rare genetic obesity biotech: Imcivree (setmelanotide) for MC4R pathway defects including POMC, PCSK1, and LEPR deficiency obesity.",whyItMatters:"Only approved treatment targeting the MC4R pathway in hypothalamic obesity. Expansion into broader genetic obesity populations (BBS, SH2B1) increases the addressable market."},
+  {ticker:"ACLX",name:"Arcellx",industry:"Biotechnology",subIndustry:"Cell Therapy",node:"Midstream",archetype:"Deep Value",marketCap:"Mid-Cap",description:"Next-generation CAR-T cell therapy: anito-cel (CART-ddBCMA) for relapsed/refractory multiple myeloma with differentiated controllable D-Domain binding technology.",whyItMatters:"Anito-cel's safety profile and durability data are competitive with Legend's Carvykti. The controllable binding domain is a platform differentiator for next-gen cell therapies."},
+  {ticker:"ANNX",name:"Annexon Biosciences",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Small-Cap",description:"Classical complement pathway inhibitor (anti-C1q) for neurological and ophthalmic diseases: geographic atrophy, Guillain-Barré syndrome, and Huntington's.",whyItMatters:"C1q inhibition is a differentiated approach to complement modulation vs downstream C3/C5 targets. GA and neurology programs address large unmet needs."},
+  {ticker:"AGEN",name:"Agenus",industry:"Biotechnology",subIndustry:"Clinical-Stage Biotech",node:"Upstream",archetype:"Deep Value",marketCap:"Micro-Cap",description:"Immuno-oncology biotech: bispecific antibodies, checkpoint combinations, and adjuvants. Botensilimab (anti-CTLA-4) is the lead clinical asset.",whyItMatters:"Botensilimab is showing compelling activity in microsatellite-stable colorectal cancer — a large, underserved population where immunotherapy historically fails."},
+];
+
+// ── Remove duplicate/invalid entries ──
+const cleanData = sectorData.filter(d =>
+  d.ticker && d.name && d.industry && d.node !== 'N/A' &&
+  !d.description.startsWith('Already') && !d.description.startsWith('Duplicate') &&
+  !d.description.startsWith('Removed') && !d.description.startsWith('Placeholder') &&
+  d.whyItMatters !== 'N/A' && d.whyItMatters !== 'N/A.'
+);
+
+// ════════════════════════════════════════════════════════════════
+//  DISCOVERY GRID LOGIC
+// ════════════════════════════════════════════════════════════════
+const capOrder = {'Mega-Cap':0,'Large-Cap':1,'Mid-Cap':2,'Small-Cap':3,'Micro-Cap':4,'Acquired':5};
+let sortCol = 'ticker';
+let sortAsc = true;
+let expandedTicker = null;
+
+function getArchClass(a) {
+  const map = {'Tollbridge':'arch-tollbridge','Cash Engine':'arch-cashengine','Rule of 40':'arch-ruleof40','Deep Value':'arch-deepvalue'};
+  return map[a] || '';
+}
+
+function populateFilters() {
+  const sets = {node:new Set(), industry:new Set(), subIndustry:new Set(), archetype:new Set(), marketCap:new Set()};
+  cleanData.forEach(d => {
+    sets.node.add(d.node); sets.industry.add(d.industry);
+    sets.subIndustry.add(d.subIndustry); sets.archetype.add(d.archetype); sets.marketCap.add(d.marketCap);
+  });
+  const fill = (id, s) => {
+    const el = document.getElementById(id);
+    const first = el.options[0];
+    el.innerHTML = '';
+    el.appendChild(first);
+    [...s].sort().forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; el.appendChild(o); });
+  };
+  fill('nodeFilter', sets.node);
+  fill('industryFilter', sets.industry);
+  fill('subIndustryFilter', sets.subIndustry);
+  fill('archetypeFilter', sets.archetype);
+  fill('capFilter', sets.marketCap);
+}
+
+function getFiltered() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const node = document.getElementById('nodeFilter').value;
+  const industry = document.getElementById('industryFilter').value;
+  const subIndustry = document.getElementById('subIndustryFilter').value;
+  const archetype = document.getElementById('archetypeFilter').value;
+  const cap = document.getElementById('capFilter').value;
+
+  return cleanData.filter(d => {
+    if (node && d.node !== node) return false;
+    if (industry && d.industry !== industry) return false;
+    if (subIndustry && d.subIndustry !== subIndustry) return false;
+    if (archetype && d.archetype !== archetype) return false;
+    if (cap && d.marketCap !== cap) return false;
+    if (search) {
+      const hay = `${d.ticker} ${d.name} ${d.industry} ${d.subIndustry} ${d.description} ${d.whyItMatters}`.toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+}
+
+function sortData(data) {
+  return data.sort((a, b) => {
+    let va = a[sortCol], vb = b[sortCol];
+    if (sortCol === 'marketCap') { va = capOrder[va] ?? 99; vb = capOrder[vb] ?? 99; }
+    else { va = (va||'').toString().toLowerCase(); vb = (vb||'').toString().toLowerCase(); }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+}
+
+function render() {
+  const filtered = sortData(getFiltered());
+  document.getElementById('resultCount').textContent = `${filtered.length} companies`;
+  const tbody = document.getElementById('gridBody');
+  tbody.innerHTML = '';
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No companies match the current filters. Try broadening your search.</td></tr>';
+    return;
+  }
+
+  filtered.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="td-ticker">${d.ticker}</td>
+      <td class="td-name" title="${d.name}">${d.name}</td>
+      <td class="td-node">${d.node}</td>
+      <td class="td-industry">${d.industry}</td>
+      <td class="td-subindustry">${d.subIndustry}</td>
+      <td><span class="archetype-badge ${getArchClass(d.archetype)}">${d.archetype}</span></td>
+      <td class="td-cap">${d.marketCap}</td>`;
+    tr.addEventListener('click', () => toggleExpand(d.ticker, tr));
+    tbody.appendChild(tr);
+
+    if (expandedTicker === d.ticker) {
+      const exTr = document.createElement('tr');
+      exTr.className = 'expanded-row';
+      exTr.innerHTML = `<td colspan="7"><div class="expanded-content">
+        <div class="expanded-block"><h5>What They Do</h5><p>${d.description}</p></div>
+        <div class="expanded-block"><h5>Why It Matters</h5><p>${d.whyItMatters}</p></div>
+      </div></td>`;
+      tbody.appendChild(exTr);
+    }
+  });
+}
+
+function toggleExpand(ticker, row) {
+  expandedTicker = expandedTicker === ticker ? null : ticker;
+  render();
+}
+
+// Sort headers
+document.querySelectorAll('.grid-table thead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (!col) return;
+    if (sortCol === col) { sortAsc = !sortAsc; }
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('.grid-table thead th').forEach(h => h.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.sort-arrow').textContent = sortAsc ? '▲' : '▼';
+    render();
+  });
+});
+
+// Filter events
+['searchInput','nodeFilter','industryFilter','subIndustryFilter','archetypeFilter','capFilter'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change', () => { expandedTicker = null; render(); });
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  document.getElementById('searchInput').value = '';
+  ['nodeFilter','industryFilter','subIndustryFilter','archetypeFilter','capFilter'].forEach(id => document.getElementById(id).value = '');
+  expandedTicker = null;
+  render();
+});
+
+// Initialize
+populateFilters();
+render();
+
+// Auto-open first drill-down module
+document.querySelector('.dd-module')?.classList.add('open');
+</script>
+</body>
+</html>
