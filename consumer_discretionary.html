@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consumer Discretionary — GICS Sector Atlas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    color: #e0e0e0;
+    font-family: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #4a90d9, #9b59b6, #27ae60);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .header .subtitle {
+    font-size: 12px;
+    color: #888;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+  .mermaid-container {
+    background: #0e0e16;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 20px;
+    overflow-x: auto;
+  }
+  .mermaid {
+    display: flex;
+    justify-content: center;
+  }
+  .mermaid svg {
+    max-width: 100%;
+    height: auto;
+  }
+  .tracks {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .track-card {
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .track-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .track-card p { font-size: 11px; color: #999; line-height: 1.5; }
+  .track-hard { background: rgba(74,144,217,0.08); border-color: rgba(74,144,217,0.2); }
+  .track-hard h3 { color: #4a90d9; }
+  .track-soft { background: rgba(155,89,182,0.08); border-color: rgba(155,89,182,0.2); }
+  .track-soft h3 { color: #9b59b6; }
+  .track-svc { background: rgba(230,126,34,0.08); border-color: rgba(230,126,34,0.2); }
+  .track-svc h3 { color: #e67e22; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Consumer Discretionary — GICS Sector Visual Atlas</h1>
+  <div class="subtitle">Upstream → Midstream → Downstream Value Chain</div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#4a90d9;"></div>Upstream — Inputs</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#9b59b6;"></div>Midstream — IP Owners</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#27ae60;"></div>Downstream — Distribution</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e67e22;"></div>Macro Drivers</div>
+</div>
+
+<div class="mermaid-container">
+<pre class="mermaid">
+graph TD
+
+subgraph UPSTREAM["🔧 UPSTREAM — Inputs & Component Mfrs"]
+    direction LR
+    subgraph UP_H[" "]
+        AC["Auto Components<br>APTV, BWA, LEA"]
+        DM["Appliance &amp; Durables Mfrs<br>WHR, SWK"]
+        BM["Building Products<br>MAS, FBHS"]
+    end
+    subgraph UP_S[" "]
+        TX["Textile Sourcing<br>HBI, PVH supply"]
+        FW["Footwear Components<br>SKX supply, CROX"]
+    end
+    subgraph UP_V[" "]
+        FS["Food &amp; Bev Supply<br>PFGC, USFD"]
+        TE["Travel Tech / GDS<br>SABR, TRVG"]
+    end
+end
+
+subgraph MIDSTREAM["🏛️ MIDSTREAM — IP Owners, Brands & Operators"]
+    direction LR
+    subgraph MH["Hardlines / Big-Ticket"]
+        OEM["Automotive OEMs<br>TSLA, GM, F"]
+        HB["Homebuilders<br>DHI, LEN, PHM"]
+        DA["Durables &amp; Appliances<br>WHR, POOL"]
+    end
+    subgraph MS["Softlines / Brand IP"]
+        ATH["Athletic &amp; Athleisure<br>NKE, LULU, UAA"]
+        LUX["Luxury &amp; Premium<br>TPR, RL, CPRI"]
+        SPB["Toys &amp; Leisure<br>HAS, MAT"]
+    end
+    subgraph MV["Services / Experiences"]
+        QSR["Restaurants &amp; QSRs<br>MCD, CMG, YUM"]
+        HOT["Hotels &amp; Resorts<br>MAR, HLT"]
+        CRZ["Cruises &amp; Live<br>RCL, CCL, LYV"]
+    end
+end
+
+subgraph DOWNSTREAM["🛒 DOWNSTREAM — Distribution & Aggregators"]
+    direction LR
+    subgraph DH["Hardlines Retail"]
+        HIR["Home Improvement<br>HD, LOW"]
+        APR["Auto Parts Retail<br>ORLY, AZO"]
+    end
+    subgraph DS["Softlines Retail"]
+        SPR["Specialty / Off-Price<br>TJX, ROST, BURL"]
+        DTC["DTC &amp; Marketplaces<br>ETSY, W"]
+    end
+    subgraph DV["Services Aggregation"]
+        OTA["OTAs<br>BKNG, ABNB, EXPE"]
+        BEC["Broadline E-Comm<br>AMZN"]
+    end
+end
+
+AC -->|"Components"| OEM
+BM -->|"Materials"| HB
+DM -->|"Appliances"| DA
+TX -->|"Textiles"| ATH
+TX -->|"Textiles"| LUX
+FW -->|"Footwear"| ATH
+FS -->|"Food Supply"| QSR
+TE -->|"Booking Infra"| OTA
+
+OEM -->|"Vehicles"| APR
+HB -->|"Housing Spend"| HIR
+DA -->|"Durables"| HIR
+ATH -->|"Branded Product"| SPR
+ATH -->|"DTC"| DTC
+LUX -->|"Wholesale"| SPR
+SPB -->|"Toys"| BEC
+QSR -->|"Franchise"| BEC
+HOT -->|"Inventory"| OTA
+CRZ -->|"Inventory"| OTA
+
+RATES(("💰 Interest Rates"))
+SENT(("📊 Consumer Sentiment"))
+EMPL(("👷 Employment / Wages"))
+
+RATES -.->|"Rate-Sensitive"| MH
+SENT -.->|"Trend-Sensitive"| MS
+EMPL -.->|"Income-Sensitive"| MV
+
+classDef upstream fill:#1e3a5f,stroke:#4a90d9,stroke-width:2px,color:#e8f0fe,rx:8,ry:8
+classDef midstream fill:#2d1b4e,stroke:#9b59b6,stroke-width:2px,color:#f0e6ff,rx:8,ry:8
+classDef downstream fill:#1a3c2a,stroke:#27ae60,stroke-width:2px,color:#e8f8f0,rx:8,ry:8
+classDef macrodriver fill:#4a3728,stroke:#e67e22,stroke-width:2px,color:#fdebd0,rx:8,ry:8
+
+class AC,DM,BM,TX,FW,FS,TE upstream
+class OEM,HB,DA,ATH,LUX,SPB,QSR,HOT,CRZ midstream
+class HIR,APR,SPR,DTC,OTA,BEC downstream
+class RATES,SENT,EMPL macrodriver
+
+style UPSTREAM fill:#0d1f33,stroke:#4a90d9,stroke-width:3px,color:#4a90d9,rx:12,ry:12
+style MIDSTREAM fill:#1a0e2e,stroke:#9b59b6,stroke-width:3px,color:#9b59b6,rx:12,ry:12
+style DOWNSTREAM fill:#0e261a,stroke:#27ae60,stroke-width:3px,color:#27ae60,rx:12,ry:12
+</pre>
+</div>
+
+<div class="tracks">
+  <div class="track-card track-hard">
+    <h3>💰 Hardlines / Big-Ticket</h3>
+    <p>Rate-sensitive. Autos, housing, durables. Flows from auto components & building products through OEMs/homebuilders to home improvement & auto parts retail.</p>
+  </div>
+  <div class="track-card track-soft">
+    <h3>📊 Softlines / Brand IP</h3>
+    <p>Sentiment-sensitive. Apparel, luxury, toys. Flows from textile sourcing through branded IP owners to specialty/off-price retail and DTC channels.</p>
+  </div>
+  <div class="track-card track-svc">
+    <h3>🟠 Services / Experiences</h3>
+    <p>Employment/wage-sensitive. Dining, travel, leisure. Flows from food supply & travel tech through restaurants/hotels/cruise lines to OTAs and e-commerce.</p>
+  </div>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    flowchart: {
+      useMaxWidth: true,
+      htmlLabels: true,
+      curve: 'basis',
+      nodeSpacing: 30,
+      rankSpacing: 60,
+      padding: 12
+    },
+    themeVariables: {
+      darkMode: true,
+      background: '#0e0e16',
+      primaryColor: '#2d1b4e',
+      primaryTextColor: '#e0e0e0',
+      lineColor: '#555',
+      fontSize: '12px'
+    }
+  });
+</script>
+</body>
+</html>
