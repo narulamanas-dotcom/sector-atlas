@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Information Technology — GICS Sector Atlas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    color: #e0e0e0;
+    font-family: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #4a90d9, #9b59b6, #27ae60);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .header .subtitle {
+    font-size: 12px;
+    color: #888;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+  .mermaid-container {
+    background: #0e0e16;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 20px;
+    overflow-x: auto;
+  }
+  .mermaid {
+    display: flex;
+    justify-content: center;
+  }
+  .mermaid svg {
+    max-width: 100%;
+    height: auto;
+  }
+  .tracks {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .track-card {
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .track-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .track-card p { font-size: 11px; color: #999; line-height: 1.5; }
+  .track-hard { background: rgba(74,144,217,0.08); border-color: rgba(74,144,217,0.2); }
+  .track-hard h3 { color: #4a90d9; }
+  .track-soft { background: rgba(155,89,182,0.08); border-color: rgba(155,89,182,0.2); }
+  .track-soft h3 { color: #9b59b6; }
+  .track-svc { background: rgba(230,126,34,0.08); border-color: rgba(230,126,34,0.2); }
+  .track-svc h3 { color: #e67e22; }
+
+  /* ── Discovery Grid Styles ── */
+  .grid-section {
+    margin-top: 36px;
+  }
+  .grid-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .grid-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, #4a90d9, #9b59b6, #27ae60);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+  }
+  .grid-header .grid-sub {
+    font-size: 11px;
+    color: #666;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  /* Filters */
+  .filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .filter-group label {
+    font-size: 10px;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+  .filter-group select,
+  .search-box {
+    background: #13131d;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #ccc;
+    font-size: 12px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    outline: none;
+    font-family: inherit;
+  }
+  .filter-group select:focus,
+  .search-box:focus {
+    border-color: rgba(74,144,217,0.5);
+  }
+  .search-box {
+    flex: 1;
+    min-width: 180px;
+  }
+  .result-count {
+    font-size: 11px;
+    color: #555;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  /* Table */
+  .grid-table-wrap {
+    background: #0e0e16;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .grid-table thead th {
+    background: #111119;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #777;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .grid-table thead th:hover {
+    color: #aaa;
+  }
+  .grid-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.15s;
+  }
+  .grid-table tbody tr:hover {
+    background: rgba(74,144,217,0.06);
+  }
+  .grid-table tbody td {
+    padding: 9px 14px;
+    white-space: nowrap;
+  }
+  .ticker-cell {
+    font-weight: 700;
+    color: #4a90d9;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    letter-spacing: 0.5px;
+  }
+  .name-cell {
+    color: #bbb;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-upstream { background: rgba(74,144,217,0.15); color: #4a90d9; }
+  .badge-midstream { background: rgba(155,89,182,0.15); color: #9b59b6; }
+  .badge-downstream { background: rgba(39,174,96,0.15); color: #27ae60; }
+
+  .badge-tollbridge { background: rgba(231,76,60,0.12); color: #e74c3c; }
+  .badge-cashengine { background: rgba(46,204,113,0.12); color: #2ecc71; }
+  .badge-ruleof40 { background: rgba(241,196,15,0.12); color: #f1c40f; }
+  .badge-deepvalue { background: rgba(149,165,166,0.12); color: #95a5a6; }
+
+  .badge-mega { background: rgba(255,255,255,0.06); color: #fff; font-weight: 700; }
+  .badge-large { background: rgba(255,255,255,0.04); color: #ccc; }
+  .badge-mid { background: rgba(255,255,255,0.03); color: #aaa; }
+  .badge-small { background: rgba(255,255,255,0.02); color: #888; }
+  .badge-micro { background: rgba(255,255,255,0.01); color: #666; }
+
+  @media (max-width: 768px) {
+    .tracks { grid-template-columns: 1fr; }
+    .filters { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════ HEADER ════════════════════════ -->
+<div class="header">
+  <h1>Information Technology — GICS Sector Visual Atlas</h1>
+  <div class="subtitle">Upstream → Midstream → Downstream Value Chain</div>
+</div>
+
+<!-- ════════════════════════ LEGEND ════════════════════════ -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#4a90d9;"></div>Upstream — Semiconductor Equipment &amp; EDA</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#9b59b6;"></div>Midstream — Chips, Hardware &amp; Components</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#27ae60;"></div>Downstream — Software &amp; IT Services</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e67e22;"></div>Macro Drivers</div>
+</div>
+
+<!-- ════════════════════════ PART A: MERMAID ATLAS ════════════════════════ -->
+<div class="mermaid-container">
+<pre class="mermaid">
+graph TD
+
+subgraph UPSTREAM["🔧 UPSTREAM — Equipment, EDA & Materials"]
+    direction LR
+    subgraph UP_E[" "]
+        SE["Semiconductor Equipment <br> ASML, AMAT, LRCX, KLAC"]
+        SM["Materials &amp; Test <br> ENTG, MKSI, TER"]
+    end
+    subgraph UP_D[" "]
+        EDA["EDA &amp; Design IP <br> SNPS, CDNS, ARM"]
+    end
+end
+
+subgraph MIDSTREAM["🏛️ MIDSTREAM — Semiconductors, Hardware & Components"]
+    direction LR
+    subgraph MC["Compute Semiconductors"]
+        GPU["Accelerators &amp; Logic <br> NVDA, AMD, INTC"]
+        SOC["SoC &amp; Connectivity <br> QCOM, AVGO, MRVL"]
+        ANA["Analog &amp; Mixed-Signal <br> TXN, ADI, NXPI, ON"]
+    end
+    subgraph MH["Technology Hardware"]
+        HW["Hardware Platforms <br> AAPL, DELL, HPE"]
+        NET["Networking &amp; Infra <br> CSCO, ANET, JNPR"]
+        STR["Storage &amp; Memory <br> MU, WDC, PSTG"]
+    end
+    subgraph ME["Electronic Components"]
+        EC["Connectors &amp; Optics <br> APH, TEL, GLW"]
+    end
+end
+
+subgraph DOWNSTREAM["🛒 DOWNSTREAM — Software & IT Services"]
+    direction LR
+    subgraph DS["Platform Software"]
+        SYS["Systems &amp; Cloud <br> MSFT, ORCL, NOW"]
+        APP["Application Software <br> CRM, ADBE, INTU"]
+    end
+    subgraph DC["Cybersecurity & Data"]
+        SEC["Cybersecurity <br> CRWD, PANW, FTNT, ZS"]
+        DAT["Data &amp; Analytics <br> PLTR, SNOW, DDOG"]
+    end
+    subgraph DI["IT Services"]
+        CON["IT Consulting <br> ACN, IBM, CTSH"]
+    end
+end
+
+SE -->|"Litho & Etch Tools"| GPU
+SE -->|"Deposition"| SOC
+SE -->|"Process Tools"| ANA
+SM -->|"Materials"| GPU
+EDA -->|"Design IP"| GPU
+EDA -->|"IP Cores"| SOC
+
+GPU -->|"GPUs / CPUs"| HW
+SOC -->|"Chipsets"| NET
+ANA -->|"Analog ICs"| EC
+STR -->|"Storage"| HW
+EC -->|"Interconnects"| NET
+
+HW -->|"Cloud Infra"| SYS
+NET -->|"Network Layer"| SYS
+HW -->|"Endpoints"| APP
+GPU -->|"AI Compute"| DAT
+SYS -->|"Platforms"| CON
+SEC -->|"Security Layer"| CON
+
+CAPEX(("💰 Enterprise Capex"))
+AI(("🤖 AI / ML Investment"))
+RATES(("📊 Rate Cycle"))
+
+CAPEX -.->|"Fab Buildout"| UPSTREAM
+AI -.->|"GPU Demand"| MC
+RATES -.->|"Discount Rates"| DS
+
+classDef upstream fill:#1e3a5f,stroke:#4a90d9,stroke-width:2px,color:#e8f0fe,rx:8,ry:8
+classDef midstream fill:#2d1b4e,stroke:#9b59b6,stroke-width:2px,color:#f0e6ff,rx:8,ry:8
+classDef downstream fill:#1a3c2a,stroke:#27ae60,stroke-width:2px,color:#e8f8f0,rx:8,ry:8
+classDef macrodriver fill:#4a3728,stroke:#e67e22,stroke-width:2px,color:#fdebd0,rx:8,ry:8
+
+class SE,SM,EDA upstream
+class GPU,SOC,ANA,HW,NET,STR,EC midstream
+class SYS,APP,SEC,DAT,CON downstream
+class CAPEX,AI,RATES macrodriver
+
+style UPSTREAM fill:#0d1f33,stroke:#4a90d9,stroke-width:3px,color:#4a90d9,rx:12,ry:12
+style MIDSTREAM fill:#1a0e2e,stroke:#9b59b6,stroke-width:3px,color:#9b59b6,rx:12,ry:12
+style DOWNSTREAM fill:#0e261a,stroke:#27ae60,stroke-width:3px,color:#27ae60,rx:12,ry:12
+</pre>
+</div>
+
+<!-- ════════════════════════ TRACK CARDS ════════════════════════ -->
+<div class="tracks">
+  <div class="track-card track-hard">
+    <h3>🔧 Semiconductor Equipment &amp; EDA</h3>
+    <p>Capex-cycle-sensitive. Lithography, etch, deposition, and EDA design tools. Flows from equipment makers (ASML, AMAT) and IP licensors (ARM, SNPS, CDNS) into the global semiconductor fab complex.</p>
+  </div>
+  <div class="track-card track-soft">
+    <h3>🏛️ Chips, Hardware &amp; Components</h3>
+    <p>AI-investment-driven. Accelerators, networking, analog, and storage. Flows from compute semis (NVDA, AMD, AVGO) through hardware platforms (AAPL, CSCO, ANET) and connectors (APH, TEL) into the cloud and enterprise stack.</p>
+  </div>
+  <div class="track-card track-svc">
+    <h3>🛒 Software &amp; IT Services</h3>
+    <p>Rate-cycle-sensitive. Platform software, cybersecurity, data analytics, and IT consulting. Flows from systems software (MSFT, ORCL, NOW) and security (CRWD, PANW) through IT services (ACN, IBM) to the end enterprise customer.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════ PART B: DISCOVERY GRID ════════════════════════ -->
+<div class="grid-section">
+  <div class="grid-header">
+    <h2>Discovery Grid — Information Technology</h2>
+    <div class="grid-sub">Mega-Cap to Micro-Cap &bull; 115+ Tickers &bull; Search &amp; Filter</div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label>Node</label>
+      <select id="filterNode">
+        <option value="">All</option>
+        <option value="Upstream">Upstream</option>
+        <option value="Midstream">Midstream</option>
+        <option value="Downstream">Downstream</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Archetype</label>
+      <select id="filterArchetype">
+        <option value="">All</option>
+        <option value="Tollbridge">Tollbridge</option>
+        <option value="Cash Engine">Cash Engine</option>
+        <option value="Rule of 40">Rule of 40</option>
+        <option value="Deep Value">Deep Value</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Market Cap</label>
+      <select id="filterCap">
+        <option value="">All</option>
+        <option value="Mega">Mega</option>
+        <option value="Large">Large</option>
+        <option value="Mid">Mid</option>
+        <option value="Small">Small</option>
+        <option value="Micro">Micro</option>
+      </select>
+    </div>
+    <input type="text" class="search-box" id="searchBox" placeholder="Search ticker or company name…">
+    <span class="result-count" id="resultCount"></span>
+  </div>
+
+  <div class="grid-table-wrap">
+    <table class="grid-table">
+      <thead>
+        <tr>
+          <th data-sort="ticker">Ticker ▾</th>
+          <th data-sort="name">Company</th>
+          <th data-sort="industry">Industry</th>
+          <th data-sort="node">Node</th>
+          <th data-sort="archetype">Archetype</th>
+          <th data-sort="marketCap">Mkt Cap</th>
+        </tr>
+      </thead>
+      <tbody id="gridBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════ DATA + JS ════════════════════════ -->
+<script>
+/* ── Mermaid init ── */
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'dark',
+  flowchart: {
+    useMaxWidth: true,
+    htmlLabels: true,
+    curve: 'basis',
+    nodeSpacing: 30,
+    rankSpacing: 60,
+    padding: 12
+  },
+  themeVariables: {
+    darkMode: true,
+    background: '#0e0e16',
+    primaryColor: '#2d1b4e',
+    primaryTextColor: '#e0e0e0',
+    lineColor: '#555',
+    fontSize: '12px'
+  }
+});
+
+/* ══════════════════════════════════════════════════════════════
+   SECTOR DATA — 118 Information Technology Companies
+   ══════════════════════════════════════════════════════════════ */
+const sectorData = [
+  // ─── UPSTREAM: Semiconductor Equipment ───
+  {ticker:"ASML",name:"ASML Holding",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Tollbridge",marketCap:"Mega"},
+  {ticker:"AMAT",name:"Applied Materials",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"LRCX",name:"Lam Research",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"KLAC",name:"KLA Corp",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Tollbridge",marketCap:"Large"},
+  {ticker:"TER",name:"Teradyne",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"ENTG",name:"Entegris",industry:"Semiconductor Materials",node:"Upstream",archetype:"Tollbridge",marketCap:"Mid"},
+  {ticker:"MKSI",name:"MKS Instruments",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"ONTO",name:"Onto Innovation",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"ACLS",name:"Axcelis Technologies",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"CAMT",name:"Camtek",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"COHU",name:"Cohu Inc",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Deep Value",marketCap:"Small"},
+  {ticker:"AMKR",name:"Amkor Technology",industry:"Semiconductor Packaging",node:"Upstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"UCTT",name:"Ultra Clean Holdings",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Deep Value",marketCap:"Small"},
+  {ticker:"IPGP",name:"IPG Photonics",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Deep Value",marketCap:"Small"},
+
+  // ─── UPSTREAM: EDA & Design IP ───
+  {ticker:"SNPS",name:"Synopsys",industry:"EDA & Design IP",node:"Upstream",archetype:"Tollbridge",marketCap:"Mega"},
+  {ticker:"CDNS",name:"Cadence Design Systems",industry:"EDA & Design IP",node:"Upstream",archetype:"Tollbridge",marketCap:"Large"},
+  {ticker:"ARM",name:"Arm Holdings",industry:"Semiconductor IP",node:"Upstream",archetype:"Tollbridge",marketCap:"Mega"},
+
+  // ─── MIDSTREAM: Compute Semiconductors ───
+  {ticker:"NVDA",name:"NVIDIA",industry:"Semiconductors — Accelerators",node:"Midstream",archetype:"Tollbridge",marketCap:"Mega"},
+  {ticker:"AMD",name:"Advanced Micro Devices",industry:"Semiconductors — Logic",node:"Midstream",archetype:"Rule of 40",marketCap:"Mega"},
+  {ticker:"INTC",name:"Intel",industry:"Semiconductors — IDM",node:"Midstream",archetype:"Deep Value",marketCap:"Large"},
+  {ticker:"AVGO",name:"Broadcom",industry:"Semiconductors — Diversified",node:"Midstream",archetype:"Tollbridge",marketCap:"Mega"},
+  {ticker:"QCOM",name:"Qualcomm",industry:"Semiconductors — Mobile SoC",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"TXN",name:"Texas Instruments",industry:"Semiconductors — Analog",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"ADI",name:"Analog Devices",industry:"Semiconductors — Analog",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"MRVL",name:"Marvell Technology",industry:"Semiconductors — Custom Silicon",node:"Midstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"NXPI",name:"NXP Semiconductors",industry:"Semiconductors — Auto/IoT",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"MU",name:"Micron Technology",industry:"Semiconductors — Memory",node:"Midstream",archetype:"Deep Value",marketCap:"Large"},
+  {ticker:"ON",name:"ON Semiconductor",industry:"Semiconductors — Power",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"MCHP",name:"Microchip Technology",industry:"Semiconductors — MCU",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"MPWR",name:"Monolithic Power Systems",industry:"Semiconductors — Power Mgmt",node:"Midstream",archetype:"Tollbridge",marketCap:"Large"},
+  {ticker:"SWKS",name:"Skyworks Solutions",industry:"Semiconductors — RF",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"QRVO",name:"Qorvo",industry:"Semiconductors — RF",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"GFS",name:"GlobalFoundries",industry:"Semiconductors — Foundry",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"LSCC",name:"Lattice Semiconductor",industry:"Semiconductors — FPGA",node:"Midstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"WOLF",name:"Wolfspeed",industry:"Semiconductors — SiC",node:"Midstream",archetype:"Deep Value",marketCap:"Small"},
+  {ticker:"MTSI",name:"MACOM Technology",industry:"Semiconductors — RF/Optical",node:"Midstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"DIOD",name:"Diodes Inc",industry:"Semiconductors — Discrete",node:"Midstream",archetype:"Deep Value",marketCap:"Small"},
+  {ticker:"SLAB",name:"Silicon Laboratories",industry:"Semiconductors — IoT",node:"Midstream",archetype:"Deep Value",marketCap:"Small"},
+  {ticker:"SMTC",name:"Semtech",industry:"Semiconductors — Analog",node:"Midstream",archetype:"Deep Value",marketCap:"Small"},
+  {ticker:"ALGM",name:"Allegro MicroSystems",industry:"Semiconductors — Sensors",node:"Midstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"CRUS",name:"Cirrus Logic",industry:"Semiconductors — Audio",node:"Midstream",archetype:"Cash Engine",marketCap:"Small"},
+
+  // ─── MIDSTREAM: Technology Hardware ───
+  {ticker:"AAPL",name:"Apple",industry:"Technology Hardware",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega"},
+  {ticker:"DELL",name:"Dell Technologies",industry:"Technology Hardware",node:"Midstream",archetype:"Deep Value",marketCap:"Large"},
+  {ticker:"HPQ",name:"HP Inc",industry:"Technology Hardware",node:"Midstream",archetype:"Deep Value",marketCap:"Large"},
+  {ticker:"HPE",name:"Hewlett Packard Enterprise",industry:"Technology Hardware",node:"Midstream",archetype:"Deep Value",marketCap:"Large"},
+  {ticker:"SMCI",name:"Super Micro Computer",industry:"Technology Hardware — Servers",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"CSCO",name:"Cisco Systems",industry:"Communications Equipment",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega"},
+  {ticker:"ANET",name:"Arista Networks",industry:"Communications Equipment",node:"Midstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"JNPR",name:"Juniper Networks",industry:"Communications Equipment",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"ZBRA",name:"Zebra Technologies",industry:"Technology Hardware",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"CDW",name:"CDW Corp",industry:"Technology Distribution",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
+
+  // ─── MIDSTREAM: Storage ───
+  {ticker:"WDC",name:"Western Digital",industry:"Storage",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"STX",name:"Seagate Technology",industry:"Storage",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"NTAP",name:"NetApp",industry:"Storage",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"PSTG",name:"Pure Storage",industry:"Storage",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid"},
+
+  // ─── MIDSTREAM: Electronic Components ───
+  {ticker:"APH",name:"Amphenol",industry:"Electronic Components",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"TEL",name:"TE Connectivity",industry:"Electronic Components",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"GLW",name:"Corning",industry:"Electronic Components — Optical",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"KEYS",name:"Keysight Technologies",industry:"Electronic Test Equipment",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"TRMB",name:"Trimble",industry:"Electronic Equipment",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
+
+  // ─── DOWNSTREAM: Systems & Platform Software ───
+  {ticker:"MSFT",name:"Microsoft",industry:"Systems Software — Cloud",node:"Downstream",archetype:"Tollbridge",marketCap:"Mega"},
+  {ticker:"ORCL",name:"Oracle",industry:"Systems Software — Database",node:"Downstream",archetype:"Tollbridge",marketCap:"Mega"},
+  {ticker:"NOW",name:"ServiceNow",industry:"Platform Software",node:"Downstream",archetype:"Rule of 40",marketCap:"Mega"},
+  {ticker:"CRM",name:"Salesforce",industry:"Application Software — CRM",node:"Downstream",archetype:"Cash Engine",marketCap:"Mega"},
+  {ticker:"ADBE",name:"Adobe",industry:"Application Software — Creative",node:"Downstream",archetype:"Cash Engine",marketCap:"Mega"},
+  {ticker:"INTU",name:"Intuit",industry:"Application Software — Finance",node:"Downstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"PLTR",name:"Palantir Technologies",industry:"Data Analytics & AI",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"WDAY",name:"Workday",industry:"Application Software — HCM",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"SNOW",name:"Snowflake",industry:"Data Infrastructure",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"HUBS",name:"HubSpot",industry:"Application Software — Marketing",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"TEAM",name:"Atlassian",industry:"Application Software — DevTools",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"TTD",name:"The Trade Desk",industry:"Application Software — AdTech",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"ANSS",name:"Ansys",industry:"Application Software — Simulation",node:"Downstream",archetype:"Tollbridge",marketCap:"Large"},
+  {ticker:"PTC",name:"PTC Inc",industry:"Application Software — PLM",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"DDOG",name:"Datadog",industry:"Observability Software",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"VEEV",name:"Veeva Systems",industry:"Application Software — Life Sci",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"MNDY",name:"monday.com",industry:"Application Software — WorkOS",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"MDB",name:"MongoDB",industry:"Data Infrastructure",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"NET",name:"Cloudflare",industry:"Cloud Infrastructure",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"MANH",name:"Manhattan Associates",industry:"Application Software — Supply Chain",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"BILL",name:"BILL Holdings",industry:"Application Software — FinOps",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"PCOR",name:"Procore Technologies",industry:"Application Software — Construction",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"DOCU",name:"DocuSign",industry:"Application Software — eSignature",node:"Downstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"PATH",name:"UiPath",industry:"Application Software — RPA",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"ZM",name:"Zoom Video Communications",industry:"Application Software — UCaaS",node:"Downstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"SMAR",name:"Smartsheet",industry:"Application Software — WorkMgmt",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"ESTC",name:"Elastic NV",industry:"Data Analytics",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"CFLT",name:"Confluent",industry:"Data Infrastructure",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"GWRE",name:"Guidewire Software",industry:"Application Software — Insurance",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"TOST",name:"Toast",industry:"Application Software — Restaurant",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"BRZE",name:"Braze",industry:"Application Software — Engagement",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"NCNO",name:"nCino",industry:"Application Software — Banking",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"APPF",name:"AppFolio",industry:"Application Software — PropTech",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"U",name:"Unity Software",industry:"Application Software — 3D Engine",node:"Downstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"DT",name:"Dynatrace",industry:"Observability Software",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"PAYC",name:"Paycom Software",industry:"Application Software — HCM",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"ALTR",name:"Altair Engineering",industry:"Application Software — Simulation",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+
+  // ─── DOWNSTREAM: Cybersecurity ───
+  {ticker:"CRWD",name:"CrowdStrike Holdings",industry:"Cybersecurity — Endpoint",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"PANW",name:"Palo Alto Networks",industry:"Cybersecurity — Platform",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
+  {ticker:"FTNT",name:"Fortinet",industry:"Cybersecurity — Network",node:"Downstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"ZS",name:"Zscaler",industry:"Cybersecurity — Zero Trust",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"CYBR",name:"CyberArk Software",industry:"Cybersecurity — Identity",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"S",name:"SentinelOne",industry:"Cybersecurity — XDR",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"RPD",name:"Rapid7",industry:"Cybersecurity — SIEM",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"VRNS",name:"Varonis Systems",industry:"Cybersecurity — Data Security",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+  {ticker:"QLYS",name:"Qualys",industry:"Cybersecurity — Vuln Mgmt",node:"Downstream",archetype:"Cash Engine",marketCap:"Small"},
+  {ticker:"TENB",name:"Tenable Holdings",industry:"Cybersecurity — Exposure Mgmt",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
+
+  // ─── DOWNSTREAM: IT Consulting & Services ───
+  {ticker:"ACN",name:"Accenture",industry:"IT Consulting & Services",node:"Downstream",archetype:"Cash Engine",marketCap:"Mega"},
+  {ticker:"IBM",name:"IBM",industry:"IT Consulting & Hybrid Cloud",node:"Downstream",archetype:"Deep Value",marketCap:"Large"},
+  {ticker:"CTSH",name:"Cognizant Technology Solutions",industry:"IT Services — Outsourcing",node:"Downstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"INFY",name:"Infosys",industry:"IT Services — Outsourcing",node:"Downstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"WIT",name:"Wipro",industry:"IT Services — Outsourcing",node:"Downstream",archetype:"Deep Value",marketCap:"Mid"},
+  {ticker:"EPAM",name:"EPAM Systems",industry:"IT Services — Digital Engineering",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"GLOB",name:"Globant",industry:"IT Services — Digital Engineering",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+  {ticker:"DXC",name:"DXC Technology",industry:"IT Services — Legacy",node:"Downstream",archetype:"Deep Value",marketCap:"Small"},
+  {ticker:"LDOS",name:"Leidos Holdings",industry:"IT Services — Government",node:"Downstream",archetype:"Cash Engine",marketCap:"Large"},
+  {ticker:"SAIC",name:"Science Applications Intl",industry:"IT Services — Government",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"GDDY",name:"GoDaddy",industry:"Internet Infrastructure",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"GEN",name:"Gen Digital",industry:"Consumer Security",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid"},
+  {ticker:"TWLO",name:"Twilio",industry:"Communications Platform",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+];
+
+/* ══════════════════════════════════════════════════════════════
+   RENDER + FILTER LOGIC
+   ══════════════════════════════════════════════════════════════ */
+const tbody = document.getElementById('gridBody');
+const filterNode = document.getElementById('filterNode');
+const filterArchetype = document.getElementById('filterArchetype');
+const filterCap = document.getElementById('filterCap');
+const searchBox = document.getElementById('searchBox');
+const resultCount = document.getElementById('resultCount');
+
+function badgeClass(type, val) {
+  if (type === 'node') return 'badge badge-' + val.toLowerCase();
+  if (type === 'archetype') {
+    const map = {'Tollbridge':'tollbridge','Cash Engine':'cashengine','Rule of 40':'ruleof40','Deep Value':'deepvalue'};
+    return 'badge badge-' + (map[val] || '');
+  }
+  if (type === 'cap') return 'badge badge-' + val.toLowerCase();
+  return 'badge';
+}
+
+function renderGrid(data) {
+  tbody.innerHTML = '';
+  data.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="ticker-cell">${d.ticker}</td>
+      <td class="name-cell">${d.name}</td>
+      <td>${d.industry}</td>
+      <td><span class="${badgeClass('node',d.node)}">${d.node}</span></td>
+      <td><span class="${badgeClass('archetype',d.archetype)}">${d.archetype}</span></td>
+      <td><span class="${badgeClass('cap',d.marketCap)}">${d.marketCap}</span></td>`;
+    tbody.appendChild(tr);
+  });
+  resultCount.textContent = data.length + ' / ' + sectorData.length + ' companies';
+}
+
+function applyFilters() {
+  const nv = filterNode.value;
+  const av = filterArchetype.value;
+  const cv = filterCap.value;
+  const sv = searchBox.value.toLowerCase();
+  const filtered = sectorData.filter(d => {
+    if (nv && d.node !== nv) return false;
+    if (av && d.archetype !== av) return false;
+    if (cv && d.marketCap !== cv) return false;
+    if (sv && !d.ticker.toLowerCase().includes(sv) && !d.name.toLowerCase().includes(sv)) return false;
+    return true;
+  });
+  renderGrid(filtered);
+}
+
+filterNode.addEventListener('change', applyFilters);
+filterArchetype.addEventListener('change', applyFilters);
+filterCap.addEventListener('change', applyFilters);
+searchBox.addEventListener('input', applyFilters);
+
+/* Column sort */
+let sortCol = 'ticker', sortAsc = true;
+const capOrder = {Mega:0,Large:1,Mid:2,Small:3,Micro:4};
+document.querySelectorAll('.grid-table thead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.sort;
+    if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+    sectorData.sort((a,b) => {
+      let va = a[col], vb = b[col];
+      if (col === 'marketCap') { va = capOrder[va]; vb = capOrder[vb]; }
+      if (va < vb) return sortAsc ? -1 : 1;
+      if (va > vb) return sortAsc ? 1 : -1;
+      return 0;
+    });
+    applyFilters();
+  });
+});
+
+/* Initial render */
+renderGrid(sectorData);
+</script>
+</body>
+</html>
