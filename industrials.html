@@ -1,0 +1,2655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Industrials &mdash; GICS Sector Visual Atlas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --panel: #11131a;
+  --panel-2: #161a22;
+  --text: #e0e0e0;
+  --muted: #9aa4b2;
+  --border: #2a2f3a;
+  --tier1: #4ea8de;
+  --tier2: #7b2cbf;
+  --tier3: #2a9d8f;
+  --loop: #f4a261;
+  --accent: #4ea8de;
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --tier1-bg: rgba(78,168,222,0.07);
+  --tier1-border: rgba(78,168,222,0.25);
+  --tier2-bg: rgba(123,44,191,0.07);
+  --tier2-border: rgba(123,44,191,0.25);
+  --tier3-bg: rgba(42,157,143,0.07);
+  --tier3-border: rgba(42,157,143,0.25);
+  --loop-bg: rgba(244,162,97,0.07);
+  --loop-border: rgba(244,162,97,0.25);
+  --tollbridge: #4a90d9;
+  --cashengine: #27ae60;
+  --ruleof40: #22d3ee;
+  --compounder: #2a9d8f;
+  --deepvalue: #e6a817;
+  --turnaround: #e67e22;
+  --specgrowth: #9b59b6;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 0;
+  margin: 0;
+}
+.page-wrap {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px 60px;
+}
+/* ─── STICKY NAV ─── */
+.sticky-nav {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+}
+.sticky-nav-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 10px 0;
+}
+.sticky-nav-inner::-webkit-scrollbar { display: none; }
+.nav-link {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 12px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.nav-link:hover { color: var(--text); border-color: var(--border); }
+.nav-link.active { color: var(--accent); border-color: var(--accent); background: rgba(78,168,222,0.08); }
+/* ─── HERO ─── */
+.hero {
+  text-align: center;
+  padding: 56px 0 40px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 48px;
+}
+.hero h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--tier1), var(--tier2), var(--tier3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+.hero .subtitle {
+  font-family: var(--mono);
+  color: var(--muted);
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.hero .lens {
+  max-width: 800px;
+  margin: 0 auto 20px;
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 20px;
+}
+.hero-stat {
+  text-align: center;
+}
+.hero-stat .stat-num {
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.hero-stat .stat-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+/* ─── SECTION TITLES ─── */
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.section-subtitle {
+  font-size: 0.78rem;
+  color: #666;
+  margin-bottom: 24px;
+}
+section { margin-bottom: 56px; }
+/* ─── MACRO DRIVERS ─── */
+.macro-row {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.macro-circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 2px dashed var(--loop-border);
+  background: var(--loop-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  position: relative;
+  box-shadow: 0 0 20px rgba(244,162,97,0.08);
+}
+.macro-circle .macro-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--loop);
+  margin-bottom: 4px;
+}
+.macro-circle .macro-sub {
+  font-size: 0.55rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+/* ─── FACTOR TOGGLES ─── */
+.factor-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.factor-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.factor-toggle {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 7px 18px;
+  border-radius: 20px;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font);
+}
+.factor-toggle:hover { border-color: #555; }
+.factor-toggle.active {
+  border-color: var(--loop);
+  color: var(--loop);
+  box-shadow: 0 0 10px rgba(244,162,97,0.2);
+  background: var(--loop-bg);
+}
+/* ─── VALUE CHAIN MAP ─── */
+.map-container {
+  position: relative;
+  overflow-x: auto;
+}
+.map-grid {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 20px;
+  min-width: 900px;
+  position: relative;
+}
+.map-bands { display: flex; flex-direction: column; gap: 0; }
+.map-band {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  z-index: 2;
+}
+.band-t1 { border-color: var(--tier1-border); background: var(--tier1-bg); }
+.band-t2 { border-color: var(--tier2-border); background: var(--tier2-bg); margin-top: -1px; }
+.band-t3 { border-color: var(--tier3-border); background: var(--tier3-bg); margin-top: -1px; }
+.band-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.band-t1 .band-label { color: var(--tier1); }
+.band-t2 .band-label { color: var(--tier2); }
+.band-t3 .band-label { color: var(--tier3); }
+.band-nodes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.map-node {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.35);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1 1 180px;
+  min-width: 160px;
+}
+.map-node:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.band-t1 .map-node:hover { border-color: var(--tier1); box-shadow: 0 0 14px rgba(78,168,222,0.2); }
+.band-t2 .map-node:hover { border-color: var(--tier2); box-shadow: 0 0 14px rgba(123,44,191,0.2); }
+.band-t3 .map-node:hover { border-color: var(--tier3); box-shadow: 0 0 14px rgba(42,157,143,0.2); }
+.map-node.active { border-color: var(--accent); box-shadow: 0 0 18px rgba(78,168,222,0.3); }
+.map-node.dimmed { opacity: 0.3; }
+.node-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.node-tickers {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+/* Aftermarket Rail */
+.aftermarket-rail {
+  border: 2px dashed var(--loop-border);
+  border-radius: 12px;
+  background: var(--loop-bg);
+  padding: 20px 16px;
+  position: relative;
+  z-index: 2;
+  align-self: stretch;
+}
+.rail-title {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--loop);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--loop-border);
+  text-align: center;
+}
+.rail-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rail-item {
+  font-size: 0.72rem;
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(244,162,97,0.12);
+  background: rgba(0,0,0,0.2);
+}
+/* Map SVG overlay */
+.map-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+/* ─── COMPANY GRID ─── */
+.grid-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.grid-filters input,
+.grid-filters select {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.grid-filters input:focus,
+.grid-filters select:focus { border-color: var(--accent); }
+.grid-filters input { flex: 1; min-width: 180px; }
+.grid-filters select { min-width: 130px; }
+.filter-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+#resultCount {
+  font-family: var(--mono);
+  font-size: 0.73rem;
+  color: var(--muted);
+}
+#clearBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font);
+}
+#clearBtn:hover { border-color: var(--text); color: var(--text); }
+.company-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.company-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+.company-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+  border-color: rgba(255,255,255,0.12);
+}
+.company-card.highlighted {
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(78,168,222,0.2);
+}
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.card-ticker {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.card-name {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-tier1 { background: var(--tier1-bg); color: var(--tier1); border: 1px solid var(--tier1-border); }
+.badge-tier2 { background: var(--tier2-bg); color: var(--tier2); border: 1px solid var(--tier2-border); }
+.badge-tier3 { background: var(--tier3-bg); color: var(--tier3); border: 1px solid var(--tier3-border); }
+.badge-arch {
+  position: relative;
+  cursor: help;
+}
+.badge-tollbridge { background: rgba(74,144,217,0.1); color: var(--tollbridge); border: 1px solid rgba(74,144,217,0.25); }
+.badge-cashengine { background: rgba(39,174,96,0.1); color: var(--cashengine); border: 1px solid rgba(39,174,96,0.25); }
+.badge-ruleof40 { background: rgba(34,211,238,0.1); color: var(--ruleof40); border: 1px solid rgba(34,211,238,0.25); }
+.badge-compounder { background: rgba(42,157,143,0.1); color: var(--compounder); border: 1px solid rgba(42,157,143,0.25); }
+.badge-deepvalue { background: rgba(230,168,23,0.1); color: var(--deepvalue); border: 1px solid rgba(230,168,23,0.25); }
+.badge-turnaround { background: rgba(230,126,34,0.1); color: var(--turnaround); border: 1px solid rgba(230,126,34,0.25); }
+.badge-specgrowth { background: rgba(155,89,182,0.1); color: var(--specgrowth); border: 1px solid rgba(155,89,182,0.25); }
+.badge-cap {
+  background: rgba(255,255,255,0.04);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+}
+.badge-cycle {
+  background: rgba(255,255,255,0.03);
+  color: #666;
+  border: 1px solid var(--border);
+}
+.card-subind {
+  font-size: 0.68rem;
+  color: #666;
+  margin-bottom: 6px;
+}
+.card-factor {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+  display: none;
+}
+.card-desc {
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-top: 10px;
+  display: none;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+.card-desc.open { display: block; }
+/* Archetype tooltip */
+.badge-arch .arch-tip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 280px;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.5;
+  white-space: normal;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+.badge-arch .arch-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1a1a2e;
+}
+.badge-arch:hover .arch-tip { display: block; }
+/* Factor score colors */
+.factor-pos2 { background: rgba(39,174,96,0.18); color: #27ae60; }
+.factor-pos1 { background: rgba(39,174,96,0.1); color: #5cb85c; }
+.factor-zero { background: rgba(255,255,255,0.04); color: #666; }
+.factor-neg1 { background: rgba(231,76,60,0.1); color: #e07070; }
+.factor-neg2 { background: rgba(231,76,60,0.18); color: #e74c3c; }
+/* ─── INDUSTRY BRIEFS (Accordion) ─── */
+.brief-accordion { display: flex; flex-direction: column; gap: 8px; }
+.brief-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  overflow: hidden;
+}
+.brief-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.brief-header:hover { background: var(--panel-2); }
+.brief-header .brief-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  flex: 1;
+}
+.brief-header .brief-chevron {
+  font-size: 0.8rem;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.brief-item.open .brief-chevron { transform: rotate(90deg); }
+.brief-body {
+  display: none;
+  padding: 0 20px 20px;
+}
+.brief-item.open .brief-body { display: block; }
+.brief-section-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #666;
+  margin: 20px 0 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--border);
+}
+.brief-overview {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.65;
+  white-space: pre-line;
+}
+.dynamics-list { list-style: none; }
+.dynamics-list li {
+  font-size: 0.78rem; color: var(--muted); line-height: 1.55;
+  padding: 6px 0 6px 16px; border-bottom: 1px solid var(--border); position: relative;
+}
+.dynamics-list li:last-child { border-bottom: none; }
+.dynamics-list li::before { content: '\203A'; position: absolute; left: 0; color: #666; font-weight: 700; }
+/* Variant Perception 4-box */
+.variant-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.variant-box {
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.5;
+  background: rgba(255,255,255,0.02);
+}
+.variant-box .vb-label {
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.vb-consensus { border-left: 3px solid var(--muted); }
+.vb-consensus .vb-label { color: var(--muted); }
+.vb-bull { border-left: 3px solid #27ae60; }
+.vb-bull .vb-label { color: #27ae60; }
+.vb-bear { border-left: 3px solid #e74c3c; }
+.vb-bear .vb-label { color: #e74c3c; }
+.vb-signal { border-left: 3px solid var(--accent); }
+.vb-signal .vb-label { color: var(--accent); }
+/* Revenue table */
+.rev-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin-top: 4px; }
+.rev-table thead th {
+  text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.08);
+  color: #666; font-size: 0.64rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.rev-table tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--muted); }
+.rev-table tbody td:first-child { font-family: var(--mono); font-weight: 600; color: var(--accent); }
+/* Anchor tickers */
+.anchor-list { display: flex; flex-direction: column; gap: 8px; }
+.anchor-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: rgba(255,255,255,0.015);
+  cursor: pointer; transition: border-color 0.2s;
+}
+.anchor-item:hover { border-color: var(--accent); }
+.anchor-ticker { font-family: var(--mono); font-weight: 700; font-size: 0.82rem; color: var(--accent); min-width: 48px; }
+.anchor-rationale { font-size: 0.74rem; color: var(--muted); line-height: 1.5; }
+/* Key metrics tags */
+.metrics-list { display: flex; gap: 6px; flex-wrap: wrap; }
+.metric-tag {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+/* Watchlist */
+.watchlist-item {
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.5;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+.watchlist-item:last-child { border-bottom: none; }
+/* ─── SIGNAL CHAINS ─── */
+.chains-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+.chain-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  background: var(--panel);
+}
+.chain-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.chain-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 12px;
+  padding-left: 14px;
+  border-left: 2px solid var(--border);
+}
+.chain-step {
+  font-size: 0.72rem;
+  color: var(--muted);
+  padding: 6px 0 6px 12px;
+  position: relative;
+  line-height: 1.45;
+}
+.chain-step::before {
+  content: '';
+  position: absolute;
+  left: -19px;
+  top: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 2px solid var(--accent);
+}
+.chain-affected {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.chain-badge {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chain-badge:hover { border-color: var(--accent); color: var(--accent); }
+/* ─── GLOSSARY ─── */
+.glossary-search {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-family: var(--mono);
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.glossary-search:focus { border-color: var(--accent); }
+.glossary-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+.glossary-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  overflow: hidden;
+}
+.glossary-term {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.glossary-term:hover { background: var(--panel-2); }
+.glossary-term .g-chevron {
+  font-size: 0.7rem;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.glossary-item.open .g-chevron { transform: rotate(90deg); }
+.glossary-def {
+  display: none;
+  padding: 0 14px 12px;
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.glossary-item.open .glossary-def { display: block; }
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-size: 0.85rem;
+  grid-column: 1 / -1;
+}
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  .company-grid { grid-template-columns: repeat(2, 1fr); }
+  .chains-grid { grid-template-columns: 1fr; }
+  .variant-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .page-wrap { padding: 0 12px 40px; }
+  .company-grid { grid-template-columns: 1fr; }
+  .map-grid { grid-template-columns: 1fr; }
+  .glossary-list { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 1.6rem; }
+  .macro-row { gap: 16px; }
+  .macro-circle { width: 90px; height: 90px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ STICKY NAV ═══ -->
+<nav class="sticky-nav">
+  <div class="sticky-nav-inner">
+    <a class="nav-link" href="#hero">Overview</a>
+    <a class="nav-link" href="#macro">Macro Drivers</a>
+    <a class="nav-link" href="#factors">Factor Toggles</a>
+    <a class="nav-link" href="#map">Value Chain Map</a>
+    <a class="nav-link" href="#grid">Company Grid</a>
+    <a class="nav-link" href="#briefs">Industry Briefs</a>
+    <a class="nav-link" href="#signals">Signal Chains</a>
+    <a class="nav-link" href="#glossary">Glossary</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="hero">
+  <h1>Industrials</h1>
+  <p class="subtitle">The Installed-Base Economy</p>
+  <p class="lens">The strongest industrial models monetize installed assets through service, parts, maintenance, leasing, and workflow entrenchment &mdash; not just original equipment sales.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="stat-num" id="companyCount">—</div>
+      <div class="stat-label">Companies</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-num" id="subIndCount">14</div>
+      <div class="stat-label">Sub-Industries</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MACRO DRIVERS ═══ -->
+<section id="macro">
+  <h2 class="section-title">Macro Drivers</h2>
+  <p class="section-subtitle">The primary forces shaping demand, pricing, and capital allocation across Industrials</p>
+  <div class="macro-row">
+    <div class="macro-circle">
+      <div class="macro-title">Capex Cycle</div>
+      <div class="macro-sub">PMI / orders<br>utilization</div>
+    </div>
+    <div class="macro-circle">
+      <div class="macro-title">Defense Spending</div>
+      <div class="macro-sub">budgets<br>replenishment<br>sustainment</div>
+    </div>
+    <div class="macro-circle">
+      <div class="macro-title">Infrastructure</div>
+      <div class="macro-sub">grid / utility<br>public works</div>
+    </div>
+    <div class="macro-circle">
+      <div class="macro-title">Labor Automation</div>
+      <div class="macro-sub">productivity<br>controls / software</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FACTOR TOGGLES ═══ -->
+<section id="factors">
+  <h2 class="section-title">Factor Exposure Overlay</h2>
+  <p class="section-subtitle">Activate a factor to tint company cards by exposure score (-2 to +2)</p>
+  <div class="factor-section">
+    <span class="factor-label">Factor:</span>
+    <button class="factor-toggle" data-factor="capexCycle">Capex Cycle</button>
+    <button class="factor-toggle" data-factor="defenseSpending">Defense Spending</button>
+    <button class="factor-toggle" data-factor="infrastructure">Infrastructure</button>
+    <button class="factor-toggle" data-factor="laborAutomation">Labor Automation</button>
+  </div>
+</section>
+
+<!-- ═══ VALUE CHAIN MAP ═══ -->
+<section id="map">
+  <h2 class="section-title">Value Chain Map</h2>
+  <p class="section-subtitle">Builders &rarr; Operators &rarr; Movers, with the Installed Base / Aftermarket / MRO loop</p>
+  <div class="map-container">
+    <div class="map-grid" id="mapGrid">
+      <svg class="map-svg" id="mapSvg"></svg>
+      <div class="map-bands" id="mapBands">
+        <!-- Tier 1 -->
+        <div class="map-band band-t1" id="bandT1">
+          <div class="band-label">Tier 1 &mdash; Capital Goods, Engineered Systems &amp; Buildout</div>
+          <div class="band-nodes" id="nodesT1"></div>
+        </div>
+        <!-- Tier 2 -->
+        <div class="map-band band-t2" id="bandT2">
+          <div class="band-label">Tier 2 &mdash; Distribution, Services &amp; Operational Enablement</div>
+          <div class="band-nodes" id="nodesT2"></div>
+        </div>
+        <!-- Tier 3 -->
+        <div class="map-band band-t3" id="bandT3">
+          <div class="band-label">Tier 3 &mdash; Transportation, Freight Networks &amp; Mobility</div>
+          <div class="band-nodes" id="nodesT3"></div>
+        </div>
+      </div>
+      <!-- Aftermarket Rail -->
+      <div class="aftermarket-rail">
+        <div class="rail-title">Installed Base / Aftermarket / MRO</div>
+        <div class="rail-items">
+          <div class="rail-item">Replacement Parts</div>
+          <div class="rail-item">Maintenance</div>
+          <div class="rail-item">Field Service</div>
+          <div class="rail-item">Retrofits</div>
+          <div class="rail-item">Consumables</div>
+          <div class="rail-item">Inspections</div>
+          <div class="rail-item">Software / Controls Upgrades</div>
+          <div class="rail-item">Long-Term Service Agreements</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COMPANY GRID ═══ -->
+<section id="grid">
+  <h2 class="section-title">Company Grid</h2>
+  <p class="section-subtitle"><span id="gridSubtitle"></span> Click any card to expand.</p>
+  <div class="grid-filters">
+    <input type="text" id="searchInput" placeholder="Search ticker or name...">
+    <select id="tierFilter"><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option></select>
+    <select id="archFilter"><option value="">All Archetypes</option></select>
+    <select id="capFilter"><option value="">All Market Caps</option></select>
+    <select id="subFilter"><option value="">All Sub-Industries</option></select>
+    <div class="filter-meta">
+      <span id="resultCount"></span>
+      <button id="clearBtn" onclick="clearFilters()">Clear</button>
+    </div>
+  </div>
+  <div class="company-grid" id="companyGrid"></div>
+</section>
+
+<!-- ═══ INDUSTRY BRIEFS ═══ -->
+<section id="briefs">
+  <h2 class="section-title">Industry Briefs</h2>
+  <p class="section-subtitle">Deep-dive per sub-industry. Single-expand accordion.</p>
+  <div class="brief-accordion" id="briefAccordion"></div>
+</section>
+
+<!-- ═══ SIGNAL CHAINS ═══ -->
+<section id="signals">
+  <h2 class="section-title">Signal Chains</h2>
+  <p class="section-subtitle">Causal logic chains showing how macro drivers cascade through the sector</p>
+  <div class="chains-grid" id="chainsGrid"></div>
+</section>
+
+<!-- ═══ GLOSSARY ═══ -->
+<section id="glossary">
+  <h2 class="section-title">Glossary</h2>
+  <p class="section-subtitle">Sector terminology and archetype definitions</p>
+  <input type="text" class="glossary-search" id="glossarySearch" placeholder="Search terms...">
+  <div class="glossary-list" id="glossaryList"></div>
+</section>
+
+</div><!-- /page-wrap -->
+
+<script>
+const sectorData = [
+  {
+    ticker: "GE",
+    name: "GE Aerospace",
+    tier: 1,
+    subIndustry: "Aerospace & Defense",
+    marketCap: "Mega-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 1, infrastructure: 0, laborAutomation: 0 },
+    description: "Pure-play commercial aerospace propulsion leader following the GE Vernova separation. Large commercial engine programs create a vast installed base with long-duration aftermarket economics. The initial engine shipment seeds decades of maintenance, repair, and overhaul revenue."
+  },
+  {
+    ticker: "RTX",
+    name: "RTX Corporation",
+    tier: 1,
+    subIndustry: "Aerospace & Defense",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 2, infrastructure: 0, laborAutomation: 0 },
+    description: "Diversified aerospace and defense platform spanning engines, avionics, and missile systems. Exposure is split between commercial aero recovery and secular defense procurement. Installed fleets and mission-critical systems make sustainment a core margin driver."
+  },
+  {
+    ticker: "LMT",
+    name: "Lockheed Martin Corporation",
+    tier: 1,
+    subIndustry: "Aerospace & Defense",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 0, defenseSpending: 2, infrastructure: 0, laborAutomation: 0 },
+    description: "Prime defense contractor with dominant positions in tactical aircraft, missiles, and classified systems. Program entrenchment and national-security relevance drive revenue visibility. Sustainment economics matter nearly as much as platform production."
+  },
+  {
+    ticker: "TDG",
+    name: "TransDigm Group Incorporated",
+    tier: 1,
+    subIndustry: "Aerospace & Defense",
+    marketCap: "Large-Cap",
+    archetype: "Tollbridge",
+    cyclePosition: "secular",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 0, laborAutomation: 0 },
+    description: "Highly engineered aerospace components supplier built around proprietary, often sole-source parts. It is one of the cleanest installed-base tollbridge models in Industrials. Pricing power is rooted in certification complexity and replacement necessity."
+  },
+  {
+    ticker: "HEI",
+    name: "HEICO Corporation",
+    tier: 1,
+    subIndustry: "Aerospace & Defense",
+    marketCap: "Large-Cap",
+    archetype: "Compounder",
+    cyclePosition: "secular",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 0, laborAutomation: 0 },
+    description: "Aerospace electronics and PMA parts supplier with a long record of disciplined compounding. Lower-cost approved replacement parts deepen its aftermarket positioning. The recurring replacement cycle matters more than one-time OEM content."
+  },
+  {
+    ticker: "CAT",
+    name: "Caterpillar Inc.",
+    tier: 1,
+    subIndustry: "Machinery & Industrial Equipment",
+    marketCap: "Mega-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "late-cycle",
+    factorExposures: { capexCycle: 2, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Global heavy equipment leader across construction, mining, and energy applications. The installed fleet, dealer network, and parts/service ecosystem are the real value driver, not just new machine shipments. This is a cyclical OEM with a recurring aftermarket spine."
+  },
+  {
+    ticker: "DE",
+    name: "Deere & Company",
+    tier: 1,
+    subIndustry: "Machinery & Industrial Equipment",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "late-cycle",
+    factorExposures: { capexCycle: 2, defenseSpending: 0, infrastructure: 0, laborAutomation: 1 },
+    description: "Agriculture and turf equipment leader with growing precision-ag and autonomy content. The model is shifting from iron sales toward higher-value fleet optimization. Equipment cyclicality remains real, but the software and service layer is deepening."
+  },
+  {
+    ticker: "PH",
+    name: "Parker-Hannifin Corporation",
+    tier: 1,
+    subIndustry: "Machinery & Industrial Equipment",
+    marketCap: "Large-Cap",
+    archetype: "Compounder",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Motion and control systems leader spanning fluid power, filtration, and engineered components. Diverse end-market exposure and disciplined portfolio management support resilient earnings quality. Replacement demand across critical systems is the hidden durability engine."
+  },
+  {
+    ticker: "ROK",
+    name: "Rockwell Automation, Inc.",
+    tier: 1,
+    subIndustry: "Machinery & Industrial Equipment",
+    marketCap: "Mid-Cap",
+    archetype: "Rule of 40",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 0, laborAutomation: 2 },
+    description: "Factory automation and industrial software platform serving manufacturers pursuing productivity gains. Controls, PLCs, and software tie it directly to the labor-automation theme. The hardware footprint anchors a higher-value software and lifecycle-services opportunity."
+  },
+  {
+    ticker: "XYL",
+    name: "Xylem Inc.",
+    tier: 1,
+    subIndustry: "Machinery & Industrial Equipment",
+    marketCap: "Mid-Cap",
+    archetype: "Compounder",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 2, laborAutomation: 0 },
+    description: "Water infrastructure and fluid management company serving utilities, municipalities, and industrial users. Replacement and upgrade spending make demand more durable than typical machinery peers. Smart-water analytics expand the recurring layer beyond hardware."
+  },
+  {
+    ticker: "ETN",
+    name: "Eaton Corporation plc",
+    tier: 1,
+    subIndustry: "Electrical Equipment & Power Management",
+    marketCap: "Large-Cap",
+    archetype: "Compounder",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 2, laborAutomation: 0 },
+    description: "Power management leader spanning electrical distribution, controls, and mission-critical backup systems. It benefits from grid modernization, electrification, and data-center power intensity. The installed base creates recurring retrofit, parts, and service opportunities."
+  },
+  {
+    ticker: "EMR",
+    name: "Emerson Electric Co.",
+    tier: 1,
+    subIndustry: "Electrical Equipment & Power Management",
+    marketCap: "Large-Cap",
+    archetype: "Compounder",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 0, laborAutomation: 1 },
+    description: "Automation and control systems company with deep process-industrial roots. Increasing exposure to higher-quality software and automation assets improves mix and resilience. The core advantage is mission-critical installed hardware tied to control workflows."
+  },
+  {
+    ticker: "GEV",
+    name: "GE Vernova Inc.",
+    tier: 1,
+    subIndustry: "Electrical Equipment & Power Management",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "early-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 2, laborAutomation: 0 },
+    description: "Grid, power generation, and electrification platform separated from GE. It is directly levered to transmission upgrades, utility investment, and rising power demand. Service contracts and installed equipment support a recurring revenue base."
+  },
+  {
+    ticker: "VRT",
+    name: "Vertiv Holdings Co",
+    tier: 1,
+    subIndustry: "Electrical Equipment & Power Management",
+    marketCap: "Mid-Cap",
+    archetype: "Rule of 40",
+    cyclePosition: "early-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 2, laborAutomation: 1 },
+    description: "Critical digital infrastructure supplier focused on power, cooling, and thermal management. It is one of the clearest industrial beneficiaries of AI-driven data-center buildout. Service and replacement activity deepen the installed-base story."
+  },
+  {
+    ticker: "TT",
+    name: "Trane Technologies plc",
+    tier: 1,
+    subIndustry: "Building Products & Construction Systems",
+    marketCap: "Large-Cap",
+    archetype: "Compounder",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 2, laborAutomation: 0 },
+    description: "HVAC and climate systems leader with strong exposure to efficiency retrofits, replacement demand, and service agreements. The installed base in commercial buildings creates durable lifecycle revenue. It is as much an energy-efficiency platform as a product manufacturer."
+  },
+  {
+    ticker: "JCI",
+    name: "Johnson Controls International plc",
+    tier: 1,
+    subIndustry: "Building Products & Construction Systems",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Building systems company spanning HVAC controls, fire/security, and building automation. Value comes from integrating physical systems and then monetizing monitoring, service, and upgrades. Large installed infrastructure supports recurring revenue beyond initial delivery."
+  },
+  {
+    ticker: "CARR",
+    name: "Carrier Global Corporation",
+    tier: 1,
+    subIndustry: "Building Products & Construction Systems",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "HVAC, refrigeration, and building systems provider with strong replacement-cycle exposure. Margin quality improves as service mix rises and portfolio complexity falls. Cooling demand and installed-base service support the long-term thesis."
+  },
+  {
+    ticker: "OTIS",
+    name: "Otis Worldwide Corporation",
+    tier: 1,
+    subIndustry: "Building Products & Construction Systems",
+    marketCap: "Mid-Cap",
+    archetype: "Tollbridge",
+    cyclePosition: "secular",
+    factorExposures: { capexCycle: 0, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Elevator and escalator leader where the installed base is the asset and service is the business. New equipment seeds decades of recurring maintenance, repair, and modernization revenue. It is one of the cleanest aftermarket models in the sector."
+  },
+  {
+    ticker: "HON",
+    name: "Honeywell International Inc.",
+    tier: 1,
+    subIndustry: "Industrial Conglomerates",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 1, infrastructure: 1, laborAutomation: 1 },
+    description: "Diversified industrial platform spanning aerospace, building controls, automation, and specialty technologies. The portfolio touches multiple industrial profit pools, making it a bridge node rather than a pure-play bucket. Recurring services and embedded systems drive resilience."
+  },
+  {
+    ticker: "MMM",
+    name: "3M Company",
+    tier: 1,
+    subIndustry: "Industrial Conglomerates",
+    marketCap: "Large-Cap",
+    archetype: "Turnaround",
+    cyclePosition: "downturn",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 0, laborAutomation: 0 },
+    description: "Multi-industry manufacturer rebuilding focus after portfolio simplification and litigation overhang. Broad consumables and engineered materials exposure creates replacement demand. It is more restructuring story than clean compounder today."
+  },
+  {
+    ticker: "ROP",
+    name: "Roper Technologies, Inc.",
+    tier: 1,
+    subIndustry: "Industrial Conglomerates",
+    marketCap: "Large-Cap",
+    archetype: "Compounder",
+    cyclePosition: "secular",
+    factorExposures: { capexCycle: 0, defenseSpending: 0, infrastructure: 0, laborAutomation: 1 },
+    description: "Asset-light serial acquirer increasingly centered on software and niche industrial information assets. Less cyclical than classic conglomerates and more valuation-rich because of recurring revenue quality. It is effectively a portfolio of workflow tollbooths."
+  },
+  {
+    ticker: "FAST",
+    name: "Fastenal Company",
+    tier: 2,
+    subIndustry: "Trading Companies & Distributors",
+    marketCap: "Large-Cap",
+    archetype: "Tollbridge",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Industrial distributor embedded in customer workflows through vending, on-site inventory, and mission-critical consumables. This is a classic MRO tollbridge model. Value comes from procurement stickiness and factory-floor integration."
+  },
+  {
+    ticker: "GWW",
+    name: "W.W. Grainger, Inc.",
+    tier: 2,
+    subIndustry: "Trading Companies & Distributors",
+    marketCap: "Large-Cap",
+    archetype: "Tollbridge",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Broadline MRO distributor with scale, fulfillment density, and strong customer retention. It is a prime beneficiary of the installed-base maintenance economy across factories and facilities. The moat is service level, assortment, and procurement convenience."
+  },
+  {
+    ticker: "FERG",
+    name: "Ferguson Enterprises Inc.",
+    tier: 2,
+    subIndustry: "Trading Companies & Distributors",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Specialty distributor serving plumbing, HVAC, waterworks, and infrastructure-adjacent channels. Earnings quality benefits from entrenched contractor relationships and fragmented market structure. It is more resilient than simple construction volume screens imply."
+  },
+  {
+    ticker: "WM",
+    name: "Waste Management, Inc.",
+    tier: 2,
+    subIndustry: "Environmental & Facilities Services",
+    marketCap: "Large-Cap",
+    archetype: "Tollbridge",
+    cyclePosition: "secular",
+    factorExposures: { capexCycle: 0, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Dominant waste collection, transfer, landfill, and recycling operator. Route density, disposal permits, and landfill scarcity create local monopoly-like economics. It is one of the best recurring-service tollbridge models in the sector."
+  },
+  {
+    ticker: "RSG",
+    name: "Republic Services, Inc.",
+    tier: 2,
+    subIndustry: "Environmental & Facilities Services",
+    marketCap: "Large-Cap",
+    archetype: "Tollbridge",
+    cyclePosition: "secular",
+    factorExposures: { capexCycle: 0, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Waste and environmental services operator with highly durable route-based economics. Similar structural advantages to WM: density, regulation, disposal access, and pricing discipline. Recurring revenue quality makes it unusually defensive within Industrials."
+  },
+  {
+    ticker: "CTAS",
+    name: "Cintas Corporation",
+    tier: 2,
+    subIndustry: "Environmental & Facilities Services",
+    marketCap: "Large-Cap",
+    archetype: "Compounder",
+    cyclePosition: "secular",
+    factorExposures: { capexCycle: 0, defenseSpending: 0, infrastructure: 0, laborAutomation: 0 },
+    description: "Uniform rental, safety, and facility-services provider embedded in everyday business operations. Route density and renewal behavior create sticky recurring revenue. It behaves more like a process utility than a typical cyclical service company."
+  },
+  {
+    ticker: "ADP",
+    name: "Automatic Data Processing, Inc.",
+    tier: 2,
+    subIndustry: "Staffing & Human Capital Services",
+    marketCap: "Large-Cap",
+    archetype: "Tollbridge",
+    cyclePosition: "secular",
+    factorExposures: { capexCycle: 0, defenseSpending: 0, infrastructure: 0, laborAutomation: 1 },
+    description: "Payroll and HR workflow platform embedded in employer operating processes. While not a pure industrial company, it fits the labor enablement layer of the atlas cleanly. Mission-critical workflow revenue makes it a high-quality operator node."
+  },
+  {
+    ticker: "PAYX",
+    name: "Paychex, Inc.",
+    tier: 2,
+    subIndustry: "Staffing & Human Capital Services",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "secular",
+    factorExposures: { capexCycle: 0, defenseSpending: 0, infrastructure: 0, laborAutomation: 1 },
+    description: "SMB-focused payroll and HR outsourcing provider. It is more defensive than labor-sensitive staffing firms because revenue is tied to recurring administrative workflows. Strong cash generation and client retention support its inclusion here."
+  },
+  {
+    ticker: "RHI",
+    name: "Robert Half Inc.",
+    tier: 2,
+    subIndustry: "Staffing & Human Capital Services",
+    marketCap: "Mid-Cap",
+    archetype: "Deep Value",
+    cyclePosition: "downturn",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 0, laborAutomation: -1 },
+    description: "Professional staffing and consulting firm with meaningful exposure to white-collar hiring cycles. It is more economically sensitive than payroll platforms and more directly tied to employment demand. This is a labor-cycle proxy, not an installed-base monetizer."
+  },
+  {
+    ticker: "PWR",
+    name: "Quanta Services, Inc.",
+    tier: 2,
+    subIndustry: "Professional, Engineering & Outsourced Services",
+    marketCap: "Large-Cap",
+    archetype: "Compounder",
+    cyclePosition: "early-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 2, laborAutomation: 0 },
+    description: "Critical contractor for power, utility, communications, and infrastructure buildouts. It has direct leverage to grid modernization, electrification, and large project execution. Backlog and execution quality make it one of the most important bridge nodes in the sector."
+  },
+  {
+    ticker: "EME",
+    name: "EMCOR Group, Inc.",
+    tier: 2,
+    subIndustry: "Professional, Engineering & Outsourced Services",
+    marketCap: "Mid-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 2, laborAutomation: 0 },
+    description: "Mechanical and electrical construction-services company with strong exposure to complex commercial and industrial projects. Data center, healthcare, and institutional work support mix quality. It monetizes execution discipline more than product IP."
+  },
+  {
+    ticker: "ACM",
+    name: "AECOM",
+    tier: 2,
+    subIndustry: "Professional, Engineering & Outsourced Services",
+    marketCap: "Mid-Cap",
+    archetype: "Compounder",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 0, defenseSpending: 0, infrastructure: 2, laborAutomation: 0 },
+    description: "Engineering, design, and consulting platform tied to public and private infrastructure spending. It is less balance-sheet intensive than contractors, with value rooted in intellectual and execution capital. This is a clean beneficiary of long-duration infrastructure budgets."
+  },
+  {
+    ticker: "KBR",
+    name: "KBR, Inc.",
+    tier: 2,
+    subIndustry: "Professional, Engineering & Outsourced Services",
+    marketCap: "Mid-Cap",
+    archetype: "Compounder",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 0, defenseSpending: 1, infrastructure: 1, laborAutomation: 0 },
+    description: "Government services and engineering solutions platform spanning defense, mission support, and industrial consulting. Portfolio mix is shifting toward higher-quality, lower-risk service revenue. It is a strong example of outsourced technical capability."
+  },
+  {
+    ticker: "UNP",
+    name: "Union Pacific Corporation",
+    tier: 3,
+    subIndustry: "Railroads",
+    marketCap: "Large-Cap",
+    archetype: "Tollbridge",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Western US rail network with irreplaceable right-of-way and scale economics. Rail is one of the clearest throughput tollbridge models in Industrials. Pricing, network density, and operating leverage drive long-term cash generation."
+  },
+  {
+    ticker: "CSX",
+    name: "CSX Corporation",
+    tier: 3,
+    subIndustry: "Railroads",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Eastern rail franchise monetizing bulk, merchandise, and intermodal freight across a dense network. High barriers to replication make rail structurally advantaged despite cyclical volume swings. Maintenance capex is substantial, but network returns are durable."
+  },
+  {
+    ticker: "FDX",
+    name: "FedEx Corporation",
+    tier: 3,
+    subIndustry: "Air Freight & Logistics",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 0, laborAutomation: 1 },
+    description: "Global express and parcel network monetizing time-sensitive logistics. The moat is network scale, sorting density, and service reliability rather than a simple transportation fleet. Efficiency programs and network optimization are central to the margin story."
+  },
+  {
+    ticker: "UPS",
+    name: "United Parcel Service, Inc.",
+    tier: 3,
+    subIndustry: "Air Freight & Logistics",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 0, laborAutomation: 1 },
+    description: "Parcel and logistics platform with dense route economics and strong SMB and enterprise relationships. Quality of volume and price discipline matter more than raw package counts. It is an operationally critical mover with meaningful automation leverage."
+  },
+  {
+    ticker: "EXPD",
+    name: "Expeditors International of Washington, Inc.",
+    tier: 3,
+    subIndustry: "Air Freight & Logistics",
+    marketCap: "Mid-Cap",
+    archetype: "Compounder",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 0, laborAutomation: 0 },
+    description: "Asset-light freight forwarder and customs brokerage platform. It is less capital-intensive than integrated carriers, with economics driven by routing expertise and customer relationships. This is a cleaner compounding model than asset-heavy transport peers."
+  },
+  {
+    ticker: "ODFL",
+    name: "Old Dominion Freight Line, Inc.",
+    tier: 3,
+    subIndustry: "Trucking & Ground Freight",
+    marketCap: "Large-Cap",
+    archetype: "Compounder",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 2, defenseSpending: 0, infrastructure: 0, laborAutomation: 0 },
+    description: "Best-in-class LTL carrier with superior service levels, pricing, and network discipline. It is a structural winner in a consolidating freight market. Execution quality and terminal density make it the highest-quality trucking node in the atlas."
+  },
+  {
+    ticker: "SAIA",
+    name: "Saia, Inc.",
+    tier: 3,
+    subIndustry: "Trucking & Ground Freight",
+    marketCap: "Mid-Cap",
+    archetype: "Speculative Growth",
+    cyclePosition: "early-cycle",
+    factorExposures: { capexCycle: 2, defenseSpending: 0, infrastructure: 0, laborAutomation: 0 },
+    description: "Rapidly expanding LTL carrier benefiting from terminal additions and post-capacity dislocation market-share gains. It carries higher growth but more execution sensitivity than ODFL. It is a clean way to express freight-cycle beta plus share gains."
+  },
+  {
+    ticker: "JBHT",
+    name: "J.B. Hunt Transport Services, Inc.",
+    tier: 3,
+    subIndustry: "Trucking & Ground Freight",
+    marketCap: "Mid-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 2, defenseSpending: 0, infrastructure: 0, laborAutomation: 0 },
+    description: "Diversified transport provider spanning intermodal, dedicated, and brokerage. The model benefits from network scale and embedded shipper relationships rather than pure spot-rate exposure. It is more operationally nuanced than a generic trucking comp."
+  },
+  {
+    ticker: "DAL",
+    name: "Delta Air Lines, Inc.",
+    tier: 3,
+    subIndustry: "Passenger Airlines",
+    marketCap: "Mid-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 0, laborAutomation: 0 },
+    description: "Large network airline with premium mix advantages, loyalty economics, and stronger operational positioning than lower-quality peers. Airline profits remain highly cyclical, but Delta's commercial execution tends to lead the group. It is a mover node with heavy operating leverage and fleet maintenance intensity."
+  },
+  {
+    ticker: "UAL",
+    name: "United Airlines Holdings, Inc.",
+    tier: 3,
+    subIndustry: "Passenger Airlines",
+    marketCap: "Mid-Cap",
+    archetype: "Turnaround",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 0, laborAutomation: 0 },
+    description: "Global network carrier with strong international exposure and higher earnings volatility than best-in-class peers. Fleet complexity, labor costs, and capacity discipline drive the equity story. Cyclical upside can be meaningful, but the operating model is less forgiving."
+  },
+  {
+    ticker: "WAB",
+    name: "Westinghouse Air Brake Technologies Corporation",
+    tier: 3,
+    subIndustry: "Transportation Infrastructure",
+    marketCap: "Mid-Cap",
+    archetype: "Compounder",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Rail equipment, braking systems, and transit technologies supplier with a significant service and modernization tail. It benefits from both new equipment cycles and long-lived installed-base support. This is a strong bridge between transport networks and the aftermarket loop."
+  },
+  {
+    ticker: "GATX",
+    name: "GATX Corporation",
+    tier: 3,
+    subIndustry: "Transportation Infrastructure",
+    marketCap: "Mid-Cap",
+    archetype: "Tollbridge",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 1, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Railcar leasing platform monetizing long-duration transportation assets through recurring contracts. It is more infrastructure-like than an operator, with value rooted in fleet utilization and lease discipline. It is a clean fit for the recurring economics rail."
+  },
+  {
+    ticker: "URI",
+    name: "United Rentals, Inc.",
+    tier: 3,
+    subIndustry: "Transportation Infrastructure",
+    marketCap: "Large-Cap",
+    archetype: "Cash Engine",
+    cyclePosition: "mid-cycle",
+    factorExposures: { capexCycle: 2, defenseSpending: 0, infrastructure: 1, laborAutomation: 0 },
+    description: "Equipment rental leader effectively monetizing shared access to industrial and construction assets. The model captures utilization, logistics, and replacement discipline rather than outright customer ownership. It is a strong infrastructure-adjacent recurring revenue node."
+  }
+];
+
+const industryBriefs = {
+  "Aerospace & Defense": {
+    title: "Aerospace & Defense",
+    tier: 1,
+    overview: "Aerospace & Defense is a hybrid of commercial installed-base monetization and government-backed program entrenchment. Commercial aerospace creates long-duration engine and component aftermarket streams, while defense primes monetize proprietary platforms, sustainment contracts, and replenishment cycles. The key analytical split is between high-volume, lower-margin OEM production and higher-margin aftermarket/service economics.\n\nThis bucket should be read through three lenses: program visibility, sole-source content, and spare-parts intensity. Companies with certified or sole-source components tend to earn structurally better returns than broad platform manufacturers. The debate usually centers on whether new-build demand is peaking or whether the service tail is still in early innings.",
+    keyDynamics: [
+      "Commercial engine and component installed bases create multi-decade MRO revenue tails",
+      "Defense programs are sticky once embedded, but budget mix matters more than topline headlines",
+      "Sole-source and certification complexity drive pricing power",
+      "OEM production issues can hurt near-term margins while strengthening future aftermarket streams",
+      "Platform backlog quality matters less than conversion, margins, and sustainment mix"
+    ],
+    variantPerception: {
+      consensus: "Commercial aerospace recovery and elevated global defense demand support healthy medium-term growth.",
+      bull: "The market still underestimates how much value migrates from OEM delivery into aftermarket over the next cycle, especially for engines and sole-source subsystems.",
+      bear: "Production bottlenecks, supply-chain friction, and budget reprioritization could delay cash conversion and compress margins even if demand stays strong.",
+      resolutionSignal: "Commercial aftermarket growth sustaining above OEM growth for multiple quarters, alongside clean delivery execution at major suppliers."
+    },
+    revenueBreakdown: [
+      { ticker: "RTX", revenue: "~$79B", growth: "mid-single-digit", note: "Diversified aero/defense benchmark" },
+      { ticker: "LMT", revenue: "~$70B+", growth: "low-single-digit", note: "Prime contractor benchmark" },
+      { ticker: "GE", revenue: "~$35B+", growth: "high-single-digit", note: "Commercial engine + service concentration" }
+    ],
+    anchorTickers: [
+      { ticker: "RTX", rationale: "Best large-cap blended exposure to commercial and defense." },
+      { ticker: "TDG", rationale: "Purest high-quality sole-source aftermarket tollbridge." },
+      { ticker: "HEI", rationale: "Cleaner compounder expression through PMA and electronics." }
+    ],
+    keyMetrics: ["Aftermarket mix", "Defense backlog conversion", "OEM delivery rates", "Spare-parts growth", "Program margin by segment"],
+    watchlist: ["Quarterly engine shop-visit growth", "Defense budget appropriations cadence", "Supplier bottleneck commentary from major OEMs"]
+  },
+  "Machinery & Industrial Equipment": {
+    title: "Machinery & Industrial Equipment",
+    tier: 1,
+    overview: "This is the core cyclical machinery bucket where capex, replacement cycles, dealer health, and installed-base monetization intersect. It includes heavy equipment, automation, motion-control, and specialized fluid/motion systems. The cleanest businesses are not always the ones with the most order growth; they are often the ones with the best aftermarket attachment and the broadest service/distribution moat.\n\nThe sector-level trap is to treat this group as one macro PMI trade. In reality, heavy equipment, precision industrials, and automation names behave differently across the cycle, and the best models often combine cyclical equipment shipments with recurring consumables, service, and software.",
+    keyDynamics: [
+      "Dealer networks and channel health matter as much as end demand",
+      "Aftermarket parts and service smooth earnings versus pure OEM peers",
+      "Automation content raises quality and partially decouples from pure volume swings",
+      "Book-to-bill and dealer inventory can lead reported revenue by quarters",
+      "Replacement demand often returns before greenfield capex does"
+    ],
+    variantPerception: {
+      consensus: "Machinery remains cyclical, with investors watching PMI, dealer inventory, and construction/ag demand.",
+      bull: "Installed-base service and automation content can keep margins and FCF stronger than classic late-cycle screens suggest.",
+      bear: "If distributor and dealer channels de-stock harder than expected, earnings can de-rate quickly even before end-market demand visibly cracks.",
+      resolutionSignal: "Dealer inventory normalization plus book-to-bill staying above 1.0 across key OEMs."
+    },
+    revenueBreakdown: [
+      { ticker: "CAT", revenue: "~$65B+", growth: "modest", note: "Heavy equipment benchmark" },
+      { ticker: "DE", revenue: "~$50B+", growth: "mixed", note: "Ag + precision equipment benchmark" },
+      { ticker: "PH", revenue: "~$20B+", growth: "mid-single-digit", note: "Diversified motion-control quality benchmark" }
+    ],
+    anchorTickers: [
+      { ticker: "CAT", rationale: "Best mega-cap cyclical + aftermarket core." },
+      { ticker: "PH", rationale: "Higher-quality compounder with broad replacement exposure." },
+      { ticker: "ROK", rationale: "Best labor-automation overlay inside the bucket." }
+    ],
+    keyMetrics: ["Book-to-bill ratio", "Dealer inventory weeks", "Organic orders", "Aftermarket penetration", "Segment operating margin"],
+    watchlist: ["Monthly PMI direction", "Dealer inventory commentary", "Automation project pipeline conversion"]
+  },
+  "Electrical Equipment & Power Management": {
+    title: "Electrical Equipment & Power Management",
+    tier: 1,
+    overview: "Electrical Equipment & Power Management is one of the highest-conviction structural buckets in Industrials because it sits at the intersection of grid modernization, electrification, and data-center power intensity. These businesses sell mission-critical switchgear, power quality, controls, and thermal or backup systems, then monetize retrofit and upgrade cycles over time.\n\nThis group should be analyzed as both a buildout bucket and a recurring retrofit bucket. The strongest names combine long-cycle project exposure with short-cycle service and replacement demand.",
+    keyDynamics: [
+      "Grid and transmission upgrades are stretching cycle duration beyond a normal industrial upturn",
+      "Data-center and AI power density raise content per site",
+      "Mission-critical uptime drives recurring service demand",
+      "Backlog quality matters more than nominal backlog size",
+      "Retrofit and modernization often outlast initial build cycles"
+    ],
+    variantPerception: {
+      consensus: "Electrification and data-center power demand support above-trend growth.",
+      bull: "Power bottlenecks are severe enough that this becomes a multi-year capital cycle rather than a short-lived thematic spike.",
+      bear: "Customers could front-load orders, creating temporary backlog inflation and later digestion even if the secular theme stays intact.",
+      resolutionSignal: "Sustained backlog conversion with no broad-based cancellations and stable lead times."
+    },
+    revenueBreakdown: [
+      { ticker: "ETN", revenue: "~$24B+", growth: "high-single-digit", note: "Power management benchmark" },
+      { ticker: "EMR", revenue: "~$15B+", growth: "mid-single-digit", note: "Automation + controls benchmark" },
+      { ticker: "GEV", revenue: "~$30B+", growth: "mid-single-digit", note: "Grid + power systems benchmark" }
+    ],
+    anchorTickers: [
+      { ticker: "ETN", rationale: "Best diversified power-management compounder." },
+      { ticker: "VRT", rationale: "Purest AI infrastructure power/cooling beneficiary." },
+      { ticker: "GEV", rationale: "Most direct large-scale grid modernization exposure." }
+    ],
+    keyMetrics: ["Backlog growth", "Backlog conversion", "Service mix", "Lead-time normalization", "Organic electrical orders"],
+    watchlist: ["Utility capex guideposts", "Data-center power project wins", "Lead-time and cancellation commentary"]
+  },
+  "Building Products & Construction Systems": {
+    title: "Building Products & Construction Systems",
+    tier: 1,
+    overview: "This bucket includes HVAC, elevators, controls, and building-system infrastructure where the lifetime economics are often better than the headline construction cycle implies. New construction matters, but replacement, code compliance, efficiency retrofits, and service agreements frequently drive the most durable returns.\n\nThe highest-quality names are those where recurring modernization and service matter more than one-time project sales. Investors who over-focus on housing or commercial starts can miss the strength of lifecycle revenue.",
+    keyDynamics: [
+      "Replacement cycles are often more important than greenfield demand",
+      "Energy efficiency and decarbonization support retrofit spending",
+      "Monitoring, controls, and service lift margin quality",
+      "Code and compliance upgrades create semi-mandatory demand",
+      "Installed-base density drives long-term recurring economics"
+    ],
+    variantPerception: {
+      consensus: "Building systems are quality industrials, but still sensitive to construction and retrofit timing.",
+      bull: "Service, modernization, and efficiency-driven replacement can keep growth more durable than non-residential macro implies.",
+      bear: "Project timing, channel destocking, or weaker retrofit urgency could expose how much current demand is still tied to capex confidence.",
+      resolutionSignal: "Service and modernization outgrowing equipment for multiple quarters with stable order activity."
+    },
+    revenueBreakdown: [
+      { ticker: "TT", revenue: "~$19B+", growth: "high-single-digit", note: "HVAC quality benchmark" },
+      { ticker: "JCI", revenue: "~$27B+", growth: "low-to-mid-single-digit", note: "Building systems + controls benchmark" },
+      { ticker: "CARR", revenue: "~$22B+", growth: "mid-single-digit", note: "HVAC and refrigeration benchmark" }
+    ],
+    anchorTickers: [
+      { ticker: "TT", rationale: "Best-in-class HVAC quality compounder." },
+      { ticker: "OTIS", rationale: "Purest service-heavy installed-base tollbridge." },
+      { ticker: "JCI", rationale: "Most integrated building-controls expression." }
+    ],
+    keyMetrics: ["Service attach rate", "Modernization growth", "Channel inventory", "Orders by region", "Price-cost spread"],
+    watchlist: ["Commercial retrofit demand commentary", "Service margin progression", "Non-residential backlog trends"]
+  },
+  "Industrial Conglomerates": {
+    title: "Industrial Conglomerates",
+    tier: 1,
+    overview: "Industrial Conglomerates are best viewed as bridge assets spanning multiple industrial profit pools rather than a simple sub-sector. Portfolio quality, capital allocation, and mix shift matter more than any single end market.\n\nThis is a smaller bucket analytically, but an important one because it often concentrates restructuring, portfolio simplification, and hidden asset-value debates.",
+    keyDynamics: [
+      "Portfolio composition shifts can matter more than organic growth",
+      "Recurring software and services deserve higher multiples than legacy hardware",
+      "Spin-offs and simplification can unlock value",
+      "Litigation or restructuring can dominate near-term narrative",
+      "Conglomerate discounts narrow when strategic focus improves"
+    ],
+    variantPerception: {
+      consensus: "Conglomerates are mixed-quality portfolios where capital allocation determines the multiple.",
+      bull: "Further simplification, software mix, and capital discipline can reveal hidden asset quality and close the conglomerate discount.",
+      bear: "Complexity, legacy liabilities, or poor portfolio fit can keep these names trapped in valuation limbo.",
+      resolutionSignal: "Clearer segment disclosures plus sustained expansion in high-quality recurring segments."
+    },
+    revenueBreakdown: [
+      { ticker: "HON", revenue: "~$35B+", growth: "mid-single-digit", note: "Diversified industrial benchmark" },
+      { ticker: "MMM", revenue: "~$25B+", growth: "flat-to-down", note: "Restructuring and liability-heavy special situation" },
+      { ticker: "ROP", revenue: "~$6B+", growth: "high-single-digit", note: "Higher-quality asset-light outlier" }
+    ],
+    anchorTickers: [
+      { ticker: "HON", rationale: "Best diversified bridge asset." },
+      { ticker: "ROP", rationale: "Highest-quality recurring-revenue portfolio." },
+      { ticker: "MMM", rationale: "Most visible restructuring and liability debate." }
+    ],
+    keyMetrics: ["Portfolio mix", "Segment organic growth", "Recurring revenue mix", "Capital deployment", "FCF conversion"],
+    watchlist: ["Portfolio actions/spin-offs", "Segment disclosure changes", "Litigation and restructuring updates"]
+  },
+  "Trading Companies & Distributors": {
+    title: "Trading Companies & Distributors",
+    tier: 2,
+    overview: "This is one of the most important quality buckets in Industrials because it sits directly inside the maintenance and procurement workflow. These businesses are not just middlemen; they monetize urgency, inventory availability, embedded procurement relationships, and MRO complexity.\n\nThe best operators turn distribution into a service moat through on-site inventory, vending, digital replenishment, and local fulfillment density. The structural advantage is workflow entrenchment, not just mark-up.",
+    keyDynamics: [
+      "MRO demand is typically steadier than new equipment demand",
+      "Embedded vending/on-site programs deepen customer stickiness",
+      "SKU breadth and fulfillment density are major moats",
+      "Digital penetration raises wallet share and efficiency",
+      "Distribution can pull through when factory utilization rises"
+    ],
+    variantPerception: {
+      consensus: "Distributors are high-quality but still modestly cyclical, tracking industrial production with better margins than OEMs.",
+      bull: "Embedded procurement programs and digital penetration can keep these names compounding even through softer macro periods.",
+      bear: "If customer utilization falls sharply, even high-quality MRO distributors can see volume pressure despite strong structural positioning.",
+      resolutionSignal: "Stable daily sales growth and continued expansion of embedded/on-site locations through a softer macro patch."
+    },
+    revenueBreakdown: [
+      { ticker: "GWW", revenue: "~$17B+", growth: "mid-single-digit", note: "Broadline MRO benchmark" },
+      { ticker: "FAST", revenue: "~$7B+", growth: "low-to-mid-single-digit", note: "Embedded vending benchmark" },
+      { ticker: "FERG", revenue: "~$30B+", growth: "mixed", note: "Specialty distribution benchmark" }
+    ],
+    anchorTickers: [
+      { ticker: "GWW", rationale: "Best large-cap broadline MRO benchmark." },
+      { ticker: "FAST", rationale: "Purest embedded inventory/workflow model." },
+      { ticker: "FERG", rationale: "Strong specialty and contractor-facing channel exposure." }
+    ],
+    keyMetrics: ["Daily sales growth", "Gross margin", "Digital penetration", "On-site/vending expansion", "Customer retention"],
+    watchlist: ["Industrial production trend", "MRO demand commentary", "Digital/embedded program growth"]
+  },
+  "Environmental & Facilities Services": {
+    title: "Environmental & Facilities Services",
+    tier: 2,
+    overview: "Environmental & Facilities Services monetizes recurring route density, contract stickiness, and operational necessity. Waste, uniforms, facilities, and similar service models are attractive because the end customer usually cannot defer the spend for long without disrupting operations or compliance.\n\nThe best businesses here resemble local monopolies or dense route systems rather than generic services companies. Pricing discipline and route productivity drive returns.",
+    keyDynamics: [
+      "Route density is a core driver of incremental margin",
+      "Regulation and permits can create local barriers to entry",
+      "Renewal behavior and small price increases compound well",
+      "Contract services are often more resilient than product demand",
+      "M&A can improve route density and market structure"
+    ],
+    variantPerception: {
+      consensus: "These are defensive, high-quality recurring-service models with durable pricing power.",
+      bull: "Density, consolidation, and compliance needs can support persistent above-cycle earnings durability and multiple support.",
+      bear: "Volume softness, labor inflation, or regulatory changes could expose limits to current pricing assumptions.",
+      resolutionSignal: "Continued strong price-cost spread and route-margin expansion despite mixed macro volumes."
+    },
+    revenueBreakdown: [
+      { ticker: "WM", revenue: "~$22B+", growth: "mid-single-digit", note: "Waste benchmark" },
+      { ticker: "RSG", revenue: "~$15B+", growth: "mid-single-digit", note: "Waste #2 benchmark" },
+      { ticker: "CTAS", revenue: "~$9B+", growth: "high-single-digit", note: "Route-based facilities benchmark" }
+    ],
+    anchorTickers: [
+      { ticker: "WM", rationale: "Best large-cap tollbridge in waste." },
+      { ticker: "RSG", rationale: "High-quality route-density peer." },
+      { ticker: "CTAS", rationale: "Best non-waste recurring route model." }
+    ],
+    keyMetrics: ["Price-cost spread", "Route density", "Retention/renewal", "Volume growth", "Incremental margin"],
+    watchlist: ["Core pricing vs disposal cost", "Route productivity trends", "Labor cost commentary"]
+  },
+  "Staffing & Human Capital Services": {
+    title: "Staffing & Human Capital Services",
+    tier: 2,
+    overview: "This is the least asset-heavy and least installed-base-driven bucket in the framework, but it still belongs because it enables workforce continuity and operating workflow. The split here is between highly recurring payroll/HR workflow platforms and more cyclical staffing/placement businesses.\n\nIn atlas terms, this is a supporting operator node rather than a core anchor. It is useful because it captures the labor side of industrial and commercial activity.",
+    keyDynamics: [
+      "Payroll and HR workflow models are much higher quality than staffing spreads",
+      "Hiring sensitivity can create sharp earnings swings in staffing names",
+      "SMB client health matters disproportionately for payroll outsourcers",
+      "Automation can reduce labor intensity in some workflows while supporting payroll software demand",
+      "Float income can matter for certain payroll models"
+    ],
+    variantPerception: {
+      consensus: "Payroll names are quality compounders; staffing names are cyclical labor proxies.",
+      bull: "Workflow entrenchment and payroll complexity can keep recurring models resilient even if hiring slows.",
+      bear: "A broader labor slowdown could compress both hiring volumes and client-level activity, pressuring even higher-quality operators.",
+      resolutionSignal: "Stable client retention and employee-per-client metrics at payroll vendors alongside improving temp-placement trends."
+    },
+    revenueBreakdown: [
+      { ticker: "ADP", revenue: "~$19B+", growth: "mid-single-digit", note: "Large-cap payroll benchmark" },
+      { ticker: "PAYX", revenue: "~$5B+", growth: "mid-single-digit", note: "SMB payroll benchmark" },
+      { ticker: "RHI", revenue: "~$6B+", growth: "down-to-flat", note: "Cyclical staffing benchmark" }
+    ],
+    anchorTickers: [
+      { ticker: "ADP", rationale: "Highest-quality workflow tollbridge." },
+      { ticker: "PAYX", rationale: "Best SMB recurring payroll expression." },
+      { ticker: "RHI", rationale: "Clean cyclical staffing sensitivity." }
+    ],
+    keyMetrics: ["Client retention", "Employees per client", "Placement volumes", "Float income", "Revenue per worksite employee"],
+    watchlist: ["Hiring trend commentary", "SMB health indicators", "Payroll retention and pays-per-control"]
+  },
+  "Professional, Engineering & Outsourced Services": {
+    title: "Professional, Engineering & Outsourced Services",
+    tier: 2,
+    overview: "This is the densest bridge layer in the industrial map because it links capital deployment to actual project execution, design, inspection, and outsourced technical capability. These businesses can be much higher quality than project-heavy screens imply when they lean into engineering, asset-light consulting, or mission-critical outsourced services.\n\nThe group matters because it often sits closest to large infrastructure, utility, and industrial buildout decisions before revenue reaches OEMs or after equipment is installed.",
+    keyDynamics: [
+      "Backlog quality matters more than backlog size",
+      "Asset-light engineering deserves higher multiples than fixed-price project risk",
+      "Utility and grid work can extend cycle duration",
+      "Execution discipline determines margin durability",
+      "Outsourced technical capability becomes more valuable as systems get more complex"
+    ],
+    variantPerception: {
+      consensus: "Infrastructure and electrification support strong medium-term demand, but project risk must be watched.",
+      bull: "Utility, grid, and complex technical work can keep backlog quality elevated for years, not quarters.",
+      bear: "If projects get delayed or customers push out starts, backlog can look healthy while revenue conversion slows materially.",
+      resolutionSignal: "Stable backlog conversion and margin resilience across major E&C and engineering names."
+    },
+    revenueBreakdown: [
+      { ticker: "PWR", revenue: "~$20B+", growth: "high-single-digit", note: "Grid and utility execution benchmark" },
+      { ticker: "EME", revenue: "~$14B+", growth: "strong", note: "Mechanical/electrical construction benchmark" },
+      { ticker: "ACM", revenue: "~$15B+", growth: "mid-single-digit", note: "Engineering and consulting benchmark" }
+    ],
+    anchorTickers: [
+      { ticker: "PWR", rationale: "Best grid/electrification bridge asset." },
+      { ticker: "ACM", rationale: "Cleaner asset-light engineering expression." },
+      { ticker: "KBR", rationale: "Most diversified outsourced technical/government overlay." }
+    ],
+    keyMetrics: ["Backlog quality", "Backlog conversion", "Gross margin by project mix", "Book-to-burn", "Change-order realization"],
+    watchlist: ["Utility capex commentary", "Project start timing", "Margin on complex project work"]
+  },
+  "Railroads": {
+    title: "Railroads",
+    tier: 3,
+    overview: "Railroads are among the strongest throughput tollbridge models in the entire sector because the network itself is the moat. Irreplaceable right-of-way, density, and oligopolistic structure create durable pricing power despite cyclical freight volumes.\n\nRail should be treated as a network utility with industrial beta, not as generic transportation. Returns are driven by density, operating leverage, and disciplined capital deployment.",
+    keyDynamics: [
+      "Right-of-way and network density create massive barriers to entry",
+      "Pricing can remain strong even in softer freight environments",
+      "Intermodal, merchandise, and bulk mix drive margin differences",
+      "Service metrics matter for share retention",
+      "Capital intensity is high, but returns can still be excellent with discipline"
+    ],
+    variantPerception: {
+      consensus: "Rail remains a high-quality oligopoly with attractive long-term economics and moderate cyclical sensitivity.",
+      bull: "Incremental productivity gains and pricing discipline can keep returns strong even in middling volume environments.",
+      bear: "Service deterioration or regulatory pressure could cap pricing and expose the operating-ratio thesis.",
+      resolutionSignal: "Stable service metrics plus pricing above inflation with no meaningful regulatory deterioration."
+    },
+    revenueBreakdown: [
+      { ticker: "UNP", revenue: "~$24B+", growth: "low-single-digit", note: "Western network benchmark" },
+      { ticker: "CSX", revenue: "~$15B+", growth: "flat-to-low-single-digit", note: "Eastern network benchmark" }
+    ],
+    anchorTickers: [
+      { ticker: "UNP", rationale: "Best large-cap western franchise." },
+      { ticker: "CSX", rationale: "High-quality eastern benchmark." }
+    ],
+    keyMetrics: ["Volume by segment", "Yield/pricing", "Operating ratio", "Service velocity", "Capex as % of revenue"],
+    watchlist: ["Intermodal volume trends", "Service metric changes", "Regulatory and labor commentary"]
+  },
+  "Air Freight & Logistics": {
+    title: "Air Freight & Logistics",
+    tier: 3,
+    overview: "Air Freight & Logistics monetizes speed, routing intelligence, and global network density. The key split is between integrated asset-heavy express operators and asset-light forwarding platforms.\n\nThis group is highly sensitive to trade activity, customer urgency, and yield discipline. Quality of volume is often more important than simple shipment counts.",
+    keyDynamics: [
+      "Network density and route optimization are the core moats",
+      "Integrated operators carry more fixed-cost leverage",
+      "Forwarders are lower-capex and often cleaner structurally",
+      "Yield and mix matter more than simple package counts",
+      "Automation and sorting efficiency can materially affect margins"
+    ],
+    variantPerception: {
+      consensus: "This bucket is cyclical, with earnings driven by trade volumes, yields, and execution.",
+      bull: "Network optimization and disciplined pricing can keep margins stronger than historical freight-cycle analogs imply.",
+      bear: "If volumes soften and pricing weakens simultaneously, the fixed-cost base can compress earnings quickly at integrated carriers.",
+      resolutionSignal: "Yield stability with improving package/freight volumes and healthy network productivity."
+    },
+    revenueBreakdown: [
+      { ticker: "FDX", revenue: "~$85B+", growth: "low-single-digit", note: "Integrated express benchmark" },
+      { ticker: "UPS", revenue: "~$90B+", growth: "flat-to-low-single-digit", note: "Parcel and logistics benchmark" },
+      { ticker: "EXPD", revenue: "~$10B+", growth: "mixed", note: "Asset-light forwarding benchmark" }
+    ],
+    anchorTickers: [
+      { ticker: "UPS", rationale: "Best route-density and pricing benchmark." },
+      { ticker: "EXPD", rationale: "Cleaner asset-light compounding expression." },
+      { ticker: "FDX", rationale: "Best operating-leverage and restructuring debate." }
+    ],
+    keyMetrics: ["Yield", "Volume", "Sort/productivity metrics", "Network utilization", "Operating margin by segment"],
+    watchlist: ["Parcel yield trends", "Trade and forwarding demand", "Network-efficiency commentary"]
+  },
+  "Trucking & Ground Freight": {
+    title: "Trucking & Ground Freight",
+    tier: 3,
+    overview: "Trucking & Ground Freight is the most cyclical transportation bucket, but it contains very different quality tiers. LTL is structurally superior to many TL models because terminal networks, service quality, and density create stronger pricing and margin durability.\n\nThis group should be read through capacity, operating ratio, terminal density, and pricing discipline. Post-capacity dislocation, the cleanest LTL names can take share while weaker operators struggle.",
+    keyDynamics: [
+      "LTL is structurally better than commoditized truckload",
+      "Terminal density and service quality matter enormously",
+      "Operating ratio is a central quality metric",
+      "Capacity shifts can create lasting share redistribution",
+      "Brokerage and intermodal can change the cycle profile for diversified names"
+    ],
+    variantPerception: {
+      consensus: "Freight remains cyclical, but the best LTL operators deserve premium multiples.",
+      bull: "Post-capacity dislocation and disciplined execution can support multi-year share gains for top operators.",
+      bear: "If the freight backdrop stays soft longer than expected, even strong carriers may struggle to hold pricing and utilization.",
+      resolutionSignal: "LTL tonnage and yield improving together with stable or better operating ratios."
+    },
+    revenueBreakdown: [
+      { ticker: "ODFL", revenue: "~$6B+", growth: "modest", note: "Best-in-class LTL benchmark" },
+      { ticker: "JBHT", revenue: "~$12B+", growth: "mixed", note: "Diversified transport benchmark" },
+      { ticker: "SAIA", revenue: "~$3B+", growth: "double-digit", note: "High-growth LTL share-gain story" }
+    ],
+    anchorTickers: [
+      { ticker: "ODFL", rationale: "Highest-quality LTL benchmark." },
+      { ticker: "JBHT", rationale: "Best diversified ground-freight expression." },
+      { ticker: "SAIA", rationale: "Most direct share-gain growth trade." }
+    ],
+    keyMetrics: ["LTL operating ratio", "Tonnage per day", "Yield ex-fuel", "Terminal count", "Shipment counts"],
+    watchlist: ["LTL pricing and tonnage updates", "Capacity additions", "OR progression at key carriers"]
+  },
+  "Passenger Airlines": {
+    title: "Passenger Airlines",
+    tier: 3,
+    overview: "Passenger Airlines are high-operating-leverage network businesses where capacity discipline, mix quality, and cost control determine returns. Premium mix, loyalty monetization, and international exposure can create wide quality gaps between carriers.\n\nThe biggest analytical tension is whether the industry can hold rational capacity and premium pricing long enough to sustain better-than-historical profitability.",
+    keyDynamics: [
+      "Capacity discipline is central to preserving unit revenue",
+      "Premium seating and loyalty economics improve mix quality",
+      "Labor and maintenance costs can move faster than unit revenue",
+      "Network breadth matters for pricing and corporate demand capture",
+      "Fleet complexity and deferred maintenance can create hidden risk"
+    ],
+    variantPerception: {
+      consensus: "Industry profitability is better than the old playbook, but still inherently cyclical and operationally fragile.",
+      bull: "Premium demand, consolidated capacity, and better revenue management can keep profits structurally higher than past cycles.",
+      bear: "A small pricing wobble or cost spike can quickly compress margins given the fixed-cost base and competitive response.",
+      resolutionSignal: "Sustained RASM outpacing CASM ex-fuel across major carriers without material capacity overbuild."
+    },
+    revenueBreakdown: [
+      { ticker: "DAL", revenue: "~$55B+", growth: "mid-single-digit", note: "Premium-mix benchmark" },
+      { ticker: "UAL", revenue: "~$55B+", growth: "mid-single-digit", note: "International mix benchmark" }
+    ],
+    anchorTickers: [
+      { ticker: "DAL", rationale: "Best large-cap quality benchmark." },
+      { ticker: "UAL", rationale: "Highest-beta global network exposure." }
+    ],
+    keyMetrics: ["RASM", "CASM ex-fuel", "Load factor", "Capacity growth", "Premium and loyalty mix"],
+    watchlist: ["Forward booking trends", "Capacity guidance by carrier", "CASM ex-fuel trajectory"]
+  },
+  "Transportation Infrastructure": {
+    title: "Transportation Infrastructure",
+    tier: 3,
+    overview: "Transportation Infrastructure is the most natural bridge between throughput networks and the aftermarket rail because these businesses often monetize utilization of long-lived assets rather than simple shipment volume.\n\nThis is a smaller but strategically important bucket in the map. It often carries better recurring characteristics than pure operators while still participating in freight and industrial activity.",
+    keyDynamics: [
+      "Lease and utilization discipline can create stable recurring revenue",
+      "Maintenance and modernization drive recurring demand",
+      "Asset productivity matters more than pure volume growth",
+      "Replacement cycles can be delayed, but not indefinitely",
+      "This bucket is a natural connector to the right-side aftermarket loop"
+    ],
+    variantPerception: {
+      consensus: "Transportation infrastructure-adjacent names are steadier than operators but still tied to transport activity.",
+      bull: "Lease, service, and modernization exposure can support more durable earnings than simple freight-volume sensitivity suggests.",
+      bear: "If utilization softens materially, the market may re-rate these names more cyclically than their business quality deserves.",
+      resolutionSignal: "Stable lease rates and utilization plus continued services/mod modernization strength."
+    },
+    revenueBreakdown: [
+      { ticker: "URI", revenue: "~$15B+", growth: "mid-single-digit", note: "Rental benchmark" },
+      { ticker: "WAB", revenue: "~$10B+", growth: "mid-single-digit", note: "Rail equipment + service benchmark" },
+      { ticker: "GATX", revenue: "~$1.5B+", growth: "low-single-digit", note: "Leasing benchmark" }
+    ],
+    anchorTickers: [
+      { ticker: "URI", rationale: "Best scaled recurring-utilization model." },
+      { ticker: "WAB", rationale: "Strong transport-equipment service bridge." },
+      { ticker: "GATX", rationale: "Purest lease-and-utilization tollbridge." }
+    ],
+    keyMetrics: ["Utilization", "Lease rates", "Service/modernization growth", "Replacement capex", "Return on fleet/assets"],
+    watchlist: ["Rental rate trends", "Rail equipment service demand", "Lease renewal spreads"]
+  }
+};
+
+const glossary = {
+  "Tollbridge": "Owns or controls a mission-critical network, workflow, or installed-base chokepoint that customers repeatedly pay to access. In Industrials, this often shows up in towers of replacement demand, route density, leasing, or sole-source part ecosystems.",
+  "Cash Engine": "Mature industrial business generating strong free cash flow with a proven operating model. Usually has solid aftermarket, disciplined capital returns, or stable network economics.",
+  "Rule of 40": "A growth-and-margin framing applied to higher-quality industrial technology or automation names where software, controls, or digital workflow revenue meaningfully lift the model.",
+  "Compounder": "Business that can reinvest at attractive returns for long periods while steadily growing earnings and free cash flow. In Industrials, these are often quality distributors, niche component leaders, or service-heavy platforms.",
+  "Deep Value": "Stock trading at a depressed valuation versus normalized earnings or asset value, usually because the cycle, sentiment, or execution is weak. Requires a clear catalyst to avoid value-trap risk.",
+  "Turnaround": "Company in strategic, operational, or balance-sheet transition where the upside depends on execution, simplification, or recovery. Higher risk and more event-driven than a normal industrial compounder.",
+  "Speculative Growth": "Higher-growth business with attractive top-line potential but greater uncertainty around margin durability, execution, or cycle sensitivity.",
+  "early-cycle": "Business inflecting from trough conditions, usually as orders, utilization, or pricing begin to recover.",
+  "mid-cycle": "Stable operating phase where volumes and margins are healthy but not necessarily accelerating sharply.",
+  "late-cycle": "Margins and demand remain solid, but the risk of normalization or softer order growth is increasing.",
+  "downturn": "Cycle or structural pressure is visible in orders, pricing, margins, or end demand. Could be an opportunity or a trap depending on balance-sheet and moat quality.",
+  "secular": "Long-duration structural growth or resilience driven more by installed base, recurring service, or persistent demand trends than by the short-term cycle.",
+  "MRO": "Maintenance, Repair & Operations \u2014 the recurring spend required to keep equipment, facilities, and production systems running.",
+  "Aftermarket": "Revenue generated after the original equipment sale through parts, service, repair, modernization, upgrades, and consumables.",
+  "Installed Base": "The cumulative fleet or footprint of equipment already in the field. A larger installed base usually supports more recurring aftermarket revenue.",
+  "OEM": "Original Equipment Manufacturer \u2014 company that makes and sells the initial machine, component, or system.",
+  "OEM vs Aftermarket": "The key industrial split between lower-frequency original equipment sales and recurring, often higher-margin parts/service revenue.",
+  "Operating Ratio": "A key transport metric measuring operating expense as a percentage of revenue. Lower is better, especially in LTL and rail.",
+  "PMI": "Purchasing Managers' Index \u2014 a directional indicator of manufacturing activity often used as a leading read on industrial demand.",
+  "PSR": "Precision Scheduled Railroading \u2014 railroad operating philosophy designed to improve asset utilization, scheduling discipline, and efficiency.",
+  "IIJA": "Infrastructure Investment and Jobs Act \u2014 major US infrastructure spending framework supporting long-cycle utility, transport, and construction demand.",
+  "Class I Railroad": "Largest railroads by revenue and network scale, forming the dominant freight rail infrastructure in North America.",
+  "LTL": "Less-Than-Truckload \u2014 freight model that consolidates multiple smaller shipments in a hub-and-spoke network. Structurally higher quality than much of truckload.",
+  "TL": "Truckload \u2014 shipping model where a full trailer is dedicated to a single customer load. Often more commoditized than LTL.",
+  "PMA": "Parts Manufacturer Approval \u2014 regulatory approval that allows third-party aircraft parts to be sold into certified replacement markets.",
+  "Sole Source": "Component or system with no practical substitute because of certification, proprietary design, customer lock-in, or switching cost.",
+  "Route Density": "Concentration of stops, deliveries, pickups, or service calls within a local geography. Higher density usually improves incremental margins.",
+  "Asset Utilization": "How effectively a fleet, machine base, terminal network, or rental fleet is used. Core profitability driver in many industrial models.",
+  "Capex Intensity": "How much capital spending a business needs to support growth or maintain operations. Lower capex intensity generally improves FCF flexibility.",
+  "FCF Conversion": "The share of earnings that becomes free cash flow after working capital and capital spending. Critical for evaluating industrial quality.",
+  "Book-to-Bill": "Ratio of new orders received to revenue recognized. Above 1.0 typically signals backlog growth.",
+  "Operating Leverage": "How much profit changes as revenue moves, driven by the mix of fixed versus variable costs.",
+  "Reshoring / Onshoring": "Movement of manufacturing or supply-chain activity back to domestic or nearby geographies, supporting factory and infrastructure demand.",
+  "Attritable": "Low-cost or expendable military systems designed to be lost if necessary while preserving a favorable cost exchange.",
+  "RASM": "Revenue per Available Seat Mile \u2014 core airline unit-revenue metric capturing revenue earned relative to available capacity.",
+  "CASM": "Cost per Available Seat Mile \u2014 airline unit-cost metric used to assess cost discipline. CASM ex-fuel is especially important.",
+  "Modernization": "Upgrade activity on existing equipment or infrastructure that extends useful life, improves performance, or meets new standards.",
+  "Service Attach Rate": "The percentage of equipment sales or installed assets tied to service contracts, maintenance agreements, or recurring support."
+};
+
+const signalChains = [
+  {
+    id: "capexCycleChain",
+    name: "PMI Recovery \u2192 Equipment Orders \u2192 Distributor Pull-Through",
+    links: [
+      "Manufacturing activity improves and PMI stabilizes above contraction levels",
+      "Customers release deferred capex budgets and restart equipment purchasing",
+      "Machinery OEM orders improve, lifting factory utilization and backlog confidence",
+      "Distributors see stronger MRO pull-through as installed equipment runs harder",
+      "Ground freight volumes improve as more goods and parts move through the system"
+    ],
+    affectedSubIndustries: ["Machinery & Industrial Equipment", "Trading Companies & Distributors", "Trucking & Ground Freight"]
+  },
+  {
+    id: "infrastructureChain",
+    name: "Infrastructure Spending \u2192 Grid Buildout \u2192 Electrical + E&C Demand",
+    links: [
+      "Public and utility capital plans expand around transmission, reliability, and capacity",
+      "Grid and power projects move from planning into funded execution",
+      "Electrical equipment suppliers see stronger order activity and backlog formation",
+      "Engineering and outsourced-services firms capture design and buildout work",
+      "Service and retrofit demand persists after the first wave of installation"
+    ],
+    affectedSubIndustries: ["Electrical Equipment & Power Management", "Professional, Engineering & Outsourced Services", "Building Products & Construction Systems"]
+  },
+  {
+    id: "defenseBudgetChain",
+    name: "Defense Budget Support \u2192 Program Funding \u2192 Sustainment Tail",
+    links: [
+      "Defense appropriations support major platforms, munitions, and readiness priorities",
+      "Prime contractors secure production visibility across multi-year programs",
+      "Suppliers with sole-source or certified content gain volume and pricing support",
+      "Installed fleets require ongoing parts, service, and sustainment",
+      "Aftermarket-heavy aerospace names see higher-margin revenue mix"
+    ],
+    affectedSubIndustries: ["Aerospace & Defense"]
+  },
+  {
+    id: "aftermarketLoopChain",
+    name: "OEM Sale \u2192 Installed Base \u2192 Parts & Service Recurrence",
+    links: [
+      "A machine, vehicle, or building system is placed into service",
+      "The installed base expands and enters normal operating use",
+      "Wear parts, inspections, and maintenance become recurring requirements",
+      "Distributors and service channels monetize the ongoing maintenance cycle",
+      "OEM and component suppliers capture high-margin aftermarket revenue"
+    ],
+    affectedSubIndustries: ["Machinery & Industrial Equipment", "Building Products & Construction Systems", "Trading Companies & Distributors"]
+  },
+  {
+    id: "freightCycleChain",
+    name: "Freight Tightening \u2192 Yield Improvement \u2192 Carrier Profitability",
+    links: [
+      "Capacity tightens or weak capacity exits the market",
+      "Carriers regain pricing power on higher-quality freight lanes",
+      "Yield and network utilization improve at stronger operators",
+      "Operating ratios or unit margins improve materially",
+      "Better profitability supports fleet and terminal reinvestment"
+    ],
+    affectedSubIndustries: ["Trucking & Ground Freight", "Air Freight & Logistics", "Transportation Infrastructure"]
+  },
+  {
+    id: "laborAutomationChain",
+    name: "Labor Cost Pressure \u2192 Automation Adoption \u2192 Controls Demand",
+    links: [
+      "Labor becomes more expensive, less available, or more difficult to schedule reliably",
+      "Manufacturers prioritize productivity and automation projects",
+      "Controls, power, and automation suppliers see stronger solution demand",
+      "More equipment in the field increases future service and software opportunity",
+      "Workflow and payroll systems remain embedded as labor management complexity rises"
+    ],
+    affectedSubIndustries: ["Machinery & Industrial Equipment", "Electrical Equipment & Power Management", "Staffing & Human Capital Services"]
+  },
+  {
+    id: "reshoringChain",
+    name: "Reshoring \u2192 Factory Buildout \u2192 Multi-Bucket Industrial Demand",
+    links: [
+      "Companies shift more production, sourcing, or strategic capacity closer to end markets",
+      "New factories, warehouses, and utility connections are planned and funded",
+      "Building systems and electrical infrastructure demand increase",
+      "Engineering, contractor, and staffing needs rise during execution",
+      "The completed asset base creates future maintenance and MRO demand"
+    ],
+    affectedSubIndustries: ["Building Products & Construction Systems", "Electrical Equipment & Power Management", "Professional, Engineering & Outsourced Services", "Trading Companies & Distributors"]
+  },
+  {
+    id: "airlineCapacityChain",
+    name: "Travel Strength \u2192 Fleet Utilization \u2192 Aero Aftermarket",
+    links: [
+      "Passenger demand and premium mix support airline capacity and utilization",
+      "Aircraft fly more hours and maintenance intervals come faster",
+      "Engines and certified components require more shop visits and replacement parts",
+      "Aftermarket-heavy aerospace suppliers benefit from the rising service cadence",
+      "The service tail outperforms underlying new aircraft deliveries in profitability"
+    ],
+    affectedSubIndustries: ["Passenger Airlines", "Aerospace & Defense"]
+  }
+];
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════
+   APPLICATION LOGIC
+   ═══════════════════════════════════════════════════════ */
+
+// ─── TIER STRUCTURE ───
+const tierConfig = {
+  1: {
+    label: "Tier 1",
+    subIndustries: [
+      "Aerospace & Defense",
+      "Machinery & Industrial Equipment",
+      "Electrical Equipment & Power Management",
+      "Building Products & Construction Systems",
+      "Industrial Conglomerates"
+    ]
+  },
+  2: {
+    label: "Tier 2",
+    subIndustries: [
+      "Trading Companies & Distributors",
+      "Environmental & Facilities Services",
+      "Staffing & Human Capital Services",
+      "Professional, Engineering & Outsourced Services"
+    ]
+  },
+  3: {
+    label: "Tier 3",
+    subIndustries: [
+      "Railroads",
+      "Air Freight & Logistics",
+      "Trucking & Ground Freight",
+      "Passenger Airlines",
+      "Transportation Infrastructure"
+    ]
+  }
+};
+
+// ─── SVG CONNECTOR CONFIG ───
+const primaryConnectors = [
+  { from: "Machinery & Industrial Equipment", to: "Trading Companies & Distributors" },
+  { from: "Aerospace & Defense", to: "Professional, Engineering & Outsourced Services" },
+  { from: "Electrical Equipment & Power Management", to: "Professional, Engineering & Outsourced Services" },
+  { from: "Building Products & Construction Systems", to: "Trading Companies & Distributors" },
+  { from: "Trading Companies & Distributors", to: "Trucking & Ground Freight" },
+  { from: "Professional, Engineering & Outsourced Services", to: "Transportation Infrastructure" }
+];
+
+const secondaryConnectors = [
+  { from: "Staffing & Human Capital Services", to: "Passenger Airlines" },
+  { from: "Environmental & Facilities Services", to: "Transportation Infrastructure" },
+  { from: "Electrical Equipment & Power Management", to: "Environmental & Facilities Services" },
+  { from: "Professional, Engineering & Outsourced Services", to: "Air Freight & Logistics" }
+];
+
+const aftermarketLoopback = {
+  heavy: ["Aerospace & Defense", "Machinery & Industrial Equipment", "Electrical Equipment & Power Management", "Trading Companies & Distributors", "Environmental & Facilities Services", "Transportation Infrastructure"],
+  medium: ["Building Products & Construction Systems", "Professional, Engineering & Outsourced Services", "Railroads", "Passenger Airlines", "Air Freight & Logistics"],
+  light: ["Industrial Conglomerates", "Staffing & Human Capital Services", "Trucking & Ground Freight"]
+};
+
+// ─── STATE ───
+let activeFactor = null;
+let activeMapNode = null;
+
+// ─── HELPERS ───
+function archetypeClass(arch) {
+  const map = {
+    "Tollbridge": "tollbridge",
+    "Cash Engine": "cashengine",
+    "Rule of 40": "ruleof40",
+    "Compounder": "compounder",
+    "Deep Value": "deepvalue",
+    "Turnaround": "turnaround",
+    "Speculative Growth": "specgrowth"
+  };
+  return map[arch] || "cashengine";
+}
+
+function tierBadgeClass(t) {
+  return "badge-tier" + t;
+}
+
+function factorScoreClass(score) {
+  if (score >= 2) return "factor-pos2";
+  if (score === 1) return "factor-pos1";
+  if (score === 0) return "factor-zero";
+  if (score === -1) return "factor-neg1";
+  return "factor-neg2";
+}
+
+function factorScoreLabel(score) {
+  if (score >= 2) return "+2 Strong Positive";
+  if (score === 1) return "+1 Positive";
+  if (score === 0) return "0 Neutral";
+  if (score === -1) return "-1 Negative";
+  return "-2 Strong Negative";
+}
+
+// ─── DYNAMIC COUNTS ───
+(function updateCounts() {
+  document.getElementById('companyCount').textContent = sectorData.length;
+  const subs = new Set(sectorData.map(c => c.subIndustry));
+  document.getElementById('subIndCount').textContent = subs.size;
+  document.getElementById('gridSubtitle').textContent = sectorData.length + ' companies across ' + subs.size + ' sub-industries.';
+})();
+
+// ─── BUILD MAP NODES ───
+function buildMap() {
+  [1,2,3].forEach(tier => {
+    const container = document.getElementById('nodesT' + tier);
+    container.innerHTML = '';
+    tierConfig[tier].subIndustries.forEach(si => {
+      const companies = sectorData.filter(c => c.subIndustry === si);
+      const tickers = companies.map(c => c.ticker).join(' \u00B7 ');
+      const node = document.createElement('div');
+      node.className = 'map-node';
+      node.setAttribute('data-subindustry', si);
+      node.innerHTML = '<div class="node-name">' + si + '</div><div class="node-tickers">' + tickers + '</div>';
+      node.addEventListener('click', () => handleNodeClick(si));
+      container.appendChild(node);
+    });
+  });
+}
+
+function handleNodeClick(subIndustry) {
+  // Toggle active state
+  if (activeMapNode === subIndustry) {
+    activeMapNode = null;
+    document.querySelectorAll('.map-node').forEach(n => { n.classList.remove('active','dimmed'); });
+    clearFilters();
+    return;
+  }
+  activeMapNode = subIndustry;
+
+  // Highlight map nodes
+  document.querySelectorAll('.map-node').forEach(n => {
+    if (n.getAttribute('data-subindustry') === subIndustry) {
+      n.classList.add('active');
+      n.classList.remove('dimmed');
+    } else {
+      n.classList.remove('active');
+      n.classList.add('dimmed');
+    }
+  });
+
+  // Filter company cards
+  document.getElementById('subFilter').value = subIndustry;
+  applyFilters();
+
+  // Open matching brief
+  openBriefByName(subIndustry);
+
+  // Scroll to briefs
+  document.getElementById('briefs').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ─── SVG CONNECTORS ───
+function drawConnectors() {
+  const svg = document.getElementById('mapSvg');
+  const grid = document.getElementById('mapGrid');
+  if (!svg || !grid) return;
+
+  svg.innerHTML = '';
+  const gridRect = grid.getBoundingClientRect();
+
+  function getNodeCenter(subIndustry) {
+    const node = document.querySelector('.map-node[data-subindustry="' + CSS.escape(subIndustry) + '"]');
+    if (!node) return null;
+    const r = node.getBoundingClientRect();
+    return {
+      x: r.left + r.width / 2 - gridRect.left,
+      y: r.top + r.height / 2 - gridRect.top
+    };
+  }
+
+  function getNodeRight(subIndustry) {
+    const node = document.querySelector('.map-node[data-subindustry="' + CSS.escape(subIndustry) + '"]');
+    if (!node) return null;
+    const r = node.getBoundingClientRect();
+    return {
+      x: r.right - gridRect.left,
+      y: r.top + r.height / 2 - gridRect.top
+    };
+  }
+
+  function drawCurve(fromSI, toSI, color, opacity, dashed) {
+    const from = getNodeCenter(fromSI);
+    const to = getNodeCenter(toSI);
+    if (!from || !to) return;
+
+    const midY = (from.y + to.y) / 2;
+    const dx = Math.abs(from.x - to.x) * 0.3;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M' + from.x + ',' + from.y + ' C' + (from.x + dx) + ',' + midY + ' ' + (to.x - dx) + ',' + midY + ' ' + to.x + ',' + to.y);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', color);
+    path.setAttribute('stroke-width', '1.5');
+    path.setAttribute('opacity', opacity);
+    if (dashed) path.setAttribute('stroke-dasharray', '6,4');
+    svg.appendChild(path);
+  }
+
+  // Primary connectors
+  primaryConnectors.forEach(c => {
+    drawCurve(c.from, c.to, '#4ea8de', '0.3', false);
+  });
+
+  // Secondary connectors
+  secondaryConnectors.forEach(c => {
+    drawCurve(c.from, c.to, '#7b2cbf', '0.2', true);
+  });
+
+  // Aftermarket loopback arrows
+  const rail = document.querySelector('.aftermarket-rail');
+  if (!rail) return;
+  const railRect = rail.getBoundingClientRect();
+  const railLeft = railRect.left - gridRect.left;
+  const railCenterY = railRect.top + railRect.height / 2 - gridRect.top;
+
+  function drawLoopback(subIndustry, weight) {
+    const pos = getNodeRight(subIndustry);
+    if (!pos) return;
+    let opacity, width, dashArray;
+    if (weight === 'heavy') { opacity = 0.35; width = 1.8; dashArray = '4,3'; }
+    else if (weight === 'medium') { opacity = 0.22; width = 1.2; dashArray = '3,4'; }
+    else { opacity = 0.12; width = 0.8; dashArray = '2,5'; }
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const midX = pos.x + (railLeft - pos.x) * 0.5;
+    path.setAttribute('d', 'M' + railLeft + ',' + (pos.y + 5) + ' C' + midX + ',' + (pos.y + 5) + ' ' + (pos.x + 20) + ',' + pos.y + ' ' + pos.x + ',' + pos.y);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', '#f4a261');
+    path.setAttribute('stroke-width', width);
+    path.setAttribute('opacity', opacity);
+    path.setAttribute('stroke-dasharray', dashArray);
+    svg.appendChild(path);
+  }
+
+  aftermarketLoopback.heavy.forEach(si => drawLoopback(si, 'heavy'));
+  aftermarketLoopback.medium.forEach(si => drawLoopback(si, 'medium'));
+  aftermarketLoopback.light.forEach(si => drawLoopback(si, 'light'));
+}
+
+// ─── COMPANY GRID ───
+function buildCompanyGrid() {
+  const grid = document.getElementById('companyGrid');
+  grid.innerHTML = '';
+
+  // Populate filter dropdowns
+  const archetypes = [...new Set(sectorData.map(c => c.archetype))].sort();
+  const caps = [...new Set(sectorData.map(c => c.marketCap))];
+  const subs = [...new Set(sectorData.map(c => c.subIndustry))].sort();
+
+  const archSel = document.getElementById('archFilter');
+  if (archSel.options.length <= 1) {
+    archetypes.forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = a; archSel.appendChild(o); });
+  }
+  const capSel = document.getElementById('capFilter');
+  if (capSel.options.length <= 1) {
+    caps.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; capSel.appendChild(o); });
+  }
+  const subSel = document.getElementById('subFilter');
+  if (subSel.options.length <= 1) {
+    subs.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; subSel.appendChild(o); });
+  }
+
+  sectorData.forEach((c, idx) => {
+    const card = document.createElement('div');
+    card.className = 'company-card';
+    card.setAttribute('data-idx', idx);
+    card.setAttribute('data-ticker', c.ticker);
+    card.setAttribute('data-subindustry', c.subIndustry);
+
+    const archCls = archetypeClass(c.archetype);
+    const tierCls = tierBadgeClass(c.tier);
+    const glossaryDef = glossary[c.archetype] || '';
+
+    card.innerHTML =
+      '<div class="card-top"><span class="card-ticker">' + c.ticker + '</span></div>' +
+      '<div class="card-name">' + c.name + '</div>' +
+      '<div class="card-badges">' +
+        '<span class="badge badge-arch badge-' + archCls + '">' + c.archetype + '<span class="arch-tip">' + glossaryDef + '</span></span>' +
+        '<span class="badge ' + tierCls + '">Tier ' + c.tier + '</span>' +
+        '<span class="badge badge-cap">' + c.marketCap + '</span>' +
+        '<span class="badge badge-cycle">' + c.cyclePosition + '</span>' +
+      '</div>' +
+      '<div class="card-subind">' + c.subIndustry + '</div>' +
+      '<div class="card-factor" id="factor-' + idx + '"></div>' +
+      '<div class="card-desc" id="desc-' + idx + '">' + c.description + '</div>';
+
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.badge-arch')) return;
+      const desc = document.getElementById('desc-' + idx);
+      desc.classList.toggle('open');
+    });
+
+    grid.appendChild(card);
+  });
+
+  updateResultCount(sectorData.length);
+}
+
+function updateResultCount(n) {
+  document.getElementById('resultCount').textContent = n + ' of ' + sectorData.length + ' companies';
+}
+
+// ─── FILTERS ───
+function applyFilters() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const tier = document.getElementById('tierFilter').value;
+  const arch = document.getElementById('archFilter').value;
+  const cap = document.getElementById('capFilter').value;
+  const sub = document.getElementById('subFilter').value;
+
+  let count = 0;
+  document.querySelectorAll('.company-card').forEach(card => {
+    const idx = parseInt(card.getAttribute('data-idx'));
+    const c = sectorData[idx];
+    let show = true;
+
+    if (search && !(c.ticker.toLowerCase().includes(search) || c.name.toLowerCase().includes(search))) show = false;
+    if (tier && c.tier !== parseInt(tier)) show = false;
+    if (arch && c.archetype !== arch) show = false;
+    if (cap && c.marketCap !== cap) show = false;
+    if (sub && c.subIndustry !== sub) show = false;
+
+    card.style.display = show ? '' : 'none';
+    if (show) count++;
+  });
+  updateResultCount(count);
+}
+
+function clearFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('tierFilter').value = '';
+  document.getElementById('archFilter').value = '';
+  document.getElementById('capFilter').value = '';
+  document.getElementById('subFilter').value = '';
+  activeMapNode = null;
+  document.querySelectorAll('.map-node').forEach(n => { n.classList.remove('active','dimmed'); });
+  applyFilters();
+}
+
+// Filter event listeners
+['searchInput','tierFilter','archFilter','capFilter','subFilter'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener(id === 'searchInput' ? 'input' : 'change', applyFilters);
+});
+
+// ─── FACTOR TOGGLES ───
+document.querySelectorAll('.factor-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const factor = btn.getAttribute('data-factor');
+    if (activeFactor === factor) {
+      activeFactor = null;
+      btn.classList.remove('active');
+      hideFactorScores();
+    } else {
+      activeFactor = factor;
+      document.querySelectorAll('.factor-toggle').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      showFactorScores(factor);
+    }
+  });
+});
+
+function showFactorScores(factor) {
+  sectorData.forEach((c, idx) => {
+    const el = document.getElementById('factor-' + idx);
+    const score = c.factorExposures[factor];
+    el.style.display = 'inline-block';
+    el.className = 'card-factor ' + factorScoreClass(score);
+    el.textContent = factorScoreLabel(score);
+
+    // Tint the card border
+    const card = document.querySelector('.company-card[data-idx="' + idx + '"]');
+    if (score >= 2) card.style.borderColor = 'rgba(39,174,96,0.5)';
+    else if (score === 1) card.style.borderColor = 'rgba(39,174,96,0.25)';
+    else if (score === 0) card.style.borderColor = '';
+    else if (score === -1) card.style.borderColor = 'rgba(231,76,60,0.25)';
+    else card.style.borderColor = 'rgba(231,76,60,0.5)';
+  });
+}
+
+function hideFactorScores() {
+  sectorData.forEach((c, idx) => {
+    const el = document.getElementById('factor-' + idx);
+    el.style.display = 'none';
+    const card = document.querySelector('.company-card[data-idx="' + idx + '"]');
+    card.style.borderColor = '';
+  });
+}
+
+// ─── INDUSTRY BRIEFS ───
+function buildBriefs() {
+  const container = document.getElementById('briefAccordion');
+  container.innerHTML = '';
+
+  const subOrder = [];
+  [1,2,3].forEach(t => { tierConfig[t].subIndustries.forEach(si => subOrder.push(si)); });
+
+  subOrder.forEach(si => {
+    const brief = industryBriefs[si];
+    if (!brief) return;
+
+    const item = document.createElement('div');
+    item.className = 'brief-item';
+    item.setAttribute('data-subindustry', si);
+
+    const tierCls = tierBadgeClass(brief.tier);
+
+    // Revenue breakdown rows
+    let revRows = '';
+    if (brief.revenueBreakdown) {
+      brief.revenueBreakdown.forEach(r => {
+        revRows += '<tr><td>' + r.ticker + '</td><td>' + r.revenue + '</td><td>' + r.growth + '</td><td>' + r.note + '</td></tr>';
+      });
+    }
+
+    // Anchor tickers
+    let anchorHtml = '';
+    if (brief.anchorTickers) {
+      brief.anchorTickers.forEach(a => {
+        anchorHtml += '<div class="anchor-item" data-ticker="' + a.ticker + '">' +
+          '<span class="anchor-ticker">' + a.ticker + '</span>' +
+          '<span class="anchor-rationale">' + a.rationale + '</span></div>';
+      });
+    }
+
+    // Key metrics
+    let metricsHtml = '';
+    if (brief.keyMetrics) {
+      brief.keyMetrics.forEach(m => { metricsHtml += '<span class="metric-tag">' + m + '</span>'; });
+    }
+
+    // Watchlist
+    let watchHtml = '';
+    if (brief.watchlist) {
+      brief.watchlist.forEach(w => { watchHtml += '<div class="watchlist-item">' + w + '</div>'; });
+    }
+
+    // Key dynamics
+    let dynHtml = '';
+    if (brief.keyDynamics) {
+      brief.keyDynamics.forEach(d => { dynHtml += '<li>' + d + '</li>'; });
+    }
+
+    item.innerHTML =
+      '<div class="brief-header">' +
+        '<span class="brief-title">' + brief.title + '</span>' +
+        '<span class="badge ' + tierCls + '">Tier ' + brief.tier + '</span>' +
+        '<span class="brief-chevron">&#x203A;</span>' +
+      '</div>' +
+      '<div class="brief-body">' +
+        '<div class="brief-section-label">Overview</div>' +
+        '<div class="brief-overview">' + brief.overview + '</div>' +
+        '<div class="brief-section-label">Key Dynamics</div>' +
+        '<ul class="dynamics-list">' + dynHtml + '</ul>' +
+        '<div class="brief-section-label">Variant Perception</div>' +
+        '<div class="variant-grid">' +
+          '<div class="variant-box vb-consensus"><div class="vb-label">Consensus</div>' + brief.variantPerception.consensus + '</div>' +
+          '<div class="variant-box vb-bull"><div class="vb-label">Bull</div>' + brief.variantPerception.bull + '</div>' +
+          '<div class="variant-box vb-bear"><div class="vb-label">Bear</div>' + brief.variantPerception.bear + '</div>' +
+          '<div class="variant-box vb-signal"><div class="vb-label">Resolution Signal</div>' + brief.variantPerception.resolutionSignal + '</div>' +
+        '</div>' +
+        '<div class="brief-section-label">Revenue Breakdown</div>' +
+        '<table class="rev-table"><thead><tr><th>Ticker</th><th>Revenue</th><th>Growth</th><th>Note</th></tr></thead><tbody>' + revRows + '</tbody></table>' +
+        '<div class="brief-section-label">Anchor Tickers</div>' +
+        '<div class="anchor-list">' + anchorHtml + '</div>' +
+        '<div class="brief-section-label">Key Metrics</div>' +
+        '<div class="metrics-list">' + metricsHtml + '</div>' +
+        '<div class="brief-section-label">Watchlist</div>' +
+        '<div>' + watchHtml + '</div>' +
+      '</div>';
+
+    // Accordion toggle (single-expand)
+    item.querySelector('.brief-header').addEventListener('click', () => {
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.brief-item').forEach(bi => bi.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+
+    container.appendChild(item);
+  });
+
+  // Anchor ticker click -> scroll to company card
+  document.querySelectorAll('.anchor-item').forEach(ai => {
+    ai.addEventListener('click', () => {
+      const ticker = ai.getAttribute('data-ticker');
+      scrollToCompanyCard(ticker);
+    });
+  });
+}
+
+function openBriefByName(subIndustry) {
+  document.querySelectorAll('.brief-item').forEach(bi => {
+    if (bi.getAttribute('data-subindustry') === subIndustry) {
+      document.querySelectorAll('.brief-item').forEach(b => b.classList.remove('open'));
+      bi.classList.add('open');
+    }
+  });
+}
+
+function scrollToCompanyCard(ticker) {
+  const card = document.querySelector('.company-card[data-ticker="' + ticker + '"]');
+  if (!card) return;
+  // Make sure it's visible
+  document.getElementById('searchInput').value = ticker;
+  applyFilters();
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.classList.add('highlighted');
+  setTimeout(() => card.classList.remove('highlighted'), 2000);
+  // Open description
+  const idx = card.getAttribute('data-idx');
+  const desc = document.getElementById('desc-' + idx);
+  if (desc) desc.classList.add('open');
+}
+
+// ─── SIGNAL CHAINS ───
+function buildSignalChains() {
+  const container = document.getElementById('chainsGrid');
+  container.innerHTML = '';
+
+  signalChains.forEach(chain => {
+    const card = document.createElement('div');
+    card.className = 'chain-card';
+
+    let stepsHtml = '';
+    chain.links.forEach(link => {
+      stepsHtml += '<div class="chain-step">' + link + '</div>';
+    });
+
+    let badgesHtml = '';
+    chain.affectedSubIndustries.forEach(si => {
+      badgesHtml += '<span class="chain-badge" data-subindustry="' + si + '">' + si + '</span>';
+    });
+
+    card.innerHTML =
+      '<div class="chain-name">' + chain.name + '</div>' +
+      '<div class="chain-timeline">' + stepsHtml + '</div>' +
+      '<div class="chain-affected">' + badgesHtml + '</div>';
+
+    container.appendChild(card);
+  });
+
+  // Badge click -> highlight map node + filter cards
+  document.querySelectorAll('.chain-badge').forEach(badge => {
+    badge.addEventListener('click', () => {
+      const si = badge.getAttribute('data-subindustry');
+      handleNodeClick(si);
+      document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+// ─── GLOSSARY ───
+function buildGlossary() {
+  const container = document.getElementById('glossaryList');
+  container.innerHTML = '';
+
+  const terms = Object.keys(glossary).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+  terms.forEach(term => {
+    const item = document.createElement('div');
+    item.className = 'glossary-item';
+    item.setAttribute('data-term', term.toLowerCase());
+
+    item.innerHTML =
+      '<div class="glossary-term"><span>' + term + '</span><span class="g-chevron">&#x203A;</span></div>' +
+      '<div class="glossary-def">' + glossary[term] + '</div>';
+
+    item.querySelector('.glossary-term').addEventListener('click', () => {
+      item.classList.toggle('open');
+    });
+
+    container.appendChild(item);
+  });
+
+  // Glossary search
+  document.getElementById('glossarySearch').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('.glossary-item').forEach(gi => {
+      const term = gi.getAttribute('data-term');
+      gi.style.display = term.includes(q) ? '' : 'none';
+    });
+  });
+}
+
+// ─── STICKY NAV ACTIVE STATE ───
+function initNav() {
+  const sections = ['hero','macro','factors','map','grid','briefs','signals','glossary'];
+  const links = document.querySelectorAll('.nav-link');
+
+  function updateActive() {
+    let current = '';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top <= 120) {
+        current = id;
+      }
+    });
+    links.forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+    });
+  }
+
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+}
+
+// ─── RESIZE HANDLER ───
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(drawConnectors, 150);
+});
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded', () => {
+  buildMap();
+  buildCompanyGrid();
+  buildBriefs();
+  buildSignalChains();
+  buildGlossary();
+  initNav();
+  // Draw connectors after layout settles
+  setTimeout(drawConnectors, 300);
+});
+</script>
+</body>
+</html>
