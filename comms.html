@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Communication Services &mdash; GICS Sector Visual Atlas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #0e0e16;
+  --bg-hover: #14141e;
+  --border: rgba(255,255,255,0.06);
+  --border-light: rgba(255,255,255,0.1);
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --text-muted: #666;
+  --infra: #4a90d9;
+  --infra-bg: rgba(74,144,217,0.08);
+  --infra-border: rgba(74,144,217,0.25);
+  --balance: #c084fc;
+  --balance-bg: rgba(192,132,252,0.08);
+  --balance-border: rgba(192,132,252,0.25);
+  --capital: #E85D04;
+  --capital-bg: rgba(232,93,4,0.08);
+  --capital-border: rgba(232,93,4,0.25);
+  --macro: #e67e22;
+  --macro-bg: rgba(230,126,34,0.08);
+  --macro-border: rgba(230,126,34,0.25);
+  --tollbridge: #4a90d9;
+  --cashengine: #27ae60;
+  --compounder: #9b59b6;
+  --ruleof40: #3498db;
+  --deepvalue: #e74c3c;
+  --specgrowth: #e67e22;
+  --turnaround: #f1c40f;
+  --positive: rgba(39,174,96,0.08);
+  --negative: rgba(231,76,60,0.08);
+  --amber: rgba(230,126,34,0.08);
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 24px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+/* ─── HEADER ─── */
+.header {
+  text-align: center;
+  padding: 40px 0 30px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--infra), var(--balance), var(--capital));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+.header .subtitle {
+  font-family: var(--mono);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.legend-item::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--lc);
+  flex-shrink: 0;
+}
+/* ─── FLOWCHART ─── */
+.flowchart-section {
+  margin-bottom: 48px;
+}
+.flowchart-section h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 28px;
+}
+.flowchart-wrapper {
+  display: flex;
+  gap: 24px;
+  position: relative;
+}
+.flowchart-tiers {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.tier {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  background: var(--bg-card);
+  position: relative;
+}
+.tier-infra { border-color: var(--infra-border); background: var(--infra-bg); }
+.tier-balance { border-color: var(--balance-border); background: var(--balance-bg); }
+.tier-capital { border-color: var(--capital-border); background: var(--capital-bg); }
+.tier-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.tier-infra .tier-label { color: var(--infra); }
+.tier-balance .tier-label { color: var(--balance); }
+.tier-capital .tier-label { color: var(--capital); }
+.tier-body {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.cluster {
+  flex: 1;
+  min-width: 200px;
+  border: 1px dashed var(--border-light);
+  border-radius: 8px;
+  padding: 12px;
+}
+.cluster-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.cluster-nodes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fc-node {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background: rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.fc-node:hover {
+  border-color: var(--node-color, var(--infra));
+  box-shadow: 0 0 12px rgba(74,144,217,0.15);
+  transform: translateY(-1px);
+}
+.tier-infra .fc-node { --node-color: var(--infra); }
+.tier-infra .fc-node:hover { border-color: var(--infra); box-shadow: 0 0 12px rgba(74,144,217,0.2); }
+.tier-balance .fc-node { --node-color: var(--balance); }
+.tier-balance .fc-node:hover { border-color: var(--balance); box-shadow: 0 0 12px rgba(192,132,252,0.2); }
+.tier-capital .fc-node { --node-color: var(--capital); }
+.tier-capital .fc-node:hover { border-color: var(--capital); box-shadow: 0 0 12px rgba(232,93,4,0.2); }
+.node-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.node-tickers {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+/* Inter-tier flow labels */
+.inter-tier-flow {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding: 12px 0;
+  position: relative;
+}
+.inter-tier-flow::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--border-light), transparent);
+}
+.flow-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  background: var(--bg);
+  padding: 2px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  z-index: 1;
+  white-space: nowrap;
+}
+/* Macro drivers column */
+.macro-drivers-column {
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+  flex-shrink: 0;
+}
+.macro-circle {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border: 2px dashed var(--macro-border);
+  background: var(--macro-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--macro);
+  padding: 12px;
+  position: relative;
+  line-height: 1.3;
+}
+.macro-circle::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  width: 24px;
+  height: 0;
+  border-top: 1px dashed var(--macro-border);
+}
+/* ─── SUMMARY SECTION ─── */
+.summary-section {
+  margin-bottom: 48px;
+}
+.tier-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.summary-card {
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.summary-card h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.card-infra { border-color: var(--infra-border); }
+.card-infra h3 { color: var(--infra); }
+.card-balance { border-color: var(--balance-border); }
+.card-balance h3 { color: var(--balance); }
+.card-capital { border-color: var(--capital-border); }
+.card-capital h3 { color: var(--capital); }
+.summary-card p {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.macro-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.macro-card {
+  background: var(--macro-bg);
+  border: 1px solid var(--macro-border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.macro-card h4 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--macro);
+  margin-bottom: 8px;
+}
+.macro-card p {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+/* ─── DISCOVERY GRID ─── */
+.grid-section {
+  margin-bottom: 48px;
+}
+.grid-section h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.grid-section .grid-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.grid-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.grid-filters input,
+.grid-filters select {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.grid-filters input:focus,
+.grid-filters select:focus {
+  border-color: var(--infra);
+}
+.grid-filters input { flex: 1; min-width: 180px; }
+.grid-filters select { min-width: 120px; }
+.filter-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+#resultCount {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+#clearBtn {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font);
+}
+#clearBtn:hover { border-color: var(--text-dim); color: var(--text); }
+/* Factor toggles */
+.factor-toggles {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.factor-toggle {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font);
+}
+.factor-toggle:hover { border-color: var(--text-muted); }
+.factor-toggle.active {
+  border-color: var(--macro);
+  color: var(--macro);
+  box-shadow: 0 0 8px rgba(230,126,34,0.2);
+  background: var(--macro-bg);
+}
+/* Table */
+.grid-table-wrapper { overflow-x: auto; }
+.grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+.grid-table thead th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.grid-table thead th:hover { color: var(--text); }
+.grid-table thead th.sorted { color: var(--infra); }
+.grid-table thead th .sort-arrow {
+  font-size: 0.6rem;
+  margin-left: 4px;
+  opacity: 0.5;
+}
+.grid-table thead th.sorted .sort-arrow { opacity: 1; color: var(--infra); }
+.grid-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.grid-table tbody tr:hover { background: var(--bg-hover); }
+.grid-table tbody td {
+  padding: 10px 12px;
+  vertical-align: middle;
+}
+.td-ticker {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--infra);
+  font-size: 0.8rem;
+}
+.td-company { font-size: 0.78rem; }
+.td-industry { font-size: 0.74rem; color: var(--text-dim); }
+.node-badge, .arch-badge, .cycle-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.node-infra { background: var(--infra-bg); color: var(--infra); border: 1px solid var(--infra-border); }
+.node-balance { background: var(--balance-bg); color: var(--balance); border: 1px solid var(--balance-border); }
+.node-capital { background: var(--capital-bg); color: var(--capital); border: 1px solid var(--capital-border); }
+.arch-tollbridge { background: rgba(74,144,217,0.1); color: var(--tollbridge); border: 1px solid rgba(74,144,217,0.25); }
+.arch-cashengine { background: rgba(39,174,96,0.1); color: var(--cashengine); border: 1px solid rgba(39,174,96,0.25); }
+.arch-compounder { background: rgba(155,89,182,0.1); color: var(--compounder); border: 1px solid rgba(155,89,182,0.25); }
+.arch-ruleof40 { background: rgba(52,152,219,0.1); color: var(--ruleof40); border: 1px solid rgba(52,152,219,0.25); }
+.arch-deepvalue { background: rgba(231,76,60,0.1); color: var(--deepvalue); border: 1px solid rgba(231,76,60,0.25); }
+.arch-specgrowth { background: rgba(230,126,34,0.1); color: var(--specgrowth); border: 1px solid rgba(230,126,34,0.25); }
+.arch-turnaround { background: rgba(241,196,15,0.1); color: var(--turnaround); border: 1px solid rgba(241,196,15,0.25); }
+/* Archetype tooltip */
+.arch-badge {
+  position: relative;
+  cursor: help;
+}
+.arch-badge .tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: #1a1a2e;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 280px;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.5;
+  white-space: normal;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+.arch-badge .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 20px;
+  border: 6px solid transparent;
+  border-top-color: #1a1a2e;
+}
+.arch-badge:hover .tooltip { display: block; }
+.cycle-badge {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+}
+.td-cap {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+/* Expanded row */
+.expanded-row td { padding: 0 !important; border-bottom: 1px solid var(--border-light); }
+.expanded-content {
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.015);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.exp-block h5 {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.exp-block p {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.exp-factors {
+  grid-column: 1 / -1;
+}
+.exp-factors h5 {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.factor-dots {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.factor-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.factor-dot .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dot-positive { background: #27ae60; }
+.dot-negative { background: #e74c3c; }
+.dot-neutral { background: #555; }
+.dot-strong-positive { background: #1abc9c; }
+.dot-strong-negative { background: #c0392b; }
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+/* ─── SIGNAL CHAINS SECTION ─── */
+.chains-section {
+  margin-bottom: 48px;
+}
+.chains-section h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.chains-section .chains-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.chain-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  background: var(--bg-card);
+}
+.chain-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.chain-flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.chain-entity {
+  font-size: 0.7rem;
+  padding: 6px 10px;
+  background: rgba(74,144,217,0.08);
+  border: 1px solid var(--infra-border);
+  border-radius: 6px;
+  color: var(--infra);
+  text-align: center;
+  white-space: nowrap;
+}
+.chain-arrow {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 0 6px;
+}
+.chain-affected {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.chain-affected-tag {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chain-affected-tag:hover {
+  border-color: var(--infra);
+  color: var(--infra);
+}
+/* ─── SLIDE-OUT BRIEF PANEL ─── */
+.brief-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.brief-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+.brief-panel {
+  position: fixed;
+  top: 0; right: 0;
+  width: 560px;
+  height: 100vh;
+  background: #0c0c14;
+  border-left: 1px solid var(--border-light);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 1001;
+  overflow-y: auto;
+  padding: 32px;
+}
+.brief-overlay.open .brief-panel {
+  transform: translateX(0);
+}
+.brief-close {
+  position: absolute;
+  top: 16px; right: 20px;
+  background: none;
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.brief-close:hover { border-color: var(--text); color: var(--text); }
+.brief-body h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  margin-right: 40px;
+}
+.brief-body .brief-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 24px;
+}
+.brief-section-title {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 24px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.brief-overview {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  white-space: pre-line;
+}
+/* Consensus & variant */
+.consensus-text {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--text-muted);
+  background: rgba(255,255,255,0.02);
+  border-radius: 0 6px 6px 0;
+}
+.variant-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 14px;
+  background: rgba(255,255,255,0.015);
+}
+.variant-q {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.variant-case {
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.variant-bull { border-left: 3px solid #27ae60; background: rgba(39,174,96,0.04); }
+.variant-bear { border-left: 3px solid #e74c3c; background: rgba(231,76,60,0.04); }
+.variant-signal { border-left: 3px solid #3498db; background: rgba(52,152,219,0.04); }
+.variant-label {
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.variant-bull .variant-label { color: #27ae60; }
+.variant-bear .variant-label { color: #e74c3c; }
+.variant-signal .variant-label { color: #3498db; }
+/* Key metrics & watchlist */
+.metrics-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.metric-tag {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.watchlist-item {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.watchlist-item:last-child { border-bottom: none; }
+.chain-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  body { padding: 12px; }
+  .tier-cards { grid-template-columns: 1fr; }
+  .macro-cards { grid-template-columns: repeat(2, 1fr); }
+  .flowchart-wrapper { flex-direction: column; }
+  .macro-drivers-column { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .macro-circle::before { display: none; }
+  .grid-filters { flex-direction: column; }
+  .grid-filters input, .grid-filters select { width: 100%; }
+  .filter-meta { margin-left: 0; width: 100%; justify-content: space-between; }
+  .expanded-content { grid-template-columns: 1fr; }
+  .brief-panel { width: 100%; }
+}
+
+/* ─── KEY DYNAMICS ─── */
+.dynamics-list { list-style: none; padding: 0; }
+.dynamics-list li {
+  font-size: 0.78rem; color: var(--text-dim); line-height: 1.55;
+  padding: 6px 0 6px 16px; border-bottom: 1px solid var(--border); position: relative;
+}
+.dynamics-list li:last-child { border-bottom: none; }
+.dynamics-list li::before { content: '\203A'; position: absolute; left: 0; color: var(--text-muted); font-weight: 700; }
+/* ─── REVENUE BREAKDOWN TABLE ─── */
+.rev-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin-top: 4px; }
+.rev-table thead th {
+  text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border-light);
+  color: var(--text-muted); font-size: 0.65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.rev-table tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text-dim); vertical-align: top; }
+.rev-table tbody td:first-child { font-family: var(--mono); font-weight: 600; color: var(--infra); }
+.rev-table .growth-pos { color: #27ae60; }
+.rev-table .growth-neg { color: #e74c3c; }
+.rev-table .rev-note { font-size: 0.7rem; color: var(--text-muted); max-width: 260px; }
+/* ─── ANCHOR TICKERS ─── */
+.anchor-list { display: flex; flex-direction: column; gap: 10px; }
+.anchor-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: rgba(255,255,255,0.015);
+}
+.anchor-ticker { font-family: var(--mono); font-weight: 700; font-size: 0.82rem; color: var(--infra); min-width: 50px; }
+.anchor-rationale { font-size: 0.76rem; color: var(--text-dim); line-height: 1.5; }
+/* ─── SVG CONNECTING LINES ─── */
+.flowchart-svg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: visible;
+}
+.flowchart-svg text { font-family: var(--mono); font-size: 8px; fill: var(--text-muted); }
+.tier, .inter-tier-flow, .macro-drivers-column { position: relative; z-index: 1; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header">
+  <h1>Communication Services &mdash; GICS Sector Visual Atlas</h1>
+  <p class="subtitle">Infrastructure &rarr; Content &rarr; Platforms</p>
+  <div class="legend">
+    <span class="legend-item" style="--lc: var(--infra)">Network Infrastructure &amp; Connectivity</span>
+    <span class="legend-item" style="--lc: var(--balance)">Content &amp; IP Owners</span>
+    <span class="legend-item" style="--lc: var(--capital)">Platforms &amp; Monetization</span>
+    <span class="legend-item" style="--lc: var(--macro)">Macro Drivers</span>
+  </div>
+</header>
+
+<!-- ═══ VALUE CHAIN FLOWCHART ═══ -->
+<section class="flowchart-section">
+  <h2>Value Chain Architecture</h2>
+  <div class="flowchart-wrapper">
+    <svg class="flowchart-svg" id="flowchartSvg"></svg>
+    <div class="flowchart-tiers">
+
+      <!-- TIER 1: Network Infrastructure & Connectivity -->
+      <div class="tier tier-infra">
+        <div class="tier-label">Tier 1 &mdash; Network Infrastructure &amp; Connectivity</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">Towers</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Towers & Wireless Infrastructure" onclick="openBrief(this)">
+                <div class="node-name">Towers &amp; Wireless Infrastructure</div>
+                <div class="node-tickers">AMT &middot; CCI &middot; SBAC &middot; UNIT &middot; USM</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Wireline &amp; Fiber</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Integrated Telecom" onclick="openBrief(this)">
+                <div class="node-name">Integrated Telecom</div>
+                <div class="node-tickers">T &middot; VZ &middot; TMUS &middot; LUMN &middot; TDS &middot; SHEN</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Cable</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Cable & Broadband" onclick="openBrief(this)">
+                <div class="node-name">Cable &amp; Broadband</div>
+                <div class="node-tickers">CMCSA &middot; CHTR &middot; FYBR &middot; CABO</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Satellite</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Satellite & Specialty" onclick="openBrief(this)">
+                <div class="node-name">Satellite &amp; Specialty</div>
+                <div class="node-tickers">IRDM &middot; GSAT &middot; SATS &middot; VSAT</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flow labels Tier 1 → 2 -->
+      <div class="inter-tier-flow">
+        <span class="flow-label">Content Distribution &darr;</span>
+        <span class="flow-label">Carriage Fees &uarr;</span>
+        <span class="flow-label">Bandwidth Demand &darr;</span>
+        <span class="flow-label">Licensing &amp; Rights &uarr;</span>
+      </div>
+
+      <!-- TIER 2: Content & IP Owners -->
+      <div class="tier tier-balance">
+        <div class="tier-label">Tier 2 &mdash; Content &amp; IP Owners</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">Studios</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Legacy Media & Studios" onclick="openBrief(this)">
+                <div class="node-name">Legacy Media &amp; Studios</div>
+                <div class="node-tickers">DIS &middot; WBD &middot; PARA &middot; FOXA &middot; NWSA</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Music</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Music & Audio" onclick="openBrief(this)">
+                <div class="node-name">Music &amp; Audio</div>
+                <div class="node-tickers">SPOT &middot; WMG &middot; SIRI &middot; UMG</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Live Events</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Sports & Live Events" onclick="openBrief(this)">
+                <div class="node-name">Sports &amp; Live Events</div>
+                <div class="node-tickers">LYV &middot; EDR &middot; MSGE &middot; MSGS</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Gaming</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Interactive Entertainment / Gaming" onclick="openBrief(this)">
+                <div class="node-name">Interactive Entertainment / Gaming</div>
+                <div class="node-tickers">EA &middot; TTWO &middot; RBLX &middot; DKNG &middot; U</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flow labels Tier 2 → 3 -->
+      <div class="inter-tier-flow">
+        <span class="flow-label">Content Licensing &darr;</span>
+        <span class="flow-label">Ad Revenue &uarr;</span>
+        <span class="flow-label">User Engagement &darr;</span>
+        <span class="flow-label">Subscriber Fees &uarr;</span>
+      </div>
+
+      <!-- TIER 3: Platforms & Monetization -->
+      <div class="tier tier-capital">
+        <div class="tier-label">Tier 3 &mdash; Platforms &amp; Monetization</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">Ad Tech</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Digital Advertising Platforms" onclick="openBrief(this)">
+                <div class="node-name">Digital Advertising Platforms</div>
+                <div class="node-tickers">GOOG &middot; META &middot; TTD &middot; DV &middot; IAS</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Streaming</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Streaming & OTT" onclick="openBrief(this)">
+                <div class="node-name">Streaming &amp; OTT</div>
+                <div class="node-tickers">NFLX &middot; ROKU &middot; FUBO</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Social</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Social & Community Platforms" onclick="openBrief(this)">
+                <div class="node-name">Social &amp; Community Platforms</div>
+                <div class="node-tickers">SNAP &middot; PINS &middot; RDDT &middot; MTCH</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Publishing</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Publishing & Digital Media" onclick="openBrief(this)">
+                <div class="node-name">Publishing &amp; Digital Media</div>
+                <div class="node-tickers">NYT &middot; IAC &middot; CARG &middot; GENI</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Macro Drivers Column -->
+    <div class="macro-drivers-column">
+      <div class="macro-circle">Ad Cycle</div>
+      <div class="macro-circle">Streaming Shift</div>
+      <div class="macro-circle">Regulatory &amp; Antitrust</div>
+      <div class="macro-circle">AI Disruption</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TIER SUMMARY + MACRO CARDS ═══ -->
+<section class="summary-section">
+  <div class="tier-cards">
+    <div class="summary-card card-infra">
+      <h3>Network Infrastructure &amp; Connectivity</h3>
+      <p>Towers, telecom carriers, cable operators, and satellite providers that form the physical and wireless backbone of communications. These are the pipes and rails &mdash; businesses with regulatory moats, long-term contracts, and capital-intensive infrastructure that creates natural barriers to entry. They sit beneath the content and platform layers because nothing digital works without connectivity.</p>
+    </div>
+    <div class="summary-card card-balance">
+      <h3>Content &amp; IP Owners</h3>
+      <p>Studios, music labels, sports leagues, and gaming publishers that create and own the intellectual property flowing through infrastructure to reach audiences. Their profitability depends on content spend discipline, franchise value, and the secular shift from linear to digital distribution. Live events and music are structurally advantaged as formats streaming cannot commoditize.</p>
+    </div>
+    <div class="summary-card card-capital">
+      <h3>Platforms &amp; Monetization</h3>
+      <p>Digital advertising platforms, streaming services, social networks, and publishers that aggregate audiences and monetize attention. Revenue is driven by ad cycles, user engagement, and ARPU expansion. The Google-Meta duopoly captures 50%+ of digital ad spend. The secular shift from analog to digital advertising is approximately 70% complete globally.</p>
+    </div>
+  </div>
+  <div class="macro-cards">
+    <div class="macro-card">
+      <h4>Ad Cycle</h4>
+      <p>Corporate marketing budgets expand and contract with economic confidence. Digital captures an increasing share of total ad spend (~70%+). Google and Meta dominate; ad tech infrastructure (TTD, DV, IAS) benefits from higher programmatic volume during expansions.</p>
+    </div>
+    <div class="macro-card">
+      <h4>Streaming Shift</h4>
+      <p>The secular migration from linear TV to streaming is reshaping content distribution, advertising, and consumer spending. Cord-cutting 2.0 now includes broadband losses for cable operators as fixed wireless gains share. Ad-tier adoption extends the streaming revenue model.</p>
+    </div>
+    <div class="macro-card">
+      <h4>Regulatory &amp; Antitrust</h4>
+      <p>Google faces dual antitrust actions (search remedies + ad tech monopoly ruling). Live Nation/Ticketmaster faces DOJ breakup suit. Net neutrality, spectrum policy, and sports betting regulation all shape competitive dynamics across the sector.</p>
+    </div>
+    <div class="macro-card">
+      <h4>AI Disruption</h4>
+      <p>AI search threatens publisher traffic and ad-supported business models. AI-generated content could commoditize music and video IP. Google and Meta are investing $300B+ combined in AI capex. AI ad creative tools are transforming campaign optimization and advertiser ROAS.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DISCOVERY GRID ═══ -->
+<section class="grid-section" id="gridSection">
+  <h2>Discovery Grid &mdash; Communication Services Company Registry</h2>
+  <p class="grid-subtitle">Filterable, searchable registry of 79 communication services companies across the full value chain</p>
+  
+  <div class="grid-filters">
+    <input type="text" id="searchInput" placeholder="Search ticker or company...">
+    <select id="tierFilter"><option value="">All Tiers</option></select>
+    <select id="subIndustryFilter"><option value="">All Sub-Industries</option></select>
+    <select id="archetypeFilter"><option value="">All Archetypes</option></select>
+    <select id="capFilter"><option value="">All Market Caps</option></select>
+    <div class="filter-meta">
+      <span id="resultCount">79 companies</span>
+      <button id="clearBtn">Clear Filters</button>
+    </div>
+  </div>
+
+  <div class="factor-toggles">
+    <button class="factor-toggle" data-factor="adCycle">Ad Cycle</button>
+    <button class="factor-toggle" data-factor="streamingShift">Streaming Shift</button>
+    <button class="factor-toggle" data-factor="regulatory">Regulatory</button>
+    <button class="factor-toggle" data-factor="aiDisruption">AI Disruption</button>
+  </div>
+
+  <div class="grid-table-wrapper">
+    <table class="grid-table">
+      <thead>
+        <tr>
+          <th data-col="ticker">Ticker <span class="sort-arrow"></span></th>
+          <th data-col="name">Company <span class="sort-arrow"></span></th>
+          <th data-col="subIndustry">Industry <span class="sort-arrow"></span></th>
+          <th data-col="tier">Tier <span class="sort-arrow"></span></th>
+          <th data-col="archetype">Archetype <span class="sort-arrow"></span></th>
+          <th data-col="marketCap">Mkt Cap <span class="sort-arrow"></span></th>
+          <th data-col="cyclePosition">Cycle <span class="sort-arrow"></span></th>
+        </tr>
+      </thead>
+      <tbody id="gridBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ SIGNAL CHAINS ═══ -->
+<section class="chains-section" id="chainsSection">
+  <h2>Signal Chains &mdash; Causal Logic Flows</h2>
+  <p class="chains-subtitle">8 interconnected chains showing how macro drivers propagate through the communications value chain</p>
+  <div id="chainsContainer"></div>
+</section>
+
+<!-- ═══ SLIDE-OUT BRIEF PANEL ═══ -->
+<div id="briefOverlay" class="brief-overlay" onclick="handleOverlayClick(event)">
+  <div id="briefPanel" class="brief-panel">
+    <button class="brief-close" onclick="closeBrief()">&#x2715;</button>
+    <div id="briefContent" class="brief-body"></div>
+  </div>
+</div>
+
+
+<script>
+// ═══ SECTOR DATA (79 companies) ═══
+const sectorData = [
+  // TIER 1: NETWORK INFRASTRUCTURE & CONNECTIVITY
+  // --- Towers & Wireless Infrastructure ---
+  {ticker:"AMT",name:"American Tower Corporation",tier:1,subIndustry:"Towers & Wireless Infrastructure",marketCap:"Large-Cap",archetype:"Tollbridge",cyclePosition:"secular",factorExposures:{adCycle:0,streamingShift:0,regulatory:-1,aiDisruption:1},description:"Largest global tower REIT with ~225,000 sites across 25 countries. Benefits from 5G densification and AI-driven data demand. Long-term lease escalators provide inflation protection. GICS Real Estate but core communications infrastructure."},
+  {ticker:"CCI",name:"Crown Castle Inc.",tier:1,subIndustry:"Towers & Wireless Infrastructure",marketCap:"Large-Cap",archetype:"Tollbridge",cyclePosition:"mid-cycle",factorExposures:{adCycle:0,streamingShift:0,regulatory:-1,aiDisruption:1},description:"US-focused tower and small cell operator with ~40,000 towers and ~120,000 small cell nodes. Pure domestic play on 5G densification. Activist pressure from Elliott Management drove fiber review and strategic pivot in 2024-2025."},
+  {ticker:"SBAC",name:"SBA Communications Corporation",tier:1,subIndustry:"Towers & Wireless Infrastructure",marketCap:"Large-Cap",archetype:"Tollbridge",cyclePosition:"mid-cycle",factorExposures:{adCycle:0,streamingShift:0,regulatory:-1,aiDisruption:1},description:"Third-largest US tower REIT with ~39,000 tower sites across the US, Canada, and Latin America. Highest lease-up potential among tower peers. GICS Real Estate but operationally core to wireless infrastructure."},
+  {ticker:"UNIT",name:"Uniti Group Inc.",tier:1,subIndustry:"Towers & Wireless Infrastructure",marketCap:"Small-Cap",archetype:"Deep Value",cyclePosition:"downturn",factorExposures:{adCycle:0,streamingShift:0,regulatory:-1,aiDisruption:1},description:"Fiber-focused infrastructure REIT operating ~140,000 route miles. Heavy Windstream customer concentration. Leveraged balance sheet limits flexibility. Potential beneficiary of rural broadband subsidies and AI data center connectivity."},
+  {ticker:"USM",name:"United States Cellular Corporation",tier:1,subIndustry:"Towers & Wireless Infrastructure",marketCap:"Small-Cap",archetype:"Deep Value",cyclePosition:"late-cycle",factorExposures:{adCycle:0,streamingShift:0,regulatory:0,aiDisruption:0},description:"Regional wireless carrier serving ~5M customers across 21 states. Subsidiary of Telephone and Data Systems (TDS). Exploring strategic alternatives including potential tower/spectrum asset sales to larger carriers."},
+  // --- Integrated Telecom ---
+  {ticker:"T",name:"AT&T Inc.",tier:1,subIndustry:"Integrated Telecom",marketCap:"Mega-Cap",archetype:"Cash Engine",cyclePosition:"mid-cycle",factorExposures:{adCycle:0,streamingShift:-1,regulatory:-1,aiDisruption:1},description:"Largest US telecom by revenue \u2014 $125.6B FY2025, adj EPS $2.12 (+8.7%). Fiber-wireless convergence strategy reaching 42% penetration. Acquired Lumen fiber assets and EchoStar spectrum. Stock +18% YTD early 2026, outperforming S&P 500."},
+  {ticker:"VZ",name:"Verizon Communications Inc.",tier:1,subIndustry:"Integrated Telecom",marketCap:"Mega-Cap",archetype:"Cash Engine",cyclePosition:"mid-cycle",factorExposures:{adCycle:0,streamingShift:-1,regulatory:-1,aiDisruption:1},description:"Premium US wireless carrier \u2014 616K Q4 2025 postpaid adds (highest in 5 years), decade-best earnings driving +12% stock move. Authorized $25B buyback. 2026 capex ~$16B signals harvest mode. Fixed wireless broadband gaining cable share. Stock +23% early 2026."},
+  {ticker:"TMUS",name:"T-Mobile US, Inc.",tier:1,subIndustry:"Integrated Telecom",marketCap:"Mega-Cap",archetype:"Compounder",cyclePosition:"mid-cycle",factorExposures:{adCycle:0,streamingShift:0,regulatory:-1,aiDisruption:1},description:"Fastest-growing US wireless carrier post-Sprint merger. 962K Q4 2025 postpaid adds (missed expectations), but raised 2027 guidance to $81B service revenue. Leading fixed wireless assault on cable broadband. Stock +6% early 2026."},
+  {ticker:"LUMN",name:"Lumen Technologies, Inc.",tier:1,subIndustry:"Integrated Telecom",marketCap:"Mid-Cap",archetype:"Turnaround",cyclePosition:"downturn",factorExposures:{adCycle:0,streamingShift:0,regulatory:0,aiDisruption:1},description:"Legacy enterprise fiber and networking provider undergoing radical transformation. Sold consumer fiber assets to AT&T. Pivoting to AI-driven enterprise connectivity and data center interconnection. Heavy debt load, execution risk remains high."},
+  {ticker:"TDS",name:"Telephone and Data Systems, Inc.",tier:1,subIndustry:"Integrated Telecom",marketCap:"Small-Cap",archetype:"Deep Value",cyclePosition:"late-cycle",factorExposures:{adCycle:0,streamingShift:0,regulatory:0,aiDisruption:0},description:"Parent company of US Cellular and TDS Telecom (wireline/fiber). Exploring strategic alternatives for USM. Small regional footprint limits growth but asset value in spectrum and fiber may exceed market cap."},
+  {ticker:"SHEN",name:"Shenandoah Telecommunications Company",tier:1,subIndustry:"Integrated Telecom",marketCap:"Small-Cap",archetype:"Cash Engine",cyclePosition:"mid-cycle",factorExposures:{adCycle:0,streamingShift:0,regulatory:0,aiDisruption:0},description:"Regional broadband and fiber provider serving Virginia, West Virginia, Maryland, and Kentucky. Post-wireless divestiture, now a pure-play fiber/broadband operator. Steady FCF generation from regulated footprint."},
+  {ticker:"LBRDA",name:"Liberty Broadband Corporation",tier:1,subIndustry:"Integrated Telecom",marketCap:"Mid-Cap",archetype:"Deep Value",cyclePosition:"late-cycle",factorExposures:{adCycle:0,streamingShift:-1,regulatory:-1,aiDisruption:0},description:"Tracking stock primarily holding a ~26% stake in Charter Communications plus GCI (Alaskan broadband). Trading at a persistent discount to NAV. Proposed merger with Charter to collapse the discount."},
+  // --- Cable & Broadband ---
+  {ticker:"CMCSA",name:"Comcast Corporation",tier:1,subIndustry:"Cable & Broadband",marketCap:"Mega-Cap",archetype:"Cash Engine",cyclePosition:"late-cycle",factorExposures:{adCycle:1,streamingShift:-2,regulatory:-1,aiDisruption:0},description:"Largest US cable operator \u2014 31.3M broadband subs (declining), 11.3M video subs. Lost 1.44M TV subs in 2025. 9.3M Xfinity Mobile lines (Verizon MVNO). Also owns NBCUniversal and Peacock (cross-tier conglomerate). Fixed wireless eroding broadband base."},
+  {ticker:"CHTR",name:"Charter Communications, Inc.",tier:1,subIndustry:"Cable & Broadband",marketCap:"Large-Cap",archetype:"Cash Engine",cyclePosition:"late-cycle",factorExposures:{adCycle:0,streamingShift:-2,regulatory:-1,aiDisruption:0},description:"Second-largest US cable operator (Spectrum brand). Lost 1.11M internet subs in 2025. Aggressive network upgrade program (DOCSIS 4.0) to defend against fiber and fixed wireless. Proposed Liberty Broadband merger to simplify structure."},
+  {ticker:"FYBR",name:"Frontier Communications Parent, Inc.",tier:1,subIndustry:"Cable & Broadband",marketCap:"Mid-Cap",archetype:"Turnaround",cyclePosition:"early-cycle",factorExposures:{adCycle:0,streamingShift:0,regulatory:0,aiDisruption:0},description:"Pure-play fiber operator post-2021 bankruptcy emergence. Aggressive fiber build converting legacy copper footprint. Verizon acquisition bid rejected; exploring alternatives. Growing fiber subs while legacy DSL declines."},
+  {ticker:"CABO",name:"Cable One, Inc.",tier:1,subIndustry:"Cable & Broadband",marketCap:"Mid-Cap",archetype:"Cash Engine",cyclePosition:"late-cycle",factorExposures:{adCycle:0,streamingShift:-1,regulatory:0,aiDisruption:0},description:"Rural-focused cable operator serving ~1.1M customers across 24 states. Deliberately shed video subs to focus on high-margin broadband. Lower competitive intensity in rural markets vs urban peers."},
+  {ticker:"CNSL",name:"Consolidated Communications Holdings, Inc.",tier:1,subIndustry:"Cable & Broadband",marketCap:"Small-Cap",archetype:"Turnaround",cyclePosition:"early-cycle",factorExposures:{adCycle:0,streamingShift:0,regulatory:0,aiDisruption:0},description:"Regional broadband provider converting legacy copper to fiber. Searchlight Capital Partners took the company private-like via majority stake. Serves northern New England and select markets across 20+ states."},
+  {ticker:"WOW",name:"WideOpenWest, Inc.",tier:1,subIndustry:"Cable & Broadband",marketCap:"Small-Cap",archetype:"Deep Value",cyclePosition:"late-cycle",factorExposures:{adCycle:0,streamingShift:-1,regulatory:0,aiDisruption:0},description:"Overbuilder cable operator competing in markets already served by incumbents. ~520K broadband subs. Smaller scale limits pricing power and capex efficiency vs Comcast/Charter."},
+  // --- Satellite & Specialty ---
+  {ticker:"IRDM",name:"Iridium Communications Inc.",tier:1,subIndustry:"Satellite & Specialty",marketCap:"Mid-Cap",archetype:"Tollbridge",cyclePosition:"secular",factorExposures:{adCycle:0,streamingShift:0,regulatory:0,aiDisruption:0},description:"Operates the only constellation providing true global satellite voice and data coverage (66 LEO satellites). Government, maritime, and aviation contracts provide revenue visibility. Emerging direct-to-device opportunity via Qualcomm partnership."},
+  {ticker:"GSAT",name:"Globalstar, Inc.",tier:1,subIndustry:"Satellite & Specialty",marketCap:"Mid-Cap",archetype:"Speculative Growth",cyclePosition:"early-cycle",factorExposures:{adCycle:0,streamingShift:0,regulatory:0,aiDisruption:0},description:"LEO satellite operator providing direct-to-device connectivity for Apple's Emergency SOS feature. Apple partnership transformed the business \u2014 guaranteed revenue and funded new satellite launches. Expanding beyond emergency to commercial messaging."},
+  {ticker:"SATS",name:"EchoStar Corporation",tier:1,subIndustry:"Satellite & Specialty",marketCap:"Mid-Cap",archetype:"Turnaround",cyclePosition:"downturn",factorExposures:{adCycle:0,streamingShift:-2,regulatory:-1,aiDisruption:0},description:"Combined EchoStar/DISH entity post-2023 merger. DISH satellite TV in terminal decline. Attempting to build 5G wireless network on acquired spectrum but facing severe capital constraints and execution challenges. AT&T acquired some spectrum assets."},
+  {ticker:"VSAT",name:"ViaSat, Inc.",tier:1,subIndustry:"Satellite & Specialty",marketCap:"Mid-Cap",archetype:"Turnaround",cyclePosition:"downturn",factorExposures:{adCycle:0,streamingShift:0,regulatory:0,aiDisruption:0},description:"GEO satellite broadband and defense communications provider. Post-Inmarsat acquisition creating global maritime/aviation connectivity platform. ViaSat-3 constellation deployment ongoing. Competing with Starlink on coverage and latency."},
+
+  // TIER 2: CONTENT & IP OWNERS
+  // --- Legacy Media & Studios ---
+  {ticker:"DIS",name:"The Walt Disney Company",tier:2,subIndustry:"Legacy Media & Studios",marketCap:"Mega-Cap",archetype:"Turnaround",cyclePosition:"mid-cycle",factorExposures:{adCycle:1,streamingShift:-1,regulatory:-1,aiDisruption:-1},description:"Global entertainment conglomerate \u2014 196M Disney+/Hulu subs. Streaming profit $1.33B FY2025, targeting 10% streaming margin FY2026. Stopped reporting sub numbers. ESPN standalone app launching. Cross-tier: owns Disney+/Hulu streaming platforms (Tier 3)."},
+  {ticker:"WBD",name:"Warner Bros. Discovery, Inc.",tier:2,subIndustry:"Legacy Media & Studios",marketCap:"Large-Cap",archetype:"Turnaround",cyclePosition:"downturn",factorExposures:{adCycle:1,streamingShift:-2,regulatory:-1,aiDisruption:-1},description:"Combined WarnerMedia + Discovery post-2022 merger. Operating Max streaming platform, Warner Bros. studios, HBO, CNN, TNT/TBS, Discovery networks. Announced merger with Paramount (Feb 26, 2026) at $111B \u2014 pending regulatory approval (12+ months). Heavy debt load from original merger."},
+  {ticker:"PARA",name:"Paramount Global",tier:2,subIndustry:"Legacy Media & Studios",marketCap:"Large-Cap",archetype:"Turnaround",cyclePosition:"downturn",factorExposures:{adCycle:1,streamingShift:-2,regulatory:-1,aiDisruption:-1},description:"Legacy studio operating Paramount Pictures, CBS, Showtime, MTV, Nickelodeon, Paramount+. Skydance won bidding war at $111B ($31/share) over Netflix's $82.7B bid (Feb 26, 2026). Netflix collected $2.8B breakup fee. Merger with WBD pending regulatory approval."},
+  {ticker:"FOXA",name:"Fox Corporation",tier:2,subIndustry:"Legacy Media & Studios",marketCap:"Large-Cap",archetype:"Cash Engine",cyclePosition:"mid-cycle",factorExposures:{adCycle:1,streamingShift:-1,regulatory:-1,aiDisruption:-1},description:"News and sports-focused media company post-Disney asset sale. Operates Fox News (#1 cable news), Fox Sports, Fox broadcast network, and Tubi (ad-supported streaming). Live sports rights provide structural moat against cord-cutting. Cross-tier: Tubi is a Tier 3 streaming platform."},
+  {ticker:"NWSA",name:"News Corp",tier:2,subIndustry:"Legacy Media & Studios",marketCap:"Large-Cap",archetype:"Deep Value",cyclePosition:"mid-cycle",factorExposures:{adCycle:1,streamingShift:0,regulatory:0,aiDisruption:-1},description:"Rupert Murdoch's publishing empire \u2014 Wall Street Journal, New York Post, The Times (UK), HarperCollins, REA Group (Australian real estate), Dow Jones. Digital real estate and data businesses provide growth offset to print decline."},
+  {ticker:"LGF.A",name:"Lions Gate Entertainment Corp.",tier:2,subIndustry:"Legacy Media & Studios",marketCap:"Small-Cap",archetype:"Turnaround",cyclePosition:"downturn",factorExposures:{adCycle:0,streamingShift:-1,regulatory:0,aiDisruption:-1},description:"Mid-size studio operating Lionsgate Films, Starz, and a 17,000+ title library. Separated studio business from Starz. IP includes Hunger Games, John Wick, Twilight franchises. Exploring strategic alternatives for Starz."},
+  {ticker:"IMAX",name:"IMAX Corporation",tier:2,subIndustry:"Legacy Media & Studios",marketCap:"Small-Cap",archetype:"Tollbridge",cyclePosition:"mid-cycle",factorExposures:{adCycle:0,streamingShift:1,regulatory:0,aiDisruption:0},description:"Operates ~1,750 IMAX theater systems globally via a capital-light licensing model. Premium format benefits from theatrical event-ization trend \u2014 studios increasingly rely on IMAX for tentpole launches. Counter-cyclical to streaming in some respects."},
+  {ticker:"CSSE",name:"Chicken Soup for the Soul Entertainment, Inc.",tier:2,subIndustry:"Legacy Media & Studios",marketCap:"Small-Cap",archetype:"Speculative Growth",cyclePosition:"downturn",factorExposures:{adCycle:1,streamingShift:-1,regulatory:0,aiDisruption:0},description:"Owns Crackle Plus (ad-supported streaming) and Screen Media (film library). Micro-cap with limited scale. Filed for bankruptcy protection in 2024 \u2014 verify current trading status."},
+  {ticker:"CTO",name:"CuriosityStream Inc.",tier:2,subIndustry:"Legacy Media & Studios",marketCap:"Small-Cap",archetype:"Speculative Growth",cyclePosition:"downturn",factorExposures:{adCycle:0,streamingShift:-1,regulatory:0,aiDisruption:-1},description:"Documentary-focused streaming platform founded by Discovery founder John Hendricks. Niche content library targeting educational/science audience. Struggling to achieve scale against major streaming platforms."},
+  // --- Music & Audio ---
+  {ticker:"SPOT",name:"Spotify Technology S.A.",tier:2,subIndustry:"Music & Audio",marketCap:"Large-Cap",archetype:"Rule of 40",cyclePosition:"secular",factorExposures:{adCycle:1,streamingShift:2,regulatory:0,aiDisruption:-1},description:"World's largest audio streaming platform with 640M+ MAU and 250M+ premium subscribers. Revenue mix shifting toward higher-margin podcasts and audiobooks. Gross margins expanding as music licensing leverage improves. Ad-supported tier benefits from digital ad growth."},
+  {ticker:"WMG",name:"Warner Music Group Corp.",tier:2,subIndustry:"Music & Audio",marketCap:"Large-Cap",archetype:"Tollbridge",cyclePosition:"secular",factorExposures:{adCycle:0,streamingShift:2,regulatory:0,aiDisruption:-1},description:"Third-largest music label (Atlantic, Warner Records, Elektra) and publisher. Owns rights to catalogs earning royalties across streaming, sync, and public performance. Streaming tailwind structural \u2014 per-stream rates rising as industry consolidates."},
+  {ticker:"SIRI",name:"Sirius XM Holdings Inc.",tier:2,subIndustry:"Music & Audio",marketCap:"Mid-Cap",archetype:"Cash Engine",cyclePosition:"late-cycle",factorExposures:{adCycle:1,streamingShift:-2,regulatory:0,aiDisruption:-1},description:"Satellite radio monopoly with ~34M subscribers, declining as connected car dashboards shift to Spotify/Apple Music. Merged with Liberty Media tracking stock. High FCF but structural headwinds from streaming competition and EV adoption changing in-car entertainment."},
+  {ticker:"UMG",name:"Universal Music Group N.V.",tier:2,subIndustry:"Music & Audio",marketCap:"Large-Cap",archetype:"Tollbridge",cyclePosition:"secular",factorExposures:{adCycle:0,streamingShift:2,regulatory:0,aiDisruption:-1},description:"World's largest music company \u2014 owns catalogs of Taylor Swift, Drake, The Beatles, and more. ~30% global recorded music market share. Listed on Euronext Amsterdam but widely held by US institutions. Streaming drives 60%+ of recorded music revenue. AI-generated music is key threat to IP value."},
+  // --- Sports & Live Events ---
+  {ticker:"LYV",name:"Live Nation Entertainment, Inc.",tier:2,subIndustry:"Sports & Live Events",marketCap:"Large-Cap",archetype:"Tollbridge",cyclePosition:"mid-cycle",factorExposures:{adCycle:1,streamingShift:2,regulatory:-2,aiDisruption:0},description:"Dominant live entertainment company \u2014 owns Ticketmaster (70%+ primary ticketing share), promotes 50,000+ events annually, operates 300+ venues. DOJ antitrust suit filed 2024 seeking breakup of Ticketmaster. Live events are the one content format streaming can't replicate."},
+  {ticker:"EDR",name:"Endeavor Group Holdings, Inc.",tier:2,subIndustry:"Sports & Live Events",marketCap:"Large-Cap",archetype:"Compounder",cyclePosition:"mid-cycle",factorExposures:{adCycle:1,streamingShift:1,regulatory:-1,aiDisruption:0},description:"Talent agency (WME) and sports/entertainment conglomerate owning UFC, WWE (merged 2024), Professional Bull Riders, Miss Universe. Sports rights values escalating as live content becomes premium. Taken private by Silver Lake \u2014 verify current public trading status."},
+  {ticker:"MSGE",name:"Madison Square Garden Entertainment Corp.",tier:2,subIndustry:"Sports & Live Events",marketCap:"Mid-Cap",archetype:"Deep Value",cyclePosition:"mid-cycle",factorExposures:{adCycle:1,streamingShift:1,regulatory:0,aiDisruption:0},description:"Owns Madison Square Garden arena, Radio City Music Hall, Beacon Theatre, and the Christmas Spectacular. Irreplaceable NYC venue assets. Spun off from MSG Sports (Knicks/Rangers). Revenue driven by concerts, family shows, and corporate events."},
+  {ticker:"MSGS",name:"Madison Square Garden Sports Corp.",tier:2,subIndustry:"Sports & Live Events",marketCap:"Mid-Cap",archetype:"Deep Value",cyclePosition:"secular",factorExposures:{adCycle:1,streamingShift:1,regulatory:0,aiDisruption:0},description:"Owns the New York Knicks (NBA) and New York Rangers (NHL). Franchise valuations vastly exceed market cap \u2014 Knicks alone estimated at $7B+. Media rights upside as regional sports networks restructure. Controlled by Dolan family."},
+  // --- Interactive Entertainment / Gaming ---
+  {ticker:"EA",name:"Electronic Arts Inc.",tier:2,subIndustry:"Interactive Entertainment / Gaming",marketCap:"Large-Cap",archetype:"Cash Engine",cyclePosition:"mid-cycle",factorExposures:{adCycle:0,streamingShift:1,regulatory:0,aiDisruption:-1},description:"Major publisher \u2014 EA Sports FC (FIFA successor), Madden, Apex Legends, The Sims, Battlefield. Live services ~70% of revenue via Ultimate Team and microtransactions. Annual sports franchises provide recurring revenue base. AI tools accelerating content creation pipeline."},
+  {ticker:"TTWO",name:"Take-Two Interactive Software, Inc.",tier:2,subIndustry:"Interactive Entertainment / Gaming",marketCap:"Large-Cap",archetype:"Compounder",cyclePosition:"early-cycle",factorExposures:{adCycle:0,streamingShift:1,regulatory:0,aiDisruption:0},description:"Publisher of GTA, Red Dead Redemption, NBA 2K, Civilization via Rockstar, 2K, and Zynga mobile. Q3 FY2026: $1.7B revenue (+25%), recurrent revenue 77%. GTA VI confirmed Nov 2026 \u2014 the most anticipated game launch in history. Pipeline: Mafia: The Old Country, Borderlands 4, WWE 2K26."},
+  {ticker:"RBLX",name:"Roblox Corporation",tier:2,subIndustry:"Interactive Entertainment / Gaming",marketCap:"Large-Cap",archetype:"Speculative Growth",cyclePosition:"secular",factorExposures:{adCycle:1,streamingShift:1,regulatory:-1,aiDisruption:1},description:"UGC gaming platform with 80M+ DAU, skewing young. Q3 2025 revenue $1.36B (+48%). Platform model \u2014 developers create content, Roblox provides infrastructure. Expanding into advertising, ecommerce, and older demographics. Stock -30% from Oct 2025 high on heavy capex."},
+  {ticker:"U",name:"Unity Technologies, Inc.",tier:2,subIndustry:"Interactive Entertainment / Gaming",marketCap:"Mid-Cap",archetype:"Turnaround",cyclePosition:"downturn",factorExposures:{adCycle:1,streamingShift:0,regulatory:0,aiDisruption:1},description:"Game engine and ad monetization platform. Post-pricing-debacle reset under new leadership. Two businesses: Create (game development tools) and Grow (in-app advertising). Competing with Epic's Unreal Engine. AI integration into development pipeline is key catalyst."},
+  {ticker:"PLTK",name:"Playtika Holding Corp.",tier:2,subIndustry:"Interactive Entertainment / Gaming",marketCap:"Mid-Cap",archetype:"Cash Engine",cyclePosition:"late-cycle",factorExposures:{adCycle:1,streamingShift:0,regulatory:0,aiDisruption:0},description:"Mobile gaming company specializing in casual casino and social games \u2014 Slotomania, Bingo Blitz, June's Journey. Generates strong FCF from mature titles. Growth dependent on M&A for new hit games. AI-driven player personalization engine."},
+  {ticker:"SKLZ",name:"Skillz Inc.",tier:2,subIndustry:"Interactive Entertainment / Gaming",marketCap:"Small-Cap",archetype:"Speculative Growth",cyclePosition:"downturn",factorExposures:{adCycle:1,streamingShift:0,regulatory:-1,aiDisruption:0},description:"Mobile esports tournament platform enabling real-money skill-based competition. Post-SPAC decline with persistent cash burn and user acquisition challenges. Regulatory risk around skill-based gaming classification."},
+  {ticker:"DKNG",name:"DraftKings Inc.",tier:2,subIndustry:"Interactive Entertainment / Gaming",marketCap:"Large-Cap",archetype:"Rule of 40",cyclePosition:"secular",factorExposures:{adCycle:1,streamingShift:1,regulatory:-2,aiDisruption:0},description:"Leading US online sports betting and iGaming platform. Revenue growth 30%+ as state-by-state legalization expands TAM. Path to profitability improving via scale and promotional rationalization. Regulatory environment is both enabler (legalization) and risk (tax rates, restrictions)."},
+  {ticker:"PENN",name:"Penn Entertainment, Inc.",tier:2,subIndustry:"Interactive Entertainment / Gaming",marketCap:"Mid-Cap",archetype:"Turnaround",cyclePosition:"mid-cycle",factorExposures:{adCycle:1,streamingShift:0,regulatory:-2,aiDisruption:0},description:"Regional casino operator pivoting to digital via ESPN Bet (launched 2023, $1.5B deal with Disney). 43 physical properties plus growing online sportsbook and iGaming. Digital integration with ESPN brand is differentiated but execution remains unproven."},
+  {ticker:"AGAE",name:"Allied Gaming & Entertainment Inc.",tier:2,subIndustry:"Interactive Entertainment / Gaming",marketCap:"Small-Cap",archetype:"Speculative Growth",cyclePosition:"downturn",factorExposures:{adCycle:0,streamingShift:0,regulatory:0,aiDisruption:0},description:"Esports and entertainment venue operator running HyperX Arena in Las Vegas. Micro-cap with limited revenue and scale. Esports venue monetization model remains unproven at commercial scale."},
+
+  // TIER 3: PLATFORMS & MONETIZATION
+  // --- Digital Advertising Platforms ---
+  {ticker:"GOOG",name:"Alphabet Inc.",tier:3,subIndustry:"Digital Advertising Platforms",marketCap:"Mega-Cap",archetype:"Tollbridge",cyclePosition:"secular",factorExposures:{adCycle:2,streamingShift:1,regulatory:-2,aiDisruption:2},description:"World's largest digital ad platform \u2014 Q4 2025: $113.8B revenue (+18%), $82.3B ad revenue (+13.5%). YouTube annual >$60B. Google Cloud $17.7B (+48%), backlog $240B. Gemini 750M+ MAU. FY2025 revenue >$400B. Dual antitrust: search remedies under appeal, ad tech monopoly ruling. 2026 capex $175-185B."},
+  {ticker:"META",name:"Meta Platforms, Inc.",tier:3,subIndustry:"Digital Advertising Platforms",marketCap:"Mega-Cap",archetype:"Tollbridge",cyclePosition:"secular",factorExposures:{adCycle:2,streamingShift:0,regulatory:-2,aiDisruption:2},description:"Second-largest digital ad platform \u2014 Q4 2025: $59.9B revenue (+24%), $58.1B ad revenue (97% of total). 3.58B DAP across Facebook, Instagram, WhatsApp, Messenger. FY2025 revenue $201B. Reels >50% of Instagram ads. AI video gen tools $10B run-rate. 2026 capex $115-135B."},
+  {ticker:"TTD",name:"The Trade Desk, Inc.",tier:3,subIndustry:"Digital Advertising Platforms",marketCap:"Large-Cap",archetype:"Rule of 40",cyclePosition:"secular",factorExposures:{adCycle:2,streamingShift:1,regulatory:0,aiDisruption:1},description:"Leading independent demand-side platform (DSP) for programmatic advertising. Benefits from CTV growth, retail media expansion, and open internet vs walled garden shift. Unified ID 2.0 initiative positions TTD as privacy-compliant alternative to cookie-based targeting."},
+  {ticker:"DV",name:"DoubleVerify Holdings, Inc.",tier:3,subIndustry:"Digital Advertising Platforms",marketCap:"Mid-Cap",archetype:"Compounder",cyclePosition:"secular",factorExposures:{adCycle:2,streamingShift:1,regulatory:0,aiDisruption:1},description:"Digital media measurement and verification platform ensuring ad quality, viewability, and brand safety. Expanding into CTV and social media verification. Revenue grows with digital ad spend regardless of which platforms win."},
+  {ticker:"IAS",name:"Integral Ad Science Holding Corp.",tier:3,subIndustry:"Digital Advertising Platforms",marketCap:"Mid-Cap",archetype:"Compounder",cyclePosition:"secular",factorExposures:{adCycle:2,streamingShift:1,regulatory:0,aiDisruption:1},description:"Ad verification and brand safety platform competing with DoubleVerify. Provides contextual targeting, viewability measurement, and fraud detection across display, video, CTV, and social. Growing CTV coverage as streaming shifts to ad-supported tiers."},
+  {ticker:"MGNI",name:"Magnite, Inc.",tier:3,subIndustry:"Digital Advertising Platforms",marketCap:"Mid-Cap",archetype:"Speculative Growth",cyclePosition:"early-cycle",factorExposures:{adCycle:2,streamingShift:2,regulatory:0,aiDisruption:0},description:"Largest independent sell-side ad platform (SSP) for CTV and digital video. Formed by Rubicon Project + Telaria merger. Direct beneficiary of streaming ad-tier adoption \u2014 Netflix, Disney+, and others use SSPs for programmatic ad sales."},
+  {ticker:"CRTO",name:"Criteo S.A.",tier:3,subIndustry:"Digital Advertising Platforms",marketCap:"Mid-Cap",archetype:"Turnaround",cyclePosition:"mid-cycle",factorExposures:{adCycle:2,streamingShift:0,regulatory:-1,aiDisruption:0},description:"French ad tech company pivoting from retargeting (cookie-dependent) to commerce media and retail media networks. Partnership-driven model powering ads for major retailers. Revenue ~$2B. Cookie deprecation forced strategic transformation."},
+  {ticker:"PUBM",name:"PubMatic, Inc.",tier:3,subIndustry:"Digital Advertising Platforms",marketCap:"Small-Cap",archetype:"Speculative Growth",cyclePosition:"early-cycle",factorExposures:{adCycle:2,streamingShift:1,regulatory:0,aiDisruption:0},description:"Cloud-based sell-side ad platform processing ~4 trillion ad impressions quarterly. Owns its infrastructure (vs cloud-hosted competitors) providing margin advantage. Growing in CTV and mobile. Smaller scale vs Magnite."},
+  // --- Streaming & OTT ---
+  {ticker:"NFLX",name:"Netflix, Inc.",tier:3,subIndustry:"Streaming & OTT",marketCap:"Mega-Cap",archetype:"Compounder",cyclePosition:"secular",factorExposures:{adCycle:1,streamingShift:2,regulatory:0,aiDisruption:-1},description:"Dominant global streamer \u2014 325M paid members, $45.2B FY2025 revenue, 29.5% operating margin. Ad revenue >$1.5B. 10:1 stock split Nov 2025. Bid $82.7B for Paramount, lost to Skydance, collected $2.8B breakup fee. NFLX stock +10%. Expanding into live sports and gaming."},
+  {ticker:"ROKU",name:"Roku, Inc.",tier:3,subIndustry:"Streaming & OTT",marketCap:"Mid-Cap",archetype:"Speculative Growth",cyclePosition:"early-cycle",factorExposures:{adCycle:2,streamingShift:2,regulatory:0,aiDisruption:0},description:"Leading CTV operating system \u2014 85M+ active accounts. Platform revenue (advertising) far exceeds device sales. Owns The Roku Channel (AVOD). Strategic position as the 'operating system' of streaming TVs gives it ad inventory access across all streaming apps."},
+  {ticker:"FUBO",name:"fuboTV Inc.",tier:3,subIndustry:"Streaming & OTT",marketCap:"Small-Cap",archetype:"Speculative Growth",cyclePosition:"early-cycle",factorExposures:{adCycle:1,streamingShift:2,regulatory:-1,aiDisruption:0},description:"Sports-first live TV streaming platform \u2014 ~2M subscribers. Positioned as the streaming alternative to cable for live sports. Integrated sports betting in select markets. Challenged Disney/Fox/WBD joint sports streaming venture Venu on antitrust grounds."},
+  {ticker:"CURI",name:"CuriosityStream Inc.",tier:3,subIndustry:"Streaming & OTT",marketCap:"Small-Cap",archetype:"Speculative Growth",cyclePosition:"downturn",factorExposures:{adCycle:0,streamingShift:1,regulatory:0,aiDisruption:0},description:"Documentary and factual content streaming platform. Niche positioning limits TAM but provides differentiation. Subscriber count under 1M. Struggling to compete for content and attention with major platforms."},
+  {ticker:"SSTK",name:"Shutterstock, Inc.",tier:3,subIndustry:"Streaming & OTT",marketCap:"Small-Cap",archetype:"Deep Value",cyclePosition:"late-cycle",factorExposures:{adCycle:1,streamingShift:0,regulatory:0,aiDisruption:-2},description:"Digital content marketplace for stock photos, video, and music. AI-generated content is an existential threat to core business. Pivoting to AI-powered creative tools and data licensing to AI companies. Revenue ~$900M."},
+  // --- Social & Community Platforms ---
+  {ticker:"SNAP",name:"Snap Inc.",tier:3,subIndustry:"Social & Community Platforms",marketCap:"Large-Cap",archetype:"Speculative Growth",cyclePosition:"mid-cycle",factorExposures:{adCycle:2,streamingShift:0,regulatory:-1,aiDisruption:-1},description:"Snapchat operator \u2014 414M+ DAU, strong with 13-34 demographic. 97% ad-dependent revenue. AR/camera platform ambitions. Snap+ subscription providing incremental revenue. Competing with Instagram Reels and TikTok for short-form attention and ad dollars."},
+  {ticker:"PINS",name:"Pinterest, Inc.",tier:3,subIndustry:"Social & Community Platforms",marketCap:"Large-Cap",archetype:"Rule of 40",cyclePosition:"mid-cycle",factorExposures:{adCycle:2,streamingShift:0,regulatory:0,aiDisruption:1},description:"Visual discovery and shopping platform with 530M+ MAU. High-intent user base (users browse to plan purchases) makes ad inventory particularly valuable. ARPU expanding internationally. AI-powered shopping and ad targeting improving monetization."},
+  {ticker:"RDDT",name:"Reddit, Inc.",tier:3,subIndustry:"Social & Community Platforms",marketCap:"Large-Cap",archetype:"Rule of 40",cyclePosition:"secular",factorExposures:{adCycle:2,streamingShift:0,regulatory:-1,aiDisruption:1},description:"Community-driven platform \u2014 Q4 2025: $726M revenue (+70%), $690M ad revenue (+75%). Fastest-growing major ad platform. IPO'd March 2024. Data licensing to AI companies provides incremental revenue stream. 100M+ DAU."},
+  {ticker:"MTCH",name:"Match Group, Inc.",tier:3,subIndustry:"Social & Community Platforms",marketCap:"Mid-Cap",archetype:"Cash Engine",cyclePosition:"late-cycle",factorExposures:{adCycle:0,streamingShift:0,regulatory:-1,aiDisruption:-1},description:"Dominant online dating portfolio \u2014 Tinder, Hinge, Match, OkCupid, PlentyOfFish. Tinder revenue declining, Hinge growing rapidly. Subscription-driven (not ad-dependent). AI matchmaking features being deployed. Revenue ~$3.5B but growth decelerating."},
+  {ticker:"BMBL",name:"Bumble Inc.",tier:3,subIndustry:"Social & Community Platforms",marketCap:"Small-Cap",archetype:"Turnaround",cyclePosition:"downturn",factorExposures:{adCycle:0,streamingShift:0,regulatory:0,aiDisruption:-1},description:"Women-first dating app (Bumble) and BFF (friendship) platform. Revenue ~$1B but paying user growth stalling. App fatigue in online dating weighing on engagement. New CEO driving product overhaul and AI integration."},
+  {ticker:"GRND",name:"Grindr Inc.",tier:3,subIndustry:"Social & Community Platforms",marketCap:"Small-Cap",archetype:"Compounder",cyclePosition:"secular",factorExposures:{adCycle:1,streamingShift:0,regulatory:-1,aiDisruption:0},description:"LGBTQ+ focused social and dating platform with ~14M MAU globally. Near-monopoly in its niche. Subscription + advertising revenue model. High revenue growth (30%+) and expanding margins post-IPO."},
+  {ticker:"ANGI",name:"Angi Inc.",tier:3,subIndustry:"Social & Community Platforms",marketCap:"Small-Cap",archetype:"Turnaround",cyclePosition:"downturn",factorExposures:{adCycle:1,streamingShift:0,regulatory:0,aiDisruption:-1},description:"Home services marketplace (Angi, HomeAdvisor, Handy). Subsidiary of IAC. Revenue declining as company rationalizes spending and pivots business model from lead-gen to direct marketplace. Housing market sensitivity."},
+  {ticker:"YELP",name:"Yelp Inc.",tier:3,subIndustry:"Social & Community Platforms",marketCap:"Mid-Cap",archetype:"Cash Engine",cyclePosition:"mid-cycle",factorExposures:{adCycle:2,streamingShift:0,regulatory:0,aiDisruption:-2},description:"Local business review and advertising platform. Revenue ~$1.3B, generating solid FCF. Core risk: AI search (Google AI Overviews, ChatGPT) could disintermediate local search and review aggregation. Self-service ad tools driving SMB adoption."},
+  // --- Publishing & Digital Media ---
+  {ticker:"NYT",name:"The New York Times Company",tier:3,subIndustry:"Publishing & Digital Media",marketCap:"Mid-Cap",archetype:"Compounder",cyclePosition:"secular",factorExposures:{adCycle:1,streamingShift:1,regulatory:0,aiDisruption:-1},description:"Premium digital news and subscription platform \u2014 10M+ total subscribers (digital + print). Bundle strategy (News, Cooking, Wirecutter, Games, The Athletic) driving ARPU growth. Rare successful print-to-digital transition. Suing OpenAI over training data."},
+  {ticker:"IAC",name:"IAC Inc.",tier:3,subIndustry:"Publishing & Digital Media",marketCap:"Mid-Cap",archetype:"Deep Value",cyclePosition:"mid-cycle",factorExposures:{adCycle:1,streamingShift:0,regulatory:0,aiDisruption:-1},description:"Barry Diller's internet holding company \u2014 owns Dotdash Meredith (People, AllRecipes, Investopedia, ~40 brands), majority stake in Angi, and minority stakes in MGM and Turo. Sum-of-parts discount. Dotdash Meredith traffic pressured by AI search."},
+  {ticker:"CARG",name:"CarGurus, Inc.",tier:3,subIndustry:"Publishing & Digital Media",marketCap:"Mid-Cap",archetype:"Compounder",cyclePosition:"mid-cycle",factorExposures:{adCycle:1,streamingShift:0,regulatory:0,aiDisruption:0},description:"Online automotive marketplace connecting buyers with dealers. Revenue driven by dealer subscriptions and digital advertising. Expanding into digital retail and wholesale. Competing with AutoTrader and Cars.com."},
+  {ticker:"ZD",name:"Ziff Davis, Inc.",tier:3,subIndustry:"Publishing & Digital Media",marketCap:"Small-Cap",archetype:"Deep Value",cyclePosition:"downturn",factorExposures:{adCycle:1,streamingShift:0,regulatory:0,aiDisruption:-2},description:"Digital media and internet company operating Mashable, PCMag, IGN, Humble Bundle, RetailMeNot, and health/tech vertical sites. AI search traffic disruption is core threat. Acquiring properties at depressed valuations."},
+  {ticker:"TRVG",name:"trivago N.V.",tier:3,subIndustry:"Publishing & Digital Media",marketCap:"Small-Cap",archetype:"Deep Value",cyclePosition:"downturn",factorExposures:{adCycle:1,streamingShift:0,regulatory:0,aiDisruption:-2},description:"Hotel search and metasearch platform. Controlled by Booking Holdings. Revenue driven by referral fees from hotel booking platforms. Google's hotel search integration and AI travel planning are existential competitive threats."},
+  {ticker:"GENI",name:"Genius Sports Limited",tier:3,subIndustry:"Publishing & Digital Media",marketCap:"Mid-Cap",archetype:"Rule of 40",cyclePosition:"secular",factorExposures:{adCycle:1,streamingShift:1,regulatory:-1,aiDisruption:0},description:"Sports data and technology company providing official data, streaming, and integrity services to sportsbooks and leagues. Exclusive NFL data rights. Revenue ~$500M growing 20%+. Beneficiary of sports betting legalization wave."},
+  {ticker:"SEAT",name:"Vivid Seats Inc.",tier:3,subIndustry:"Publishing & Digital Media",marketCap:"Small-Cap",archetype:"Speculative Growth",cyclePosition:"mid-cycle",factorExposures:{adCycle:1,streamingShift:1,regulatory:0,aiDisruption:0},description:"Online ticket marketplace for live events, concerts, and sports. Competing with StubHub and SeatGeek. Take-rate model benefiting from live event spending boom. Smaller scale vs Ticketmaster/Live Nation ecosystem."},
+  {ticker:"TBLA",name:"Taboola.com, Ltd.",tier:3,subIndustry:"Publishing & Digital Media",marketCap:"Small-Cap",archetype:"Deep Value",cyclePosition:"mid-cycle",factorExposures:{adCycle:2,streamingShift:0,regulatory:0,aiDisruption:-1},description:"Content discovery and native advertising platform powering 'recommended content' widgets on publisher sites. Revenue ~$1.7B. Exclusive Yahoo partnership. AI search threatens publisher traffic and thus Taboola's distribution footprint."},
+  {ticker:"OB",name:"Outbrain Inc.",tier:3,subIndustry:"Publishing & Digital Media",marketCap:"Small-Cap",archetype:"Deep Value",cyclePosition:"mid-cycle",factorExposures:{adCycle:2,streamingShift:0,regulatory:0,aiDisruption:-1},description:"Content recommendation and native advertising platform, direct competitor to Taboola. Powers sponsored content on premium publisher sites. Merged with Teads in 2024 to expand into video and CTV advertising. AI search is structural headwind for publisher-dependent model."},
+  {ticker:"QNST",name:"QuinStreet, Inc.",tier:3,subIndustry:"Publishing & Digital Media",marketCap:"Small-Cap",archetype:"Speculative Growth",cyclePosition:"mid-cycle",factorExposures:{adCycle:2,streamingShift:0,regulatory:0,aiDisruption:-1},description:"Performance marketing company in financial services and home services verticals. Operates comparison and lead-gen sites. Revenue driven by cost-per-click and cost-per-lead from insurance, lending, and education advertisers."}
+];
+
+// ═══ INDUSTRY BRIEFS (12 sub-industries) ═══
+const industryBriefs = {
+
+  "Towers & Wireless Infrastructure": {
+    title: "Towers & Wireless Infrastructure",
+    tier: 1,
+    overview: "The US tower industry is a mature oligopoly — American Tower, Crown Castle, and SBA Communications collectively control ~80% of macro tower sites. The business model is a textbook tollbridge: carriers sign 10-15 year leases with annual 3% escalators, and each incremental tenant on an existing tower drops through at ~95% incremental margin. 5G densification is driving a second growth vector via small cells and distributed antenna systems, though Crown Castle's early bet on fiber-connected small cells drew activist criticism from Elliott Management in 2024-2025.\n\nThe structural demand driver is data traffic growth — mobile data consumption doubles roughly every 3 years, requiring continuous network densification. AI workloads are accelerating this cycle: edge computing, IoT, and autonomous systems all require low-latency connectivity.\n\nKey tension: the three major US carriers have consolidated (T-Mobile/Sprint merger closed 2020), reducing the pool of potential tenants. Tower operators need to grow colocation ratios and international exposure to offset domestic carrier concentration.",
+    keyDynamics: [
+      "Oligopoly structure — 3 players control ~80% of US macro tower sites, limiting competitive entry",
+      "5G densification driving small cell and DAS demand alongside traditional macro towers",
+      "Carrier consolidation (3 major US carriers post-Sprint merger) compresses tenant growth potential",
+      "AI/edge compute creating second infrastructure demand cycle beyond traditional wireless",
+      "International expansion (AMT in India, Africa, Latin America) provides growth runway as domestic market matures"
+    ],
+    variantPerception: {
+      consensus: "Towers are bond proxies with inflation protection — steady, predictable, boring. 5G is a known tailwind but largely priced in at 20-25x AFFO multiples.",
+      bull: "AI-driven data demand creates a second infrastructure super-cycle — edge compute requires 5-10x more small cell density than current 5G plans assume. Tower operators with fiber assets (CCI) become critical AI infrastructure. International emerging market tower growth (AMT in India, Africa) has a 10-year runway.",
+      bear: "Open RAN and virtualized networks reduce carrier dependence on traditional macro towers. Satellite direct-to-device (Starlink, AST SpaceMobile) could bypass terrestrial infrastructure. Crown Castle's fiber/small cell strategy has destroyed capital — $15B+ invested with sub-par returns. Rising rates compress REIT valuations.",
+      resolutionSignal: "T-Mobile and Verizon new tower lease signings in 2026 — if AI-driven densification plans translate into accelerating lease-up rates above 1.5-2% annual organic growth, the bull case gains traction."
+    },
+    revenueBreakdown: [
+      { ticker: "AMT", revenue: "$11.1B", growth: "+3%", note: "Largest global tower REIT, 225K+ sites across 25 countries" },
+      { ticker: "CCI", revenue: "$6.8B", growth: "+1%", note: "US-focused, 40K towers + 120K small cells. Activist pressure from Elliott" },
+      { ticker: "SBAC", revenue: "$2.5B", growth: "+4%", note: "Third-largest US tower operator, highest lease-up potential" }
+    ],
+    anchorTickers: [
+      { ticker: "AMT", rationale: "Global scale benchmark — international growth vs domestic maturity" },
+      { ticker: "CCI", rationale: "Small cell/fiber thesis test — activist-driven strategic review outcome" },
+      { ticker: "SBAC", rationale: "Purest US tower play — cleanest read on domestic carrier capex" }
+    ],
+    keyMetrics: ["Organic tenant billings growth","Colocation / amendment rate","AFFO per share growth","New site builds vs colocation on existing sites","Churn rate (carrier lease non-renewals)"],
+    watchlist: ["Crown Castle strategic review outcome and small cell ROI disclosure","T-Mobile 2026 network capex guide — increasing or decreasing tower spend?","AST SpaceMobile commercial launch timeline and carrier partnership terms"]
+  },
+
+  "Integrated Telecom": {
+    title: "Integrated Telecom",
+    tier: 1,
+    overview: "The US integrated telecom sector is experiencing its best relative performance in a decade. All three major carriers outperformed the S&P 500 in early 2026 (VZ +23%, T +18%, TMUS +6%). The catalyst is rational pricing, fixed wireless broadband gains stealing cable share, and capex shifting from build to harvest.\n\nVerizon posted 616K Q4 2025 postpaid phone adds — highest in 5 years — delivering decade-best earnings growth (+12%) and authorizing a $25B buyback. AT&T delivered $125.6B FY2025 revenue with adj EPS of $2.12 (+8.7%) and reached 42% fiber-wireless convergence penetration. T-Mobile added 962K Q4 postpaid subs and raised 2027 service revenue guidance to $81B.\n\nThe structural story is convergence: all three carriers now bundle wireless + broadband to reduce churn and raise ARPU. Fixed wireless is taking real share from cable — Comcast and Charter lost 1.11M internet subs in 2025.",
+    keyDynamics: [
+      "Fixed wireless broadband assault on cable — T-Mobile and Verizon capturing 10%+ of US broadband market",
+      "Convergence bundling (wireless + broadband) reducing churn and raising ARPU across all 3 carriers",
+      "Post-5G capex harvest mode — declining capex intensity translating to expanding FCF and capital returns",
+      "Rational competitive pricing — 3-player oligopoly after Sprint merger enabling stable/rising ARPU",
+      "Fiber-wireless convergence (AT&T at 42% penetration) creating structural competitive moat vs cable"
+    ],
+    variantPerception: {
+      consensus: "Telecoms have re-rated from yield traps to defensive compounders — rational dynamics, expanding FCF, and convergence bundles justify 8-10x EV/EBITDA.",
+      bull: "Fixed wireless captures 15-20% of US broadband subs by 2028. Telecom becomes the broadband winner as cable ages. Dividend yields of 4-6% with mid-single-digit earnings growth make telecom a rare growth + income play.",
+      bear: "Fixed wireless economics deteriorate at scale as spectrum congestion increases. Satellite broadband (Starlink) bypasses terrestrial infrastructure. Fiber overbuilding intensifies competition. T-Mobile growth fades as Sprint synergies are captured.",
+      resolutionSignal: "T-Mobile and Verizon fixed wireless net adds through 2026 — sustained 400K+/quarter confirms cable displacement. Watch Comcast broadband ARPU — holds = cable moving upmarket; declines = pricing power collapse."
+    },
+    revenueBreakdown: [
+      { ticker: "T", revenue: "$125.6B", growth: "+1%", note: "Largest by revenue. Adj EPS $2.12 (+8.7%). 42% fiber-wireless convergence" },
+      { ticker: "VZ", revenue: "$134.8B", growth: "+1%", note: "616K Q4 postpaid adds (5-yr high). $25B buyback authorized. Harvest mode" },
+      { ticker: "TMUS", revenue: "$81.4B", growth: "+5%", note: "Growth leader. 962K Q4 postpaid adds. Fixed wireless momentum" }
+    ],
+    anchorTickers: [
+      { ticker: "TMUS", rationale: "Growth leader — fixed wireless momentum and post-Sprint synergy capture" },
+      { ticker: "VZ", rationale: "Dividend + buyback story — decade-best earnings, $25B buyback signals confidence" },
+      { ticker: "T", rationale: "Convergence bellwether — fiber-wireless penetration at 42% and rising" }
+    ],
+    keyMetrics: ["Postpaid phone net additions","Postpaid phone churn rate","Broadband / fixed wireless net adds","ARPU (wireless and broadband)","Free cash flow and capital return","Capex as % of revenue"],
+    watchlist: ["Verizon Q1 2026 — can it sustain 600K+ postpaid phone adds?","AT&T fiber subscriber growth and convergence penetration","T-Mobile 2026 capex guide — does fixed wireless scale require reinvestment?","Spectrum auction activity and mid-band availability"]
+  },
+
+  "Cable & Broadband": {
+    title: "Cable & Broadband",
+    tier: 1,
+    overview: "The US cable industry is navigating a dual structural decline: video subscriber losses ongoing for a decade, and broadband subscriber losses that are newer and more threatening. Comcast and Charter collectively lost 1.44M TV subs and 1.11M internet subs in 2025. Pay TV penetration at ~42% and falling.\n\nFixed wireless from T-Mobile and Verizon is structurally taking broadband share, particularly in suburban and exurban markets. Comcast has 31.3M broadband subs (declining) and 11.3M video subs. Counter-strategy: 9.3M Xfinity Mobile lines on Verizon's MVNO network.\n\nCable's structural advantage is network capacity: DOCSIS 4.0 can deliver multi-gigabit speeds over existing coax, and operators generate substantial FCF even in decline.",
+    keyDynamics: [
+      "Dual decline — video AND broadband subscriber losses now simultaneous (1.44M TV + 1.11M internet lost in 2025)",
+      "Fixed wireless competition is structural, not cyclical — T-Mobile/Verizon taking real broadband share",
+      "MVNO counter-strategy — cable bundling wireless (on Verizon's network) to reduce broadband churn",
+      "DOCSIS 4.0 network upgrades as competitive response to fiber and fixed wireless on speeds",
+      "Charter-Liberty Broadband merger to simplify capital structure amid declining fundamentals"
+    ],
+    variantPerception: {
+      consensus: "Cable broadband is in secular decline but pace is manageable — FCF generation remains strong. A 'melting ice cube with great cash flow.'",
+      bull: "Fixed wireless hits a capacity ceiling at scale. DOCSIS 4.0 delivers competitive speeds at lower capex than fiber overbuild. Mobile bundling reduces churn. Comcast's NBCUniversal content ecosystem provides differentiated bundling.",
+      bear: "Fixed wireless is NOT capacity-constrained. Fiber overbuilds reach 60%+ of US homes by 2028. Cable's MVNO model is structurally unprofitable. Video cord-cutting accelerates to the point where skinny bundles become uneconomic.",
+      resolutionSignal: "Comcast broadband net losses — quarterly losses decelerate below 200K by Q3 2026 = manageable. Accelerate above 400K = fixed wireless displacement confirmed."
+    },
+    revenueBreakdown: [
+      { ticker: "CMCSA", revenue: "$124.2B", growth: "+2%", note: "31.3M broadband, 11.3M video, 9.3M mobile. Includes NBCUniversal" },
+      { ticker: "CHTR", revenue: "$55.6B", growth: "+0%", note: "Spectrum brand. DOCSIS 4.0 upgrade underway. Liberty Broadband merger pending" },
+      { ticker: "FYBR", revenue: "$5.8B", growth: "+2%", note: "Pure-play fiber post-bankruptcy. Converting copper to fiber. Verizon bid rejected" }
+    ],
+    anchorTickers: [
+      { ticker: "CMCSA", rationale: "Bellwether — broadband sub trajectory is the single most watched metric in cable" },
+      { ticker: "CHTR", rationale: "Pure-play cable — Liberty merger and DOCSIS 4.0 execution test" },
+      { ticker: "FYBR", rationale: "Fiber alternative — tests whether fiber overbuilds take cable share profitably" }
+    ],
+    keyMetrics: ["Broadband net additions (losses)","Video subscriber losses","Broadband ARPU","Mobile line additions (MVNO)","Capex intensity (network upgrades)","Free cash flow per subscriber"],
+    watchlist: ["Comcast Q1 2026 broadband net adds — accelerating or decelerating losses?","Charter-Liberty Broadband merger regulatory approval","DOCSIS 4.0 deployment timeline","Fixed wireless competitive overlap in Comcast/Charter footprints"]
+  },
+
+  "Satellite & Specialty": {
+    title: "Satellite & Specialty",
+    tier: 1,
+    overview: "Satellite communications is bifurcating: legacy GEO operators face structural decline as terrestrial alternatives offer superior latency and capacity, while LEO constellations enabling direct-to-device (D2D) connectivity represent the growth story.\n\nGlobalstar's Apple partnership transformed its business — guaranteed revenue and funded new satellite launches for Emergency SOS, expanding to commercial messaging. Iridium's 66-satellite constellation remains the only truly global voice/data network. The elephant in the room is SpaceX's Starlink — private but dominant with 6,000+ LEO satellites.",
+    keyDynamics: [
+      "LEO vs GEO bifurcation — LEO constellations winning on latency, GEO struggling to compete",
+      "Direct-to-device (D2D) becoming smartphone standard — Apple/Globalstar leading, Starlink/T-Mobile emerging",
+      "Starlink's dominance creating asymmetric competitive pressure on all other satellite operators",
+      "EchoStar/DISH spectrum assets potentially worth more in liquidation than as operating business",
+      "Government and maritime/aviation contracts providing revenue stability for Iridium"
+    ],
+    variantPerception: {
+      consensus: "Legacy satellite is dying, LEO D2D is promising but niche. Starlink wins broadband. EchoStar/DISH is a distressed asset play.",
+      bull: "D2D becomes standard on every smartphone by 2028 — TAM expands from emergency to commercial messaging, IoT, and voice. Iridium's global coverage becomes more valuable amid geopolitical tensions. EchoStar spectrum worth more than market cap in takeout.",
+      bear: "Starlink's D2D commoditizes the market. EchoStar's 5G buildout fails and spectrum sells at distressed prices. Viasat's GEO latency disadvantage is permanent and worsening.",
+      resolutionSignal: "Apple's next iPhone satellite feature expansion — if Apple moves beyond Emergency SOS to commercial messaging on Globalstar in 2026, D2D TAM expansion is real."
+    },
+    revenueBreakdown: [
+      { ticker: "IRDM", revenue: "$790M", growth: "+5%", note: "Only truly global satellite voice/data. Government + maritime contracts" },
+      { ticker: "GSAT", revenue: "$260M", growth: "+25%", note: "Apple Emergency SOS partnership. Expanding to commercial messaging" },
+      { ticker: "SATS", revenue: "$16.5B", growth: "-8%", note: "Combined EchoStar/DISH. Satellite TV terminal decline. 5G buildout struggling" }
+    ],
+    anchorTickers: [
+      { ticker: "IRDM", rationale: "Only true-global LEO operator — government contracts + Qualcomm D2D partnership" },
+      { ticker: "GSAT", rationale: "Apple partnership proxy — D2D TAM expansion depends on iPhone feature roadmap" },
+      { ticker: "SATS", rationale: "Distressed asset play — spectrum value vs operating cash burn" }
+    ],
+    keyMetrics: ["Subscriber / device connection count","ARPU per connected device","Satellite launch cadence and constellation status","Government contract wins and renewals","Spectrum asset value"],
+    watchlist: ["Apple iPhone 18 satellite feature set — messaging, data, or emergency-only?","Starlink direct-to-cell commercial launch with T-Mobile","EchoStar/DISH spectrum sale or partnership announcements","Iridium Certus broadband adoption in maritime/aviation"]
+  },
+
+  "Legacy Media & Studios": {
+    title: "Legacy Media & Studios",
+    tier: 2,
+    overview: "Legacy media is undergoing the most dramatic restructuring in its history. The Paramount + WBD mega-merger announced Feb 26, 2026 — Skydance's $111B bid ($31/share) beating Netflix's $82.7B — signals consolidation as the only viable path for mid-size studios. Netflix collected a $2.8B breakup fee and its stock rose 10%.\n\nDisney stands alone as the integrated entertainment conglomerate with theme parks, streaming (Disney+/Hulu at 196M subs), theatrical, and sports (ESPN). Fox repositioned as news-and-sports with Tubi for ad-supported streaming.\n\nDisney streaming hit profitability — $1.33B FY2025, targeting 10% margin FY2026 — and stopped reporting sub numbers, signaling a pivot from growth to economics.",
+    keyDynamics: [
+      "Mega-consolidation — Paramount-WBD merger ($111B) creating only credible rival to Disney's scale",
+      "Streaming profitability pivot — industry shifting from subscriber growth to margin optimization",
+      "Live sports rights escalation — ESPN standalone app tests premium DTC sports pricing",
+      "Linear TV terminal decline — ad revenue falling as pay TV penetration hits ~42%",
+      "AI content generation — potential to reduce production costs 30-40% but risks IP commoditization"
+    ],
+    variantPerception: {
+      consensus: "Consolidation is inevitable. Disney wins as integrated platform. Paramount-WBD creates credible #2 but execution risk enormous. Linear TV is terminal.",
+      bull: "Paramount-WBD creates a library rivaling Disney's — HBO + Paramount Pictures + CBS + Discovery + Nickelodeon. Content is permanently scarce. Live sports rights create a floor under valuations. AI reduces production costs 30-40%.",
+      bear: "Paramount-WBD is financial engineering — combining two declining businesses with $50B+ debt. AI-generated content commoditizes studio IP. Theatrical shrinks to tentpoles only.",
+      resolutionSignal: "Paramount-WBD first full-year financials (FY2027) — content synergies >$3B and combined subs >150M = works. Churn spikes + debt/EBITDA >4x = confirmed failure."
+    },
+    revenueBreakdown: [
+      { ticker: "DIS", revenue: "$93.0B", growth: "+3%", note: "196M streaming subs. Streaming profit $1.33B. ESPN app launching" },
+      { ticker: "WBD", revenue: "$39.9B", growth: "-2%", note: "Max streaming + HBO + CNN + Warner Bros studios. Merging with Paramount" },
+      { ticker: "PARA", revenue: "$28.6B", growth: "-4%", note: "CBS + Paramount+ + Paramount Pictures. Skydance deal at $111B" },
+      { ticker: "FOXA", revenue: "$14.9B", growth: "+4%", note: "Fox News #1 cable news. Fox Sports. Tubi ad-supported streaming" }
+    ],
+    anchorTickers: [
+      { ticker: "DIS", rationale: "Integrated conglomerate benchmark — streaming margin, ESPN app, parks all matter" },
+      { ticker: "WBD", rationale: "Merger execution test — debt reduction and platform integration are existential" },
+      { ticker: "FOXA", rationale: "News + sports moat — structural resilience vs cord-cutting due to live content" }
+    ],
+    keyMetrics: ["Streaming subscriber count and churn","Streaming operating margin","Content spend (total and per-sub)","Theatrical box office per-film averages","Linear TV ad revenue decline rate","Sports rights costs and renewal terms"],
+    watchlist: ["Paramount-WBD merger regulatory approval timeline","Disney ESPN standalone app launch pricing and adoption","Disney FY2026 streaming margin — does it hit 10% target?","AI content generation adoption by major studios"]
+  },
+
+  "Music & Audio": {
+    title: "Music & Audio",
+    tier: 2,
+    overview: "Music is the best-positioned content vertical in Communication Services. Unlike film/TV where streaming caused margin destruction, music streaming has increased the total revenue pie — global recorded music revenue grown 9 consecutive years, surpassing $28B, streaming 60%+. The three major labels (UMG, Sony Music, WMG) control ~65% of global recorded music.\n\nSpotify dominates distribution with 640M+ MAU and 250M+ premium subs, but labels are the true tollbridge — gross margins structurally capped at ~30% because ~70% goes to rights holders.\n\nKey growth vectors: emerging market subscriptions, rising per-stream rates, sync licensing, catalog acquisitions. Primary threat: AI-generated music flooding platforms and diluting royalty pools.",
+    keyDynamics: [
+      "Label oligopoly — 3 major labels control ~65% of global recorded music, pricing power over distributors",
+      "Streaming expanding the total pie — 9 consecutive years of global recorded music revenue growth",
+      "Spotify margin cap — ~70% of revenue flows to rights holders, structurally limiting distributor profitability",
+      "AI-generated music as existential threat — potential to flood platforms and dilute per-stream royalties",
+      "Music catalogs as alternative asset class — pension funds and investment firms bidding up valuations"
+    ],
+    variantPerception: {
+      consensus: "Music streaming is secular growth with label oligopoly economics. Spotify grows revenue but labels capture most value. AI is long-term threat but near-term manageable.",
+      bull: "Music is the most AI-resistant content — emotional connections to specific artists. Per-stream rates inflecting up. Spotify podcast/audiobook pivot breaks label dependency. Live music drives discovery.",
+      bear: "AI music floods platforms with 'good enough' content diluting per-stream payments. Artists self-distribute via DistroKid. Spotify 640M MAU suggests developed-market saturation. Sirius XM decline warns audio platforms can lose relevance.",
+      resolutionSignal: "Spotify gross margin — above 32% by Q4 2026 = diversification working. Stuck at 28-30% = labels maintain full pricing power. AI tracks >10% of new uploads by end 2026 = royalty dilution accelerates."
+    },
+    revenueBreakdown: [
+      { ticker: "SPOT", revenue: "$17.5B", growth: "+18%", note: "640M+ MAU, 250M+ premium. Expanding into podcasts, audiobooks" },
+      { ticker: "WMG", revenue: "$6.4B", growth: "+7%", note: "Third-largest label. Atlantic, Warner Records. Catalog royalties growing" },
+      { ticker: "UMG", revenue: "$12.5B", growth: "+8%", note: "Largest label globally. ~30% market share. Euronext-listed" },
+      { ticker: "SIRI", revenue: "$8.5B", growth: "-4%", note: "~34M satellite radio subs, declining. Liberty Media merger. High FCF" }
+    ],
+    anchorTickers: [
+      { ticker: "SPOT", rationale: "Distribution bellwether — gross margin reveals label vs platform power dynamics" },
+      { ticker: "WMG", rationale: "Label economics proxy — streaming royalty growth and catalog valuation trends" },
+      { ticker: "SIRI", rationale: "Legacy audio bear case — tests whether once-dominant audio formats survive streaming" }
+    ],
+    keyMetrics: ["Global streaming subscription count","Per-stream royalty rates","Label revenue growth (recorded + publishing)","Spotify premium ARPU and gross margin","Sync licensing revenue growth","AI-generated content volume on platforms"],
+    watchlist: ["UMG and WMG licensing renewal terms with Spotify","Spotify gross margin Q1-Q2 2026","AI music regulation — EU and US legislative proposals","Sirius XM subscriber churn acceleration or stabilization"]
+  },
+
+  "Sports & Live Events": {
+    title: "Sports & Live Events",
+    tier: 2,
+    overview: "Live events are the one content format streaming cannot commoditize. Sports rights values escalate 30-50% per renewal cycle and concert attendance hit post-COVID records.\n\nLive Nation dominates with Ticketmaster (70%+ primary ticketing share), 50K+ promoted events, and 300+ operated venues. DOJ filed antitrust suit in 2024 seeking Ticketmaster breakup. Endeavor Group (WME, UFC, WWE) taken private by Silver Lake.\n\nMSG entities represent irreplaceable venue and franchise assets trading at significant discounts to private market valuations — Knicks alone estimated at $7B+ vs MSG Sports market cap.",
+    keyDynamics: [
+      "Un-streamable content — live events structurally advantaged as the only format that can't be time-shifted",
+      "Sports rights escalation — 30-50% value increases per renewal cycle creating persistent cost inflation",
+      "Ticketmaster antitrust — DOJ suit seeking breakup could restructure entire live events ecosystem",
+      "Sports betting integration — DraftKings, ESPN Bet creating new monetization layer for live events",
+      "Private vs public valuation disconnect — franchise and venue assets at deep discounts to private transactions"
+    ],
+    variantPerception: {
+      consensus: "Live events structurally advantaged. Valuations high but justified. Live Nation antitrust manageable.",
+      bull: "Sports franchise valuations in multi-decade super-cycle. Knicks/Rangers at 50%+ discount to private comps. Live Nation venue ownership is permanent moat. Sports betting creates entirely new monetization layer.",
+      bear: "Ticketmaster breakup destroys vertical integration margins. Sports rights inflation is a bubble. Consumer discretionary live event spending cyclically vulnerable. MSG Dolan control makes it uninvestable.",
+      resolutionSignal: "DOJ vs Live Nation trial (2026-2027) — forced Ticketmaster divestiture tests venue vs ticketing value. NBA media rights renewal — if >$7B/year (vs ~$2.7B), sports escalation confirmed."
+    },
+    revenueBreakdown: [
+      { ticker: "LYV", revenue: "$23.2B", growth: "+12%", note: "Ticketmaster 70%+ share. 50K+ events. 300+ venues. DOJ antitrust" },
+      { ticker: "MSGS", revenue: "$0.9B", growth: "+8%", note: "Knicks + Rangers. Franchise value $7B+ vs market cap" },
+      { ticker: "MSGE", revenue: "$0.9B", growth: "+5%", note: "MSG arena, Radio City, Beacon Theatre. Irreplaceable NYC venues" }
+    ],
+    anchorTickers: [
+      { ticker: "LYV", rationale: "Ecosystem monopolist — antitrust outcome determines entire sub-industry structure" },
+      { ticker: "MSGS", rationale: "Private/public value gap — Knicks valuation vs stock price is sector's variant question" },
+      { ticker: "DKNG", rationale: "Sports betting integration — new monetization layer for live sports (listed under Gaming)" }
+    ],
+    keyMetrics: ["Ticket volume and average ticket price","Venue occupancy rates","Sports media rights deal values","Franchise valuation comparables","Concert/event attendance trends"],
+    watchlist: ["DOJ vs Live Nation/Ticketmaster trial timeline and outcome","NBA media rights renewal terms","MSG Sports — activist pressure or strategic alternatives","ESPN standalone app pricing for live sports"]
+  },
+
+  "Interactive Entertainment / Gaming": {
+    title: "Interactive Entertainment / Gaming",
+    tier: 2,
+    overview: "Gaming is a $200B+ global market — bigger than film and music combined. The industry structurally shifted from one-time $60 purchases to recurring digital revenue via microtransactions, battle passes, and in-game economies. Take-Two recurrent revenue is 77%; EA live services ~70%.\n\nThe most important near-term catalyst in all of Communication Services is GTA VI, confirmed Nov 2026. GTA V generated $8.5B+ lifetime revenue. Roblox (80M+ DAU) created a UGC gaming economy. Sports betting (DraftKings, Penn/ESPN Bet) blurs gaming and gambling. AI accelerating NPC behavior, procedural generation, dialogue systems.",
+    keyDynamics: [
+      "Recurring digital revenue dominance — microtransactions and live services now 70-77% of major publisher revenue",
+      "GTA VI as industry super-cycle catalyst — Nov 2026 launch is most anticipated entertainment event in history",
+      "UGC platform model — Roblox 80M+ DAU creating parallel gaming economy with user-generated content",
+      "Sports betting convergence — DraftKings, ESPN Bet blurring gaming and gambling with regulatory implications",
+      "AI accelerating development — NPC behavior, procedural generation, dialogue systems reducing costs and timelines"
+    ],
+    variantPerception: {
+      consensus: "Gaming is mature but steady — recurring digital revenue provides stability, GTA VI is a one-time catalyst, sector grows mid-single-digits.",
+      bull: "GTA VI generates $3-5B first year and establishes GTA Online 2 as recurring platform for the next decade. Roblox is proto-metaverse for Gen Alpha. AI reduces AAA dev costs 40-50%. Gaming hours per capita still growing.",
+      bear: "GTA VI is ultimate 'buy the rumor, sell the news' — TTWO at $55B+ prices in perfection. Roblox DAU decelerating and burning cash. FTC loot box scrutiny could regulate away highest-margin revenue. Mobile gaming growth is over.",
+      resolutionSignal: "GTA VI first-week sales Nov 2026 — first-month revenue >$2B and GTA Online 2 retains 50M+ MAU by Q1 2027 = confirmed. Roblox bookings per DAU declining two consecutive quarters = monetization thesis fails."
+    },
+    revenueBreakdown: [
+      { ticker: "TTWO", revenue: "$5.6B", growth: "+25%", note: "GTA, NBA 2K, Zynga mobile. Q3 FY2026 $1.7B (+25%). GTA VI Nov 2026" },
+      { ticker: "EA", revenue: "$7.5B", growth: "+2%", note: "EA Sports FC, Madden, Apex Legends. Live services ~70% of revenue" },
+      { ticker: "RBLX", revenue: "$4.2B", growth: "+30%", note: "80M+ DAU. UGC platform. Not yet profitable" },
+      { ticker: "DKNG", revenue: "$5.0B", growth: "+30%", note: "Leading US sportsbook + iGaming. State-by-state legalization" }
+    ],
+    anchorTickers: [
+      { ticker: "TTWO", rationale: "GTA VI vehicle — single most important product catalyst in the sector" },
+      { ticker: "RBLX", rationale: "UGC platform thesis — tests whether DAU growth converts to profitable monetization" },
+      { ticker: "EA", rationale: "Recurring revenue benchmark — live services margin stability vs hit-driven volatility" }
+    ],
+    keyMetrics: ["Digital revenue mix (recurring vs one-time)","Monthly / daily active users","Bookings growth (net of deferred revenue)","Average revenue per user / ARPU","Content pipeline (major title release schedule)","Development cost per title"],
+    watchlist: ["GTA VI launch date confirmation and pre-order metrics","Roblox path to profitability — when does operating cash flow turn positive?","FTC loot box and microtransaction regulatory proposals","Unity turnaround — new leadership execution"]
+  },
+
+  "Digital Advertising Platforms": {
+    title: "Digital Advertising Platforms",
+    tier: 3,
+    overview: "The digital advertising market exceeds $700B globally, and the Google-Meta duopoly captures over 50%. These are the economic gravity center of Communication Services. Q4 2025: Alphabet $113.8B revenue (+18%), $82.3B ad revenue (+13.5%); Meta $59.9B revenue (+24%), 97% ad-dependent.\n\nThe structural shift from analog to digital is ~70% complete. Incremental growth from: CTV ad-tiers, retail media networks, AI-powered creative, emerging market digitization.\n\nDual Google antitrust cases are the sector's biggest regulatory risk. Search remedies under appeal, ad tech monopoly ruling awaits remedies. Reddit ($726M Q4 revenue, +70%) is the fastest-growing major ad platform.",
+    keyDynamics: [
+      "Google-Meta duopoly capturing 50%+ of $700B+ global digital ad market",
+      "CTV ad-tier adoption creating $30B+ incremental digital ad market",
+      "AI-powered ad creative (Meta $10B run-rate) and targeting improving ROAS and widening duopoly moat",
+      "Dual Google antitrust — search remedies + ad tech monopoly ruling could restructure ad market",
+      "Reddit as fastest-growing major platform (+70%) monetizing unique community content and search intent"
+    ],
+    variantPerception: {
+      consensus: "Google and Meta are indestructible ad machines. AI enhances their moat. Antitrust is headline risk. Reddit and TikTok are growth at the margin.",
+      bull: "Google $175-185B and Meta $115-135B 2026 capex are AI investments widening the moat. Gemini 750M+ MAU and Meta AI video gen create new ad formats only they deliver at scale. Google antitrust remedies are toothless. CTV is incremental.",
+      bear: "AI search disrupts Google — 20% of commercial queries shift to ad-free AI answers = $30B+ at risk. Ad tech ruling forces Google to divest exchange. Meta 97% ad concentration = vulnerability in recession. TikTok taking share in 18-34.",
+      resolutionSignal: "Google Q1 2026 search revenue growth — first post-remedies quarter. >10% = toothless. <5% = dynamics shifting. Meta ad growth >15% while peers decelerate = AI targeting advantage confirmed."
+    },
+    revenueBreakdown: [
+      { ticker: "GOOG", revenue: "$400B+", growth: "+18%", note: "YouTube >$60B/yr. Cloud $17.7B (+48%). Gemini 750M+ MAU" },
+      { ticker: "META", revenue: "$201B", growth: "+24%", note: "3.58B DAP. Reels >50% of IG ads. AI ad tools $10B run-rate" },
+      { ticker: "TTD", revenue: "$2.4B", growth: "+25%", note: "Leading independent DSP. CTV + retail media. UID 2.0" },
+      { ticker: "RDDT", revenue: "$2.2B", growth: "+70%", note: "Fastest-growing ad platform. AI data licensing $200M+ annually" }
+    ],
+    anchorTickers: [
+      { ticker: "GOOG", rationale: "Sector heavyweight — antitrust, AI search disruption, $175-185B capex define narrative" },
+      { ticker: "META", rationale: "AI ad engine — Reels monetization and AI creative tools are growth proof points" },
+      { ticker: "RDDT", rationale: "Fastest-growing — ARPU trajectory validates community content monetization" }
+    ],
+    keyMetrics: ["Ad revenue growth (total and by format)","Average revenue per user (ARPU)","Ad impression volume and pricing (CPM/CPC)","Advertiser count and retention","AI capex as % of total capex","Regulatory case milestones"],
+    watchlist: ["Google Q1 2026 earnings — first post-remedies quarter","Google ad tech remedies (following April 2025 monopoly ruling)","Meta AI ad creative tools adoption and ROI data","Reddit ARPU trajectory and path to $1B quarterly revenue"]
+  },
+
+  "Streaming & OTT": {
+    title: "Streaming & OTT",
+    tier: 3,
+    overview: "The streaming industry shifted from growth-at-all-costs to profitability. Netflix leads — 325M paid members, $45.2B FY2025 revenue, 29.5% operating margin — completing a 10:1 split Nov 2025. Its $82.7B Paramount bid (rejected for Skydance's $111B) showed discipline — $2.8B breakup fee, stock rose 10%.\n\nAd-tier revolution: Netflix ad revenue >$1.5B, Disney ad-supported tier, programmatic CTV via Magnite scaling.\n\nRoku occupies unique OS-level position — 85M+ active accounts, platform revenue far exceeding hardware. Smaller players (Fubo, CuriosityStream) are niche.",
+    keyDynamics: [
+      "Profitability pivot — Netflix at 29.5% operating margin proving sustainable streaming economics",
+      "Ad-tier revolution — Netflix $1.5B+ ad revenue, Disney+ ad tier, programmatic CTV creating new pools",
+      "Password crackdown era — one-time boost to sub growth now largely captured across platforms",
+      "Platform OS layer — Roku 85M+ accounts captures ad impressions across ALL streaming apps on its devices",
+      "Cable-like pricing reconvergence ($80-100/mo for full stack) may trigger consumer pushback"
+    ],
+    variantPerception: {
+      consensus: "Netflix has won. Others fight for #2-3 or consolidate. Ad-tier extends runway but margins converge 15-20%. Roku is CTV infrastructure.",
+      bull: "Netflix is the next Disney — 325M subs, live sports, gaming. Margins reach 35%+. Roku captures toll on every CTV ad dollar. Fubo's Venu antitrust win positions it as independent sports aggregator.",
+      bear: "Netflix approaching saturation. Password crackdown gains one-time. Content costs re-inflate. Roku threatened by Google TV, Amazon Fire TV. Streaming bundle reconverges to cable pricing — consumer rebellion.",
+      resolutionSignal: "Netflix Q2 2026 sub adds — below 5M/quarter without password tailwind = organic saturation. Roku platform revenue per account crossing $60 annualized by Q4 2026 (vs ~$45) = CTV working at scale."
+    },
+    revenueBreakdown: [
+      { ticker: "NFLX", revenue: "$45.2B", growth: "+16%", note: "325M paid members. 29.5% op margin. Ad rev >$1.5B. 10:1 split Nov 2025" },
+      { ticker: "ROKU", revenue: "$4.2B", growth: "+18%", note: "85M+ active accounts. Platform rev >> device rev. The Roku Channel AVOD" },
+      { ticker: "FUBO", revenue: "$1.6B", growth: "+12%", note: "~2M subs. Sports-first streaming. Venu antitrust challenge" }
+    ],
+    anchorTickers: [
+      { ticker: "NFLX", rationale: "Category winner — sub growth, margin expansion, content strategy set industry benchmark" },
+      { ticker: "ROKU", rationale: "CTV OS layer — platform revenue per account is key CTV monetization metric" },
+      { ticker: "FUBO", rationale: "Sports streaming test case — Venu antitrust outcome and niche positioning" }
+    ],
+    keyMetrics: ["Paid subscriber count and net adds","Average revenue per member (ARM)","Operating margin","Content spend (total and as % of revenue)","Ad revenue and ad-tier subscriber mix","Churn rate"],
+    watchlist: ["Netflix Q1-Q2 2026 sub adds — post-password-crackdown organic growth","Disney streaming margin trajectory toward 10% target","Roku platform revenue per account acceleration","Fubo — Venu antitrust case outcome"]
+  },
+
+  "Social & Community Platforms": {
+    title: "Social & Community Platforms",
+    tier: 3,
+    overview: "Social platforms are the attention layer of the internet — they aggregate users and monetize via advertising (Snap, Pinterest, Reddit) or subscriptions (Match, Bumble, Grindr). Network effects create winner-take-most dynamics.\n\nReddit's post-IPO trajectory ($726M Q4, +70%) is the breakout — community content and search-indexed discussions give it unique positioning. Pinterest (530M+ MAU) re-accelerated via shopping intent. Snap (414M+ DAU) dominates 13-34 but is 97% ad-dependent.\n\nDating sub-sector is subscription-driven. Match owns portfolio (Tinder declining, Hinge growing). Grindr is niche winner at 30%+ growth.",
+    keyDynamics: [
+      "Reddit as breakout platform — +70% growth, community content, AI data licensing as incremental revenue",
+      "Pinterest shopping intent — high-value ad inventory because users browse to plan purchases",
+      "Snap's structural trap — can't copy TikTok algorithm-first without losing friends-first identity",
+      "Dating app fatigue — Gen Z preferring organic social over apps, pressuring Match/Bumble growth",
+      "AI bots and generated content eroding trust and authentic engagement across platforms"
+    ],
+    variantPerception: {
+      consensus: "Reddit and Pinterest are growth stories. Snap is show-me. Dating is mature. Sector lives and dies with ad cycle.",
+      bull: "Reddit is anti-AI-search platform — users append 'reddit' for authentic opinions. Data licensing is pure-margin. Pinterest ARPU can double as shoppable pins scale. Grindr compounds with no competition.",
+      bear: "Reddit engagement concentrated in power users — quality decline stagnates DAU. Snap structurally trapped. Match Tinder decline irreversible as Gen Z rejects dating apps. AI profiles erode trust.",
+      resolutionSignal: "Reddit DAU and ARPU by Q3 2026 — DAU >120M and ARPU >$5 = successfully monetized. Snap time spent per DAU flattening = structural attention loss."
+    },
+    revenueBreakdown: [
+      { ticker: "SNAP", revenue: "$5.4B", growth: "+14%", note: "414M+ DAU. 97% ad revenue. Snap+ subscription. AR platform" },
+      { ticker: "PINS", revenue: "$3.6B", growth: "+20%", note: "530M+ MAU. Shopping intent = high-value ads. International ARPU expanding" },
+      { ticker: "RDDT", revenue: "$2.2B", growth: "+70%", note: "100M+ DAU. AI data licensing $200M+ annually" },
+      { ticker: "MTCH", revenue: "$3.5B", growth: "-2%", note: "Tinder declining, Hinge growing. AI matchmaking deploying" }
+    ],
+    anchorTickers: [
+      { ticker: "RDDT", rationale: "Fastest-growing — DAU and ARPU trajectory validate community monetization" },
+      { ticker: "PINS", rationale: "Shopping intent proxy — ARPU expansion measures intent-to-revenue conversion" },
+      { ticker: "MTCH", rationale: "Dating bellwether — Hinge vs Tinder mix shift reveals sector health" }
+    ],
+    keyMetrics: ["Daily / monthly active users","Revenue per user (ARPU)","Time spent per user","Ad revenue growth","Paying subscriber count (for dating)","User acquisition cost vs lifetime value"],
+    watchlist: ["Reddit FY2026 revenue trajectory — path to $1B/quarter?","Snap AR / Spectacles platform adoption","Match Group — Hinge growth vs Tinder decline","TikTok regulatory status"]
+  },
+
+  "Publishing & Digital Media": {
+    title: "Publishing & Digital Media",
+    tier: 3,
+    overview: "Publishing and digital media is the most AI-disrupted sub-industry in Communication Services. Companies here — digital publishers (NYT, Ziff Davis), content recommendation platforms (Taboola, Outbrain), online marketplaces (CarGurus, Yelp) — depend on search traffic and advertising. AI search threatens to disintermediate them.\n\nNYT stands apart with subscription-first transition — 10M+ subs with bundle (News, Cooking, Wirecutter, Games, The Athletic). Its OpenAI lawsuit is a landmark case.\n\nBelow NYT: IAC's Dotdash Meredith sees traffic pressure. Taboola/Outbrain depend on publisher page views AI is eroding. Best-positioned: unique data (Genius Sports' NFL data) or marketplace models AI can't replicate.",
+    keyDynamics: [
+      "AI search disintermediation — Google AI Overviews and ChatGPT reducing publisher click-throughs",
+      "NYT as subscription-model exception — 10M+ subs proving premium content survives AI disruption",
+      "Content recommendation platforms existentially dependent on publisher traffic that AI is eroding",
+      "AI licensing as new revenue stream — publishers negotiating data deals with AI companies",
+      "Marketplace models (CarGurus, Yelp) with transactional intent as potential AI-resistant niches"
+    ],
+    variantPerception: {
+      consensus: "AI search is existential for publishers. NYT is exception. Most others in structural decline.",
+      bull: "Publishers negotiate licensing deals creating new high-margin revenue. Content recommendation pivots to AI ad formats. Niche marketplaces have transactional intent AI can't replicate. Genius Sports exclusive data is AI-proof.",
+      bear: "AI reduces publisher traffic 30-50% over 3 years. Taboola/Outbrain model collapses with traffic. Yelp most vulnerable — Google AI Overviews show reviews directly. NYT lawsuit succeeds legally but fails commercially.",
+      resolutionSignal: "NYT vs OpenAI ruling (2026-2027) — mandatory licensing $100M+/year per AI model = threat narrative reverses. Yelp/Ziff Davis search traffic 20%+ YoY decline by Q3 2026 = disintermediation confirmed."
+    },
+    revenueBreakdown: [
+      { ticker: "NYT", revenue: "$2.6B", growth: "+7%", note: "10M+ subs. Bundle: News, Cooking, Games, Athletic, Wirecutter" },
+      { ticker: "IAC", revenue: "$3.8B", growth: "-3%", note: "Dotdash Meredith ~40 brands. Angi. Sum-of-parts discount" },
+      { ticker: "TBLA", revenue: "$1.7B", growth: "+5%", note: "Content recommendation. Yahoo exclusive partner. AI headwind" },
+      { ticker: "GENI", revenue: "$500M", growth: "+22%", note: "Exclusive NFL data rights. Sports data/streaming to sportsbooks" }
+    ],
+    anchorTickers: [
+      { ticker: "NYT", rationale: "Subscription-model proof — only major publisher transitioning away from ad dependence" },
+      { ticker: "YELP", rationale: "AI disintermediation canary — search referral decline is leading indicator" },
+      { ticker: "GENI", rationale: "AI-proof data model — exclusive rights to official sports data that can't be generated" }
+    ],
+    keyMetrics: ["Organic search traffic (referrals from Google)","Subscriber count and ARPU (subscription models)","Advertising revenue growth / decline","AI licensing deal revenue","Unique visitors and page views","Cost per acquisition (marketplace models)"],
+    watchlist: ["NYT vs OpenAI trial progress and settlements","Google AI Overviews impact on publisher click-through rates","Taboola-Yahoo partnership extension terms","Yelp search referral traffic post-AI Overviews"]
+  }
+
+};
+// ═══ GLOSSARY (32 terms) ═══
+const glossary = {
+  "Tollbridge":"Owns critical infrastructure others must pay to use. High barriers to entry, recurring revenue, pricing power.",
+  "Cash Engine":"Mature business generating consistent free cash flow with limited reinvestment needs. Often returns capital via dividends and buybacks.",
+  "Rule of 40":"Revenue growth rate + profit margin exceeds 40%. Benchmark for scaled SaaS and platform businesses.",
+  "Compounder":"Delivers steady double-digit earnings growth by reinvesting at high returns on invested capital. Long-duration growth story.",
+  "Deep Value":"Trading below estimated intrinsic value, often due to temporary dislocations. Requires catalyst identification.",
+  "Turnaround":"Company undergoing fundamental strategic transformation \u2014 new management, business model pivot, or restructuring.",
+  "Speculative Growth":"High revenue growth but unproven unit economics or unclear path to sustainable profitability.",
+  "early-cycle":"Business inflecting from trough \u2014 improving fundamentals, new product cycle. Often the highest-return entry point.",
+  "mid-cycle":"Stable growth phase with predictable earnings. Fundamentals healthy but not accelerating.",
+  "late-cycle":"Peak margins and/or revenues approaching plateau. Growth decelerating. Signals risk of mean reversion.",
+  "downturn":"Business facing structural or cyclical decline. May be turnaround candidate or value trap.",
+  "secular":"Growth driven by long-term structural trends largely independent of the economic cycle.",
+  "ARPU":"Average Revenue Per User \u2014 key monetization metric for platforms, telecom, and subscription businesses.",
+  "Cord Cutting":"Consumer shift from traditional pay-TV to streaming and OTT services. 'Cord Cutting 2.0' refers to broadband losses alongside video.",
+  "MVNO":"Mobile Virtual Network Operator \u2014 resells wireless service using another carrier's network.",
+  "Ad Load":"Percentage of content time or feed space allocated to advertisements.",
+  "DAP":"Daily Active People \u2014 Meta's cross-platform engagement metric. 3.58B as of Q4 2025.",
+  "Take Rate":"Percentage of gross transaction value retained by the platform as revenue.",
+  "Net Neutrality":"Regulatory principle that ISPs must treat all internet traffic equally.",
+  "CTV":"Connected TV \u2014 television connected to the internet via smart TV or streaming device.",
+  "DSP":"Demand-Side Platform \u2014 technology allowing advertisers to buy ad inventory programmatically.",
+  "SSP":"Supply-Side Platform \u2014 technology helping publishers sell ad inventory to the highest bidder.",
+  "OTT":"Over-The-Top \u2014 content delivered via the internet, bypassing traditional cable/satellite distribution.",
+  "AFFO":"Adjusted Funds From Operations \u2014 REIT-specific cash flow metric used to value tower companies.",
+  "DOCSIS 4.0":"Data Over Cable Service Interface Specification v4.0 \u2014 enables multi-gigabit speeds over existing coax.",
+  "Fixed Wireless":"Broadband internet delivered via 5G/4G radio signals instead of wired connections.",
+  "D2D":"Direct-to-Device \u2014 satellite technology enabling standard smartphones to connect directly to satellites.",
+  "LEO":"Low Earth Orbit \u2014 satellite constellation at 500-2,000 km altitude. Lower latency, requires more satellites.",
+  "GEO":"Geostationary Earth Orbit \u2014 satellite at 36,000 km altitude. High latency but large coverage area.",
+  "UGC":"User-Generated Content \u2014 content created by platform users rather than the operator.",
+  "Recurrent Revenue":"Revenue from ongoing digital engagement (microtransactions, subscriptions) rather than one-time sales.",
+  "Sync Licensing":"Licensing music for use in film, TV, commercials, games, and social media."
+};
+
+// ═══ SIGNAL CHAINS (8 chains) ═══
+const signalChains = [
+  {id:"adCycleChain",name:"Ad Cycle \u2192 Platform Revenue",links:["Economic expansion drives corporate marketing budget growth","Digital captures increasing share of total ad spend (~70%+ and rising)","Google/Meta duopoly captures 50%+ of digital ad spend","Platform revenue accelerates \u2192 multiple expansion for ad-dependent names","Ad tech infrastructure (TTD, DV, IAS, MGNI) benefits from higher programmatic volume"],affectedSubIndustries:["Digital Advertising Platforms","Social & Community Platforms","Streaming & OTT","Publishing & Digital Media"]},
+  {id:"cordCuttingChain",name:"Cord Cutting 2.0 \u2192 Cable Decline \u2192 Telecom Gain",links:["Streaming adoption drives pay-TV subscriber losses (penetration now ~42%)","Cable operators lose video subs \u2192 linear TV ad revenue declines","Fixed wireless (T-Mobile, Verizon) captures broadband share from cable","Cable broadband losses accelerate (Comcast + Charter lost 1.11M internet subs in 2025)","Telecom convergence bundles (wireless + broadband) reduce churn and raise ARPU"],affectedSubIndustries:["Cable & Broadband","Integrated Telecom","Streaming & OTT","Legacy Media & Studios"]},
+  {id:"aiCapexChain",name:"AI Capex \u2192 Infrastructure Demand \u2192 Data Traffic Growth",links:["Google ($175-185B) and Meta ($115-135B) guide massive 2026 AI capex","AI model training and inference drive exponential data traffic growth","Tower operators benefit from 5G densification and edge compute buildout","Fiber/broadband operators see enterprise connectivity demand increase","Satellite operators benefit from IoT/D2D data growth"],affectedSubIndustries:["Towers & Wireless Infrastructure","Integrated Telecom","Cable & Broadband","Satellite & Specialty","Digital Advertising Platforms"]},
+  {id:"regulatoryChain",name:"Antitrust Action \u2192 Google TAM Risk \u2192 Competitor Opportunity",links:["DOJ search remedies ban exclusive default contracts and require data sharing","Ad tech ruling finds Google guilty of monopolizing publisher ad server + exchange","Forced remedies could unbundle Google's ad stack, redistributing market share","Alternative search engines and ad platforms (TTD, MGNI, DV) gain structural advantage","Publisher ad revenue potentially improves as competition lowers ad tech fees"],affectedSubIndustries:["Digital Advertising Platforms","Publishing & Digital Media","Social & Community Platforms"]},
+  {id:"gamingCycleChain",name:"GTA VI Launch \u2192 Gaming Super-Cycle",links:["GTA VI confirmed Nov 2026 \u2014 most anticipated entertainment launch in history","Pre-release hype drives TTWO stock and sector sentiment","Launch quarter generates $2-3B+ in revenue, boosting entire gaming ecosystem","GTA Online 2 establishes recurring revenue platform for 5-10 year cycle","Secondary effects: console hardware sales spike, streaming platforms see gaming content surge"],affectedSubIndustries:["Interactive Entertainment / Gaming","Streaming & OTT","Digital Advertising Platforms"]},
+  {id:"streamingProfitChain",name:"Streaming Profitability \u2192 Content Spend Discipline \u2192 Studio Impact",links:["Netflix achieves 29.5% operating margin, proving streaming profitability model","Industry shifts from subscriber growth to margin optimization","Content spend discipline reduces bidding wars for talent and IP","Studios face lower licensing revenue as streamers produce more in-house content","Consolidation accelerates (Paramount-WBD merger) as sub-scale studios seek survival"],affectedSubIndustries:["Streaming & OTT","Legacy Media & Studios","Music & Audio"]},
+  {id:"fixedWirelessChain",name:"Fixed Wireless Expansion \u2192 Broadband Market Restructuring",links:["T-Mobile and Verizon expand fixed wireless to 10%+ of US broadband market","Cable operators lose broadband subs in suburban/exurban markets","Cable responds with MVNO wireless bundles \u2014 paying telecom for wholesale wireless","Margin compression for cable as they subsidize wireless to retain broadband subs","Telecom companies gain dual revenue stream with improving unit economics"],affectedSubIndustries:["Integrated Telecom","Cable & Broadband","Towers & Wireless Infrastructure"]},
+  {id:"aiDisruptionChain",name:"AI Search Disruption \u2192 Publisher Traffic Destruction \u2192 Ad Tech Impact",links:["AI search (Google AI Overviews, ChatGPT, Perplexity) answers queries directly","Click-through rates to publisher websites decline 20-40%","Publisher ad revenue falls as page views decrease","Content recommendation platforms (Taboola, Outbrain) lose distribution footprint","Publishers pivot to AI licensing deals and subscription models"],affectedSubIndustries:["Publishing & Digital Media","Digital Advertising Platforms","Social & Community Platforms"]}
+];
+</script>
+
+<script>
+
+// ═══ APPLICATION LOGIC ═══
+
+// ─── Normalize data fields for compatibility ───
+sectorData.forEach(d => {
+  d.company = d.name;
+  if (d.tier === 1) d.node = 'Network Infrastructure & Connectivity';
+  else if (d.tier === 2) d.node = 'Content & IP Owners';
+  else d.node = 'Platforms & Monetization';
+  d.industry = d.subIndustry;
+});
+
+// Convert glossary to definedTerms format
+const definedTerms = {};
+Object.entries(glossary).forEach(([key, val]) => {
+  definedTerms[key] = { short: val };
+});
+
+// ─── State ───
+let sortCol = 'ticker';
+let sortAsc = true;
+let expandedTicker = null;
+let activeFactors = new Set();
+
+// ─── DOM refs ───
+const searchInput = document.getElementById('searchInput');
+const tierFilter = document.getElementById('tierFilter');
+const subIndustryFilter = document.getElementById('subIndustryFilter');
+const archetypeFilter = document.getElementById('archetypeFilter');
+const capFilter = document.getElementById('capFilter');
+const resultCount = document.getElementById('resultCount');
+const gridBody = document.getElementById('gridBody');
+const briefOverlay = document.getElementById('briefOverlay');
+const briefContent = document.getElementById('briefContent');
+
+// ─── Sort orders ───
+const capOrder = { 'Mega-Cap': 0, 'Large-Cap': 1, 'Mid-Cap': 2, 'Small-Cap': 3 };
+const cycleOrder = { 'secular': 0, 'early-cycle': 1, 'mid-cycle': 2, 'late-cycle': 3, 'downturn': 4 };
+const tierNames = { 1: 'Tier 1 — Infrastructure', 2: 'Tier 2 — Content', 3: 'Tier 3 — Platforms' };
+
+// ─── Populate Filters ───
+function populateFilters() {
+  const tiers = [1, 2, 3];
+  const subIndustries = [...new Set(sectorData.map(d => d.subIndustry))].sort();
+  const archetypes = [...new Set(sectorData.map(d => d.archetype))].sort();
+  const caps = ['Mega-Cap', 'Large-Cap', 'Mid-Cap', 'Small-Cap'];
+
+  tiers.forEach(v => tierFilter.add(new Option(tierNames[v], v)));
+  subIndustries.forEach(v => subIndustryFilter.add(new Option(v, v)));
+  archetypes.forEach(v => archetypeFilter.add(new Option(v, v)));
+  caps.forEach(v => capFilter.add(new Option(v, v)));
+}
+
+// ─── Get Filtered Data ───
+function getFiltered() {
+  const q = searchInput.value.toLowerCase().trim();
+  const tf = tierFilter.value;
+  const sif = subIndustryFilter.value;
+  const af = archetypeFilter.value;
+  const cf = capFilter.value;
+
+  return sectorData.filter(d => {
+    if (tf && d.tier !== Number(tf)) return false;
+    if (sif && d.subIndustry !== sif) return false;
+    if (af && d.archetype !== af) return false;
+    if (cf && d.marketCap !== cf) return false;
+    if (q) {
+      const haystack = (d.ticker + ' ' + d.name + ' ' + d.subIndustry + ' ' + d.description).toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+// ─── Sort Data ───
+function sortData(data) {
+  return [...data].sort((a, b) => {
+    let va = a[sortCol] || '';
+    let vb = b[sortCol] || '';
+    if (sortCol === 'marketCap') {
+      va = capOrder[va] ?? 99;
+      vb = capOrder[vb] ?? 99;
+    } else if (sortCol === 'cyclePosition') {
+      va = cycleOrder[va] ?? 99;
+      vb = cycleOrder[vb] ?? 99;
+    } else if (sortCol === 'tier') {
+      va = a.tier;
+      vb = b.tier;
+    } else {
+      va = String(va).toLowerCase();
+      vb = String(vb).toLowerCase();
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+}
+
+// ─── Node badge class ───
+function getNodeClass(tier) {
+  if (tier === 1) return 'node-infra';
+  if (tier === 2) return 'node-balance';
+  if (tier === 3) return 'node-capital';
+  return '';
+}
+
+// ─── Node badge label ───
+function getNodeLabel(tier) {
+  if (tier === 1) return 'Infra';
+  if (tier === 2) return 'Content';
+  if (tier === 3) return 'Platform';
+  return '';
+}
+
+// ─── Archetype badge class ───
+function getArchClass(a) {
+  const map = {
+    'Tollbridge': 'arch-tollbridge',
+    'Cash Engine': 'arch-cashengine',
+    'Compounder': 'arch-compounder',
+    'Rule of 40': 'arch-ruleof40',
+    'Deep Value': 'arch-deepvalue',
+    'Speculative Growth': 'arch-specgrowth',
+    'Turnaround': 'arch-turnaround'
+  };
+  return map[a] || '';
+}
+
+// ─── Compute factor tint for a row (numeric: -2 to +2) ───
+function getFactorTint(d) {
+  if (activeFactors.size === 0) return '';
+  let totalExposure = 0;
+  let count = 0;
+  activeFactors.forEach(f => {
+    if (d.factorExposures && d.factorExposures[f] !== undefined) {
+      totalExposure += d.factorExposures[f];
+      count++;
+    }
+  });
+  if (count === 0) return '';
+  if (totalExposure >= 2) return 'background: rgba(39,174,96,0.12);';
+  if (totalExposure > 0) return 'background: rgba(39,174,96,0.06);';
+  if (totalExposure <= -2) return 'background: rgba(231,76,60,0.12);';
+  if (totalExposure < 0) return 'background: rgba(231,76,60,0.06);';
+  return '';
+}
+
+// ─── Factor dot class from numeric value ───
+function getFactorDotClass(val) {
+  if (val >= 2) return 'dot-strong-positive';
+  if (val > 0) return 'dot-positive';
+  if (val <= -2) return 'dot-strong-negative';
+  if (val < 0) return 'dot-negative';
+  return 'dot-neutral';
+}
+
+// ─── Factor label mapping ───
+const factorLabels = {
+  adCycle: 'Ad Cycle',
+  streamingShift: 'Streaming Shift',
+  regulatory: 'Regulatory',
+  aiDisruption: 'AI Disruption'
+};
+
+// ─── Render Grid ───
+function render() {
+  const filtered = getFiltered();
+  const sorted = sortData(filtered);
+  resultCount.textContent = sorted.length + ' compan' + (sorted.length === 1 ? 'y' : 'ies');
+  gridBody.innerHTML = '';
+
+  if (sorted.length === 0) {
+    gridBody.innerHTML = '<tr><td colspan="7" class="empty-state">No companies match the current filters. Try broadening your search.</td></tr>';
+    return;
+  }
+
+  sorted.forEach(d => {
+    const tint = getFactorTint(d);
+    const tr = document.createElement('tr');
+    tr.style.cssText = tint;
+    
+    const tooltipText = definedTerms[d.archetype] ? definedTerms[d.archetype].short : '';
+    
+    tr.innerHTML = `
+      <td class="td-ticker">${d.ticker}</td>
+      <td class="td-company">${d.name}</td>
+      <td class="td-industry">${d.subIndustry}</td>
+      <td><span class="node-badge ${getNodeClass(d.tier)}">${getNodeLabel(d.tier)}</span></td>
+      <td><span class="arch-badge ${getArchClass(d.archetype)}">${d.archetype}${tooltipText ? '<span class="tooltip">' + tooltipText + '</span>' : ''}</span></td>
+      <td class="td-cap">${d.marketCap}</td>
+      <td><span class="cycle-badge">${d.cyclePosition}</span></td>
+    `;
+    tr.addEventListener('click', () => toggleExpand(d.ticker));
+    gridBody.appendChild(tr);
+
+    if (expandedTicker === d.ticker) {
+      const expTr = document.createElement('tr');
+      expTr.className = 'expanded-row';
+      
+      const factorHtml = d.factorExposures ? Object.entries(d.factorExposures).map(([k, v]) => {
+        const label = factorLabels[k] || k;
+        const dotClass = getFactorDotClass(v);
+        const valStr = v > 0 ? '+' + v : String(v);
+        return `<div class="factor-dot"><span class="dot ${dotClass}"></span>${label}: ${valStr}</div>`;
+      }).join('') : '';
+
+      expTr.innerHTML = `<td colspan="7"><div class="expanded-content">
+        <div class="exp-block" style="grid-column:1/-1"><h5>Description</h5><p>${d.description || ''}</p></div>
+        <div class="exp-factors"><h5>Factor Exposures</h5><div class="factor-dots">${factorHtml}</div></div>
+      </div></td>`;
+      gridBody.appendChild(expTr);
+    }
+  });
+
+  // Update sort header styling
+  document.querySelectorAll('.grid-table thead th').forEach(th => {
+    const col = th.dataset.col;
+    th.classList.toggle('sorted', col === sortCol);
+    const arrow = th.querySelector('.sort-arrow');
+    if (arrow) arrow.textContent = col === sortCol ? (sortAsc ? '\u25B2' : '\u25BC') : '';
+  });
+}
+
+// ─── Toggle row expansion ───
+function toggleExpand(ticker) {
+  expandedTicker = expandedTicker === ticker ? null : ticker;
+  render();
+}
+
+// ─── Brief Panel ───
+function openBrief(el) {
+  const key = el.dataset.brief || el.getAttribute('data-brief');
+  if (!key || !industryBriefs[key]) return;
+  renderBrief(key);
+  briefOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBrief() {
+  briefOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === briefOverlay) closeBrief();
+}
+
+function renderBrief(subIndustry) {
+  var b = industryBriefs[subIndustry];
+  if (!b) return;
+  var html = '';
+  html += '<h2>' + subIndustry + '</h2>';
+  html += '<p class="brief-subtitle">' + (b.title || subIndustry) + '</p>';
+
+  // 1. Overview
+  html += '<div class="brief-section-title">Overview</div>';
+  html += '<div class="brief-overview">' + (b.overview || '') + '</div>';
+
+  // 2. Key Dynamics
+  if (b.keyDynamics && b.keyDynamics.length) {
+    html += '<div class="brief-section-title">Key Dynamics</div>';
+    html += '<ul class="dynamics-list">';
+    b.keyDynamics.forEach(function(d) { html += '<li>' + d + '</li>'; });
+    html += '</ul>';
+  }
+
+  // 3. Variant Perception
+  if (b.variantPerception) {
+    html += '<div class="brief-section-title">Consensus &amp; Variant Perception</div>';
+    if (b.variantPerception.consensus) {
+      html += '<div class="consensus-text">' + b.variantPerception.consensus + '</div>';
+    }
+    html += '<div class="variant-card"><div class="variant-q">Variant Perception</div>';
+    if (b.variantPerception.bull) {
+      html += '<div class="variant-case variant-bull"><div class="variant-label">Bull Case</div>' + b.variantPerception.bull + '</div>';
+    }
+    if (b.variantPerception.bear) {
+      html += '<div class="variant-case variant-bear"><div class="variant-label">Bear Case</div>' + b.variantPerception.bear + '</div>';
+    }
+    if (b.variantPerception.resolutionSignal) {
+      html += '<div class="variant-case variant-signal"><div class="variant-label">Resolution Signal</div>' + b.variantPerception.resolutionSignal + '</div>';
+    }
+    html += '</div>';
+  }
+
+  // 4. Revenue Breakdown
+  if (b.revenueBreakdown && b.revenueBreakdown.length) {
+    html += '<div class="brief-section-title">Revenue Breakdown</div>';
+    html += '<table class="rev-table"><thead><tr><th>Ticker</th><th>Revenue</th><th>Growth</th><th>Note</th></tr></thead><tbody>';
+    b.revenueBreakdown.forEach(function(r) {
+      var gc = r.growth && r.growth.startsWith('+') ? 'growth-pos' : (r.growth && r.growth.startsWith('-') ? 'growth-neg' : '');
+      html += '<tr><td>' + r.ticker + '</td><td>' + r.revenue + '</td><td class="' + gc + '">' + r.growth + '</td><td class="rev-note">' + (r.note||'') + '</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+
+  // 5. Anchor Tickers
+  if (b.anchorTickers && b.anchorTickers.length) {
+    html += '<div class="brief-section-title">Anchor Tickers</div>';
+    html += '<div class="anchor-list">';
+    b.anchorTickers.forEach(function(a) {
+      html += '<div class="anchor-item"><span class="anchor-ticker">' + a.ticker + '</span><span class="anchor-rationale">' + a.rationale + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  // 6. Key Metrics
+  if (b.keyMetrics && b.keyMetrics.length) {
+    html += '<div class="brief-section-title">Key Metrics to Watch</div>';
+    html += '<div class="metrics-list">';
+    b.keyMetrics.forEach(function(m) { html += '<span class="metric-tag">' + m + '</span>'; });
+    html += '</div>';
+  }
+
+  // 7. Watchlist
+  if (b.watchlist && b.watchlist.length) {
+    html += '<div class="brief-section-title">Watchlist</div>';
+    b.watchlist.forEach(function(w) { html += '<div class="watchlist-item">' + w + '</div>'; });
+  }
+
+  briefContent.innerHTML = html;
+}
+
+function navigateToSubIndustry(subIndustry) {
+  closeBrief();
+  subIndustryFilter.value = subIndustry;
+  searchInput.value = '';
+  tierFilter.value = '';
+  archetypeFilter.value = '';
+  capFilter.value = '';
+  expandedTicker = null;
+  render();
+  setTimeout(() => {
+    document.getElementById('gridSection').scrollIntoView({ behavior: 'smooth' });
+  }, 350);
+}
+
+// ─── Render Signal Chains Section ───
+function renderSignalChains() {
+  const container = document.getElementById('chainsContainer');
+  let html = '';
+  signalChains.forEach(chain => {
+    html += `<div class="chain-card">`;
+    html += `<div class="chain-name">${chain.name}</div>`;
+    html += `<div class="chain-flow">`;
+    chain.links.forEach((link, i) => {
+      if (i > 0) html += `<span class="chain-arrow">\u2192</span>`;
+      const shortLink = link.length > 80 ? link.substring(0, 77) + '...' : link;
+      html += `<span class="chain-entity" title="${link}">${shortLink}</span>`;
+    });
+    html += `</div>`;
+    if (chain.affectedSubIndustries && chain.affectedSubIndustries.length) {
+      html += `<div class="chain-affected">`;
+      chain.affectedSubIndustries.forEach(si => {
+        html += `<span class="chain-affected-tag" onclick="navigateToSubIndustry('${si}')">${si}</span>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ─── Event Listeners ───
+// Filters
+[searchInput].forEach(el => el.addEventListener('input', () => { expandedTicker = null; render(); }));
+[tierFilter, subIndustryFilter, archetypeFilter, capFilter].forEach(el => {
+  el.addEventListener('change', () => { expandedTicker = null; render(); });
+});
+
+// Clear filters
+document.getElementById('clearBtn').addEventListener('click', () => {
+  searchInput.value = '';
+  tierFilter.value = '';
+  subIndustryFilter.value = '';
+  archetypeFilter.value = '';
+  capFilter.value = '';
+  expandedTicker = null;
+  activeFactors.clear();
+  document.querySelectorAll('.factor-toggle').forEach(b => b.classList.remove('active'));
+  render();
+});
+
+// Sort headers
+document.querySelectorAll('.grid-table thead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (!col) return;
+    if (sortCol === col) {
+      sortAsc = !sortAsc;
+    } else {
+      sortCol = col;
+      sortAsc = true;
+    }
+    render();
+  });
+});
+
+// Factor toggles
+document.querySelectorAll('.factor-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const factor = btn.dataset.factor;
+    if (activeFactors.has(factor)) {
+      activeFactors.delete(factor);
+      btn.classList.remove('active');
+    } else {
+      activeFactors.add(factor);
+      btn.classList.add('active');
+    }
+    render();
+  });
+});
+
+// Escape key to close panel
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeBrief();
+});
+
+// ─── Initialize ───
+populateFilters();
+render();
+renderSignalChains();
+
+
+// ═══ SVG VALUE CHAIN CONNECTING LINES ═══
+var svgConnections = [
+  // Tier 1 → Tier 2
+  {from:"Integrated Telecom",to:"Legacy Media & Studios",label:"Wireline + wireless transport",style:"solid"},
+  {from:"Integrated Telecom",to:"Music & Audio",label:"Transport",style:"solid"},
+  {from:"Integrated Telecom",to:"Sports & Live Events",label:"Transport",style:"solid"},
+  {from:"Integrated Telecom",to:"Interactive Entertainment / Gaming",label:"Transport",style:"solid"},
+  {from:"Cable & Broadband",to:"Legacy Media & Studios",label:"Last-mile + owned content",style:"solid"},
+  {from:"Towers & Wireless Infrastructure",to:"Legacy Media & Studios",label:"Wireless delivery",style:"dotted"},
+  {from:"Towers & Wireless Infrastructure",to:"Music & Audio",label:"Wireless",style:"dotted"},
+  {from:"Towers & Wireless Infrastructure",to:"Sports & Live Events",label:"Wireless",style:"dotted"},
+  {from:"Towers & Wireless Infrastructure",to:"Interactive Entertainment / Gaming",label:"Wireless",style:"dotted"},
+  {from:"Satellite & Specialty",to:"Sports & Live Events",label:"Remote broadcast",style:"dotted"},
+  // Tier 1 → Tier 3 (cross-tier)
+  {from:"Cable & Broadband",to:"Streaming & OTT",label:"Broadband pipe",style:"solid"},
+  // Tier 2 → Tier 3
+  {from:"Legacy Media & Studios",to:"Streaming & OTT",label:"Content licensed",style:"solid"},
+  {from:"Legacy Media & Studios",to:"Digital Advertising Platforms",label:"Linear + CTV inventory",style:"solid"},
+  {from:"Music & Audio",to:"Streaming & OTT",label:"Music catalog",style:"solid"},
+  {from:"Music & Audio",to:"Social & Community Platforms",label:"Sync + UGC audio",style:"dashed"},
+  {from:"Sports & Live Events",to:"Streaming & OTT",label:"Live rights",style:"solid"},
+  {from:"Sports & Live Events",to:"Digital Advertising Platforms",label:"Sports ad inventory",style:"solid"},
+  {from:"Interactive Entertainment / Gaming",to:"Digital Advertising Platforms",label:"In-game ads",style:"dashed"},
+  {from:"Interactive Entertainment / Gaming",to:"Social & Community Platforms",label:"Community + streaming",style:"dashed"},
+  // Within Tier 3
+  {from:"Digital Advertising Platforms",to:"Social & Community Platforms",label:"Monetizes attention",style:"dashed",withinTier:true},
+  {from:"Digital Advertising Platforms",to:"Publishing & Digital Media",label:"Monetizes inventory",style:"dashed",withinTier:true},
+  {from:"Digital Advertising Platforms",to:"Streaming & OTT",label:"CTV programmatic",style:"dashed",withinTier:true}
+];
+
+function getNodeRect(brief) {
+  var node = document.querySelector('[data-brief="' + brief + '"]');
+  var wrapper = document.querySelector('.flowchart-wrapper');
+  if (!node || !wrapper) return null;
+  var nr = node.getBoundingClientRect();
+  var wr = wrapper.getBoundingClientRect();
+  return {
+    x: nr.left + nr.width/2 - wr.left,
+    y: nr.top + nr.height/2 - wr.top,
+    top: nr.top - wr.top,
+    bottom: nr.bottom - wr.top,
+    left: nr.left - wr.left,
+    right: nr.right - wr.left,
+    w: nr.width, h: nr.height
+  };
+}
+
+function drawConnections() {
+  var svg = document.getElementById('flowchartSvg');
+  if (!svg) return;
+  svg.innerHTML = '';
+  var wrapper = document.querySelector('.flowchart-wrapper');
+  if (!wrapper) return;
+  var wRect = wrapper.getBoundingClientRect();
+  svg.setAttribute('viewBox', '0 0 ' + wRect.width + ' ' + wRect.height);
+  svg.style.width = wRect.width + 'px';
+  svg.style.height = wRect.height + 'px';
+
+  var ns = 'http://www.w3.org/2000/svg';
+
+  // Arrow marker definitions
+  var defs = document.createElementNS(ns, 'defs');
+  ['solid','dashed','dotted','feedback'].forEach(function(type) {
+    var marker = document.createElementNS(ns, 'marker');
+    marker.setAttribute('id', 'arrow-' + type);
+    marker.setAttribute('markerWidth', '6');
+    marker.setAttribute('markerHeight', '4');
+    marker.setAttribute('refX', '5');
+    marker.setAttribute('refY', '2');
+    marker.setAttribute('orient', 'auto');
+    var poly = document.createElementNS(ns, 'polygon');
+    poly.setAttribute('points', '0 0, 6 2, 0 4');
+    var c = type === 'solid' ? '#E85D04' : type === 'dashed' ? '#888' : type === 'dotted' ? '#E85D04' : '#E85D04';
+    poly.setAttribute('fill', c);
+    poly.setAttribute('opacity', type === 'dotted' ? '0.4' : type === 'feedback' ? '0.5' : '0.6');
+    marker.appendChild(poly);
+    defs.appendChild(marker);
+  });
+  svg.appendChild(defs);
+
+  // Draw each connection
+  svgConnections.forEach(function(conn) {
+    var fromR = getNodeRect(conn.from);
+    var toR = getNodeRect(conn.to);
+    if (!fromR || !toR) return;
+
+    var path = document.createElementNS(ns, 'path');
+    var d;
+
+    if (conn.withinTier) {
+      var sx, sy, ex, ey;
+      if (fromR.right < toR.left) {
+        sx = fromR.right; sy = fromR.y; ex = toR.left; ey = toR.y;
+      } else if (toR.right < fromR.left) {
+        sx = fromR.left; sy = fromR.y; ex = toR.right; ey = toR.y;
+      } else {
+        sx = fromR.x; sy = fromR.bottom + 4; ex = toR.x; ey = toR.bottom + 4;
+      }
+      var mx = (sx + ex) / 2;
+      var dy = Math.abs(ey - sy);
+      var curveOff = Math.max(dy, 20);
+      d = 'M ' + sx + ' ' + sy + ' C ' + mx + ' ' + (sy + curveOff) + ', ' + mx + ' ' + (ey + curveOff) + ', ' + ex + ' ' + ey;
+    } else {
+      var sx2 = fromR.x;
+      var sy2 = fromR.bottom;
+      var ex2 = toR.x;
+      var ey2 = toR.top;
+      var my2 = (sy2 + ey2) / 2;
+      d = 'M ' + sx2 + ' ' + sy2 + ' C ' + sx2 + ' ' + my2 + ', ' + ex2 + ' ' + my2 + ', ' + ex2 + ' ' + ey2;
+    }
+
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'none');
+
+    if (conn.style === 'solid') {
+      path.setAttribute('stroke', '#E85D04');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('opacity', '0.55');
+      path.setAttribute('marker-end', 'url(#arrow-solid)');
+    } else if (conn.style === 'dashed') {
+      path.setAttribute('stroke', '#888');
+      path.setAttribute('stroke-width', '1');
+      path.setAttribute('stroke-dasharray', '6,4');
+      path.setAttribute('opacity', '0.45');
+      path.setAttribute('marker-end', 'url(#arrow-dashed)');
+    } else {
+      path.setAttribute('stroke', '#E85D04');
+      path.setAttribute('stroke-width', '1');
+      path.setAttribute('stroke-dasharray', '2,3');
+      path.setAttribute('opacity', '0.35');
+      path.setAttribute('marker-end', 'url(#arrow-dotted)');
+    }
+
+    svg.appendChild(path);
+
+    // Add label at midpoint
+    if (conn.label) {
+      try {
+        var pathLen = path.getTotalLength();
+        var mid = path.getPointAtLength(pathLen * 0.5);
+        var text = document.createElementNS(ns, 'text');
+        text.setAttribute('x', mid.x);
+        text.setAttribute('y', mid.y - 4);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '7');
+        text.setAttribute('fill', '#777');
+        text.setAttribute('font-family', "'JetBrains Mono', monospace");
+        text.textContent = conn.label;
+        svg.appendChild(text);
+        var bb = text.getBBox();
+        var bg = document.createElementNS(ns, 'rect');
+        bg.setAttribute('x', bb.x - 3);
+        bg.setAttribute('y', bb.y - 1);
+        bg.setAttribute('width', bb.width + 6);
+        bg.setAttribute('height', bb.height + 2);
+        bg.setAttribute('fill', '#0a0a0f');
+        bg.setAttribute('rx', '2');
+        svg.insertBefore(bg, text);
+      } catch(e) {}
+    }
+  });
+
+  // Feedback loop: Tier 3 → Tier 1
+  var t3 = getNodeRect('Digital Advertising Platforms');
+  var t1 = getNodeRect('Integrated Telecom');
+  if (t3 && t1) {
+    var feedPath = document.createElementNS(ns, 'path');
+    var sx = t3.right + 6;
+    var sy = t3.y;
+    var ex = t1.right + 6;
+    var ey = t1.y;
+    var farR = Math.max(sx, ex) + 50;
+    var d = 'M ' + sx + ' ' + sy + ' C ' + farR + ' ' + sy + ', ' + farR + ' ' + ey + ', ' + ex + ' ' + ey;
+    feedPath.setAttribute('d', d);
+    feedPath.setAttribute('fill', 'none');
+    feedPath.setAttribute('stroke', '#E85D04');
+    feedPath.setAttribute('stroke-width', '1.2');
+    feedPath.setAttribute('stroke-dasharray', '6,3');
+    feedPath.setAttribute('opacity', '0.45');
+    feedPath.setAttribute('marker-end', 'url(#arrow-feedback)');
+    svg.appendChild(feedPath);
+
+    try {
+      var pLen = feedPath.getTotalLength();
+      var mp = feedPath.getPointAtLength(pLen * 0.5);
+      var fbText = document.createElementNS(ns, 'text');
+      fbText.setAttribute('x', mp.x + 5);
+      fbText.setAttribute('y', mp.y);
+      fbText.setAttribute('text-anchor', 'start');
+      fbText.setAttribute('font-size', '7');
+      fbText.setAttribute('fill', '#E85D04');
+      fbText.setAttribute('font-family', "'JetBrains Mono', monospace");
+      fbText.setAttribute('opacity', '0.7');
+      fbText.textContent = 'Revenue funds network capex';
+      svg.appendChild(fbText);
+      var fbb = fbText.getBBox();
+      var fbBg = document.createElementNS(ns, 'rect');
+      fbBg.setAttribute('x', fbb.x - 3);
+      fbBg.setAttribute('y', fbb.y - 1);
+      fbBg.setAttribute('width', fbb.width + 6);
+      fbBg.setAttribute('height', fbb.height + 2);
+      fbBg.setAttribute('fill', '#0a0a0f');
+      fbBg.setAttribute('rx', '2');
+      svg.insertBefore(fbBg, fbText);
+    } catch(e) {}
+  }
+}
+
+// Draw on load and resize
+window.addEventListener('load', function() { setTimeout(drawConnections, 200); });
+var resizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(drawConnections, 150);
+});
+
+</script>
+</body>
+</html>
