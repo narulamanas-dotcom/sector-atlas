@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consumer Staples &mdash; GICS Sector Visual Atlas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #0e0e16;
+  --bg-hover: #14141e;
+  --border: rgba(255,255,255,0.06);
+  --border-light: rgba(255,255,255,0.1);
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --text-muted: #666;
+  --tier1: #8fbc8f;
+  --tier1-bg: rgba(143,188,143,0.08);
+  --tier1-border: rgba(143,188,143,0.25);
+  --tier2: #daa520;
+  --tier2-bg: rgba(218,165,32,0.08);
+  --tier2-border: rgba(218,165,32,0.25);
+  --tier3: #cd853f;
+  --tier3-bg: rgba(205,133,63,0.08);
+  --tier3-border: rgba(205,133,63,0.25);
+  --macro: #e67e22;
+  --macro-bg: rgba(230,126,34,0.08);
+  --macro-border: rgba(230,126,34,0.25);
+  --tollbridge: #4a90d9;
+  --cashengine: #27ae60;
+  --compounder: #9b59b6;
+  --deepvalue: #e74c3c;
+  --specgrowth: #e67e22;
+  --turnaround: #f1c40f;
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 24px;
+  padding-top: 64px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+/* ─── STICKY NAV ─── */
+.sticky-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+  background: rgba(10,10,15,0.92); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: center; gap: 8px;
+  padding: 10px 20px; flex-wrap: wrap;
+}
+.sticky-nav a {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 500;
+  color: var(--text-dim); text-decoration: none;
+  padding: 6px 14px; border-radius: 6px;
+  border: 1px solid transparent; transition: all 0.2s;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.sticky-nav a:hover { color: var(--text); border-color: var(--border-light); }
+/* ─── HEADER ─── */
+.header {
+  text-align: center; padding: 40px 0 30px;
+  border-bottom: 1px solid var(--border); margin-bottom: 40px;
+}
+.header h1 {
+  font-size: 2rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--tier1), var(--tier2), var(--tier3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 8px;
+}
+.header .subtitle {
+  font-family: var(--mono); color: var(--text-dim);
+  font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase;
+}
+.legend {
+  display: flex; justify-content: center; gap: 20px;
+  margin-top: 20px; flex-wrap: wrap;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.78rem; color: var(--text-dim);
+}
+.legend-item::before {
+  content: ''; width: 12px; height: 12px;
+  border-radius: 3px; background: var(--lc); flex-shrink: 0;
+}
+/* ─── FLOWCHART ─── */
+.flowchart-section { margin-bottom: 48px; }
+.flowchart-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim);
+  text-align: center; margin-bottom: 28px;
+}
+.flowchart-wrapper {
+  display: flex; gap: 24px; position: relative;
+}
+.flowchart-tiers {
+  flex: 1; display: flex; flex-direction: column; gap: 0;
+}
+.tier {
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; background: var(--bg-card); position: relative;
+}
+.tier-1 { border-color: var(--tier1-border); background: var(--tier1-bg); }
+.tier-2 { border-color: var(--tier2-border); background: var(--tier2-bg); }
+.tier-3 { border-color: var(--tier3-border); background: var(--tier3-bg); }
+.tier-label {
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 16px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.tier-1 .tier-label { color: var(--tier1); }
+.tier-2 .tier-label { color: var(--tier2); }
+.tier-3 .tier-label { color: var(--tier3); }
+.tier-body { display: flex; gap: 16px; flex-wrap: wrap; }
+.cluster {
+  flex: 1; min-width: 180px;
+  border: 1px dashed var(--border-light); border-radius: 8px; padding: 12px;
+}
+.cluster-label {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 10px;
+}
+.cluster-nodes { display: flex; flex-direction: column; gap: 8px; }
+.fc-node {
+  padding: 10px 14px; border-radius: 8px;
+  border: 1px solid var(--border-light); background: rgba(0,0,0,0.3);
+  cursor: pointer; transition: all 0.2s ease;
+}
+.fc-node:hover { transform: translateY(-1px); }
+.tier-1 .fc-node:hover { border-color: var(--tier1); box-shadow: 0 0 12px rgba(143,188,143,0.2); }
+.tier-2 .fc-node:hover { border-color: var(--tier2); box-shadow: 0 0 12px rgba(218,165,32,0.2); }
+.tier-3 .fc-node:hover { border-color: var(--tier3); box-shadow: 0 0 12px rgba(205,133,63,0.2); }
+.node-name { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.node-tickers {
+  font-family: var(--mono); font-size: 0.68rem;
+  color: var(--text-dim); letter-spacing: 0.5px;
+}
+/* Inter-tier flow labels */
+.inter-tier-flow {
+  display: flex; justify-content: center; gap: 32px;
+  padding: 12px 0; position: relative;
+}
+.inter-tier-flow::before {
+  content: ''; position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 1px; background: linear-gradient(to bottom, var(--border-light), transparent);
+}
+.flow-label {
+  font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted);
+  background: var(--bg); padding: 2px 10px; border-radius: 10px;
+  border: 1px solid var(--border); z-index: 1; white-space: nowrap;
+}
+/* Macro drivers column */
+.macro-drivers-column {
+  width: 160px; display: flex; flex-direction: column;
+  justify-content: space-around; align-items: center;
+  gap: 16px; padding: 20px 0; flex-shrink: 0;
+}
+.macro-circle {
+  width: 130px; height: 130px; border-radius: 50%;
+  border: 2px dashed var(--macro-border); background: var(--macro-bg);
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; font-size: 0.72rem; font-weight: 600;
+  color: var(--macro); padding: 12px; position: relative; line-height: 1.3;
+}
+.macro-circle::before {
+  content: ''; position: absolute; left: -24px; top: 50%;
+  width: 24px; height: 0; border-top: 1px dashed var(--macro-border);
+}
+/* ─── SUMMARY SECTION ─── */
+.summary-section { margin-bottom: 48px; }
+.tier-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-bottom: 24px;
+}
+.summary-card {
+  border-radius: 10px; padding: 20px;
+  border: 1px solid var(--border); background: var(--bg-card);
+}
+.summary-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 10px; }
+.card-tier1 { border-color: var(--tier1-border); }
+.card-tier1 h3 { color: var(--tier1); }
+.card-tier2 { border-color: var(--tier2-border); }
+.card-tier2 h3 { color: var(--tier2); }
+.card-tier3 { border-color: var(--tier3-border); }
+.card-tier3 h3 { color: var(--tier3); }
+.summary-card p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
+.macro-cards {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+}
+.macro-card {
+  background: var(--macro-bg); border: 1px solid var(--macro-border);
+  border-radius: 10px; padding: 16px;
+}
+.macro-card h4 { font-size: 0.82rem; font-weight: 700; color: var(--macro); margin-bottom: 8px; }
+.macro-card p { font-size: 0.76rem; color: var(--text-dim); line-height: 1.5; }
+/* ─── DISCOVERY GRID ─── */
+.grid-section { margin-bottom: 48px; }
+.grid-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px;
+}
+.grid-section .grid-subtitle {
+  font-size: 0.78rem; color: var(--text-muted); margin-bottom: 20px;
+}
+.grid-filters {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  align-items: center; margin-bottom: 12px;
+}
+.grid-filters input,
+.grid-filters select {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  color: var(--text); padding: 8px 12px; border-radius: 6px;
+  font-size: 0.78rem; font-family: var(--font);
+  outline: none; transition: border-color 0.2s;
+}
+.grid-filters input:focus,
+.grid-filters select:focus { border-color: var(--tier1); }
+.grid-filters input { flex: 1; min-width: 180px; }
+.grid-filters select { min-width: 120px; }
+.filter-meta { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+#resultCount { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); }
+#clearBtn {
+  background: transparent; border: 1px solid var(--border-light);
+  color: var(--text-dim); padding: 6px 14px; border-radius: 6px;
+  font-size: 0.72rem; cursor: pointer; transition: all 0.2s;
+  font-family: var(--font);
+}
+#clearBtn:hover { border-color: var(--text-dim); color: var(--text); }
+/* Factor toggles */
+.factor-toggles { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.factor-toggle {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  color: var(--text-dim); padding: 7px 16px; border-radius: 20px;
+  font-size: 0.74rem; cursor: pointer; transition: all 0.2s;
+  font-family: var(--font);
+}
+.factor-toggle:hover { border-color: var(--text-muted); }
+.factor-toggle.active {
+  border-color: var(--macro); color: var(--macro);
+  box-shadow: 0 0 8px rgba(230,126,34,0.2); background: var(--macro-bg);
+}
+/* Table */
+.grid-table-wrapper { overflow-x: auto; }
+.grid-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.grid-table thead th {
+  text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-muted); font-size: 0.68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  cursor: pointer; user-select: none; white-space: nowrap;
+  transition: color 0.15s;
+}
+.grid-table thead th:hover { color: var(--text); }
+.grid-table thead th.sorted { color: var(--tier1); }
+.grid-table thead th .sort-arrow { font-size: 0.6rem; margin-left: 4px; opacity: 0.5; }
+.grid-table thead th.sorted .sort-arrow { opacity: 1; color: var(--tier1); }
+.grid-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s; cursor: pointer;
+}
+.grid-table tbody tr:hover { background: var(--bg-hover); }
+.grid-table tbody td { padding: 10px 12px; vertical-align: middle; }
+.td-ticker { font-family: var(--mono); font-weight: 600; color: var(--tier1); font-size: 0.8rem; }
+.td-company { font-size: 0.78rem; }
+.td-industry { font-size: 0.74rem; color: var(--text-dim); }
+.node-badge, .arch-badge, .cycle-badge {
+  display: inline-block; padding: 2px 10px; border-radius: 10px;
+  font-size: 0.65rem; font-weight: 600; white-space: nowrap;
+}
+.node-tier1 { background: var(--tier1-bg); color: var(--tier1); border: 1px solid var(--tier1-border); }
+.node-tier2 { background: var(--tier2-bg); color: var(--tier2); border: 1px solid var(--tier2-border); }
+.node-tier3 { background: var(--tier3-bg); color: var(--tier3); border: 1px solid var(--tier3-border); }
+.arch-tollbridge { background: rgba(74,144,217,0.1); color: var(--tollbridge); border: 1px solid rgba(74,144,217,0.25); }
+.arch-cashengine { background: rgba(39,174,96,0.1); color: var(--cashengine); border: 1px solid rgba(39,174,96,0.25); }
+.arch-compounder { background: rgba(155,89,182,0.1); color: var(--compounder); border: 1px solid rgba(155,89,182,0.25); }
+.arch-deepvalue { background: rgba(231,76,60,0.1); color: var(--deepvalue); border: 1px solid rgba(231,76,60,0.25); }
+.arch-specgrowth { background: rgba(230,126,34,0.1); color: var(--specgrowth); border: 1px solid rgba(230,126,34,0.25); }
+.arch-turnaround { background: rgba(241,196,15,0.1); color: var(--turnaround); border: 1px solid rgba(241,196,15,0.25); }
+/* Archetype tooltip */
+.arch-badge { position: relative; cursor: help; }
+.arch-badge .tooltip {
+  display: none; position: absolute; bottom: calc(100% + 8px); right: 0;
+  background: #1a1a2e; border: 1px solid var(--border-light);
+  border-radius: 8px; padding: 10px 14px; width: 280px;
+  font-size: 0.72rem; font-weight: 400; color: var(--text);
+  line-height: 1.5; white-space: normal; z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: none;
+}
+.arch-badge .tooltip::after {
+  content: ''; position: absolute; top: 100%; right: 20px;
+  border: 6px solid transparent; border-top-color: #1a1a2e;
+}
+.arch-badge:hover .tooltip { display: block; }
+.cycle-badge {
+  font-size: 0.62rem; color: var(--text-muted);
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+}
+.td-cap { font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); }
+/* Expanded row */
+.expanded-row td { padding: 0 !important; border-bottom: 1px solid var(--border-light); }
+.expanded-content {
+  padding: 16px 20px; background: rgba(255,255,255,0.015);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+.exp-block h5 {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px;
+}
+.exp-block p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+.exp-factors { grid-column: 1 / -1; }
+.exp-factors h5 {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px;
+}
+.factor-dots { display: flex; gap: 20px; flex-wrap: wrap; }
+.factor-dot { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-dim); }
+.factor-dot .dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-positive { background: #27ae60; }
+.dot-negative { background: #e74c3c; }
+.dot-neutral { background: #555; }
+.dot-strong-positive { background: #1abc9c; }
+.dot-strong-negative { background: #c0392b; }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.85rem; }
+/* ─── SIGNAL CHAINS SECTION ─── */
+.chains-section { margin-bottom: 48px; }
+.chains-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px;
+}
+.chains-section .chains-subtitle {
+  font-size: 0.78rem; color: var(--text-muted); margin-bottom: 20px;
+}
+.chain-card {
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 20px; margin-bottom: 16px; background: var(--bg-card);
+}
+.chain-name { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.chain-trigger {
+  font-size: 0.72rem; color: var(--macro); font-style: italic;
+  margin-bottom: 10px; padding: 6px 10px;
+  background: var(--macro-bg); border-radius: 6px;
+  border-left: 3px solid var(--macro);
+}
+.chain-flow {
+  display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+  margin-bottom: 12px; padding: 12px;
+  background: rgba(255,255,255,0.02); border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.chain-entity {
+  font-size: 0.7rem; padding: 6px 10px;
+  background: rgba(143,188,143,0.08); border: 1px solid var(--tier1-border);
+  border-radius: 6px; color: var(--tier1); text-align: center; white-space: nowrap;
+}
+.chain-arrow { color: var(--text-muted); font-size: 0.8rem; padding: 0 6px; }
+.chain-meta { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+.chain-winners, .chain-losers {
+  display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+}
+.chain-meta-label {
+  font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; margin-right: 4px;
+}
+.chain-meta-label.winners { color: #27ae60; }
+.chain-meta-label.losers { color: #e74c3c; }
+.chain-ticker-tag {
+  font-family: var(--mono); font-size: 0.62rem;
+  padding: 2px 8px; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+}
+.chain-ticker-tag.winner {
+  background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.25); color: #27ae60;
+}
+.chain-ticker-tag.loser {
+  background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.25); color: #e74c3c;
+}
+.chain-ticker-tag:hover { transform: translateY(-1px); }
+.chain-metrics {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;
+}
+.chain-metric-tag {
+  font-family: var(--mono); font-size: 0.6rem; padding: 2px 8px;
+  border-radius: 10px; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); color: var(--text-muted);
+}
+.chain-timeframe {
+  font-family: var(--mono); font-size: 0.6rem; padding: 2px 10px;
+  border-radius: 10px; background: rgba(218,165,32,0.1);
+  border: 1px solid var(--tier2-border); color: var(--tier2);
+  margin-left: auto; white-space: nowrap;
+}
+/* ─── GLOSSARY SECTION ─── */
+.glossary-section { margin-bottom: 48px; }
+.glossary-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px;
+}
+.glossary-section .glossary-subtitle {
+  font-size: 0.78rem; color: var(--text-muted); margin-bottom: 20px;
+}
+.glossary-search {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  color: var(--text); padding: 8px 12px; border-radius: 6px;
+  font-size: 0.78rem; font-family: var(--font); outline: none;
+  width: 300px; max-width: 100%; margin-bottom: 16px; transition: border-color 0.2s;
+}
+.glossary-search:focus { border-color: var(--tier2); }
+.glossary-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px;
+}
+.glossary-card {
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 16px; background: var(--bg-card); cursor: pointer;
+  transition: all 0.2s;
+}
+.glossary-card:hover { border-color: var(--tier2-border); }
+.glossary-card.open { border-color: var(--tier2-border); }
+.glossary-term {
+  font-size: 0.82rem; font-weight: 600; color: var(--tier2);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.glossary-term .toggle-icon { font-size: 0.7rem; color: var(--text-muted); transition: transform 0.2s; }
+.glossary-card.open .toggle-icon { transform: rotate(90deg); }
+.glossary-def {
+  font-size: 0.76rem; color: var(--text-dim); line-height: 1.55;
+  margin-top: 10px; display: none;
+}
+.glossary-card.open .glossary-def { display: block; }
+/* ─── SLIDE-OUT BRIEF PANEL ─── */
+.brief-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.brief-overlay.open { opacity: 1; pointer-events: all; }
+.brief-panel {
+  position: fixed; top: 0; right: 0; width: 560px; height: 100vh;
+  background: #0c0c14; border-left: 1px solid var(--border-light);
+  transform: translateX(100%); transition: transform 0.3s ease;
+  z-index: 1001; overflow-y: auto; padding: 32px;
+}
+.brief-overlay.open .brief-panel { transform: translateX(0); }
+.brief-close {
+  position: absolute; top: 16px; right: 20px;
+  background: none; border: 1px solid var(--border-light);
+  color: var(--text-dim); width: 32px; height: 32px;
+  border-radius: 50%; cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.brief-close:hover { border-color: var(--text); color: var(--text); }
+.brief-body h2 {
+  font-size: 1.3rem; font-weight: 700; color: var(--text);
+  margin-bottom: 4px; margin-right: 40px;
+}
+.brief-body .brief-subtitle {
+  font-size: 0.82rem; color: var(--text-dim);
+  font-style: italic; margin-bottom: 24px;
+}
+.brief-section-title {
+  font-family: var(--mono); font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted);
+  margin: 24px 0 12px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.brief-overview {
+  font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; white-space: pre-line;
+}
+.consensus-text {
+  font-size: 0.8rem; color: var(--text-dim); line-height: 1.6;
+  margin-bottom: 16px; padding: 12px 16px;
+  border-left: 3px solid var(--text-muted);
+  background: rgba(255,255,255,0.02); border-radius: 0 6px 6px 0;
+}
+.variant-card {
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px; margin-bottom: 14px; background: rgba(255,255,255,0.015);
+}
+.variant-q { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+.variant-case {
+  padding: 8px 12px; border-radius: 6px; margin-bottom: 8px;
+  font-size: 0.76rem; color: var(--text-dim); line-height: 1.5;
+}
+.variant-bull { border-left: 3px solid #27ae60; background: rgba(39,174,96,0.04); }
+.variant-bear { border-left: 3px solid #e74c3c; background: rgba(231,76,60,0.04); }
+.variant-signal { border-left: 3px solid #3498db; background: rgba(52,152,219,0.04); }
+.variant-label {
+  font-weight: 700; font-size: 0.7rem; text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 4px;
+}
+.variant-bull .variant-label { color: #27ae60; }
+.variant-bear .variant-label { color: #e74c3c; }
+.variant-signal .variant-label { color: #3498db; }
+/* Key metrics & watchlist */
+.metrics-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.metric-tag {
+  font-family: var(--mono); font-size: 0.68rem;
+  padding: 4px 12px; border-radius: 12px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.watchlist-item {
+  font-size: 0.76rem; color: var(--text-dim); line-height: 1.5;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.watchlist-item:last-child { border-bottom: none; }
+/* Key Dynamics */
+.dynamics-list { list-style: none; padding: 0; }
+.dynamics-list li {
+  font-size: 0.78rem; color: var(--text-dim); line-height: 1.55;
+  padding: 6px 0 6px 16px; border-bottom: 1px solid var(--border); position: relative;
+}
+.dynamics-list li:last-child { border-bottom: none; }
+.dynamics-list li::before { content: '\203A'; position: absolute; left: 0; color: var(--text-muted); font-weight: 700; }
+/* Revenue Breakdown Table */
+.rev-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin-top: 4px; }
+.rev-table thead th {
+  text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border-light);
+  color: var(--text-muted); font-size: 0.65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.rev-table tbody td {
+  padding: 8px 10px; border-bottom: 1px solid var(--border);
+  color: var(--text-dim); vertical-align: top;
+}
+.rev-table tbody td:first-child { font-weight: 600; color: var(--text); }
+.rev-bar-cell { position: relative; }
+.rev-bar {
+  height: 6px; border-radius: 3px; background: var(--tier2);
+  opacity: 0.4; margin-top: 4px;
+}
+/* Anchor Tickers */
+.anchor-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.anchor-tag {
+  font-family: var(--mono); font-weight: 700; font-size: 0.76rem;
+  color: var(--tier1); padding: 4px 12px; border-radius: 8px;
+  background: var(--tier1-bg); border: 1px solid var(--tier1-border);
+  cursor: pointer; transition: all 0.2s;
+}
+.anchor-tag:hover { background: rgba(143,188,143,0.15); }
+/* ─── SVG CONNECTING LINES ─── */
+.flowchart-svg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: visible;
+}
+.flowchart-svg text { font-family: var(--mono); font-size: 8px; fill: var(--text-muted); }
+.tier, .inter-tier-flow, .macro-drivers-column { position: relative; z-index: 1; }
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  body { padding: 12px; padding-top: 64px; }
+  .tier-cards { grid-template-columns: 1fr; }
+  .macro-cards { grid-template-columns: repeat(2, 1fr); }
+  .flowchart-wrapper { flex-direction: column; }
+  .macro-drivers-column { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .macro-circle::before { display: none; }
+  .grid-filters { flex-direction: column; }
+  .grid-filters input, .grid-filters select { width: 100%; }
+  .filter-meta { margin-left: 0; width: 100%; justify-content: space-between; }
+  .expanded-content { grid-template-columns: 1fr; }
+  .brief-panel { width: 100%; }
+  .glossary-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ STICKY NAV ═══ -->
+<nav class="sticky-nav">
+  <a href="#headerSection">Overview</a>
+  <a href="#flowchartSection">Value Chain</a>
+  <a href="#gridSection">Companies</a>
+  <a href="#chainsSection">Signals</a>
+  <a href="#glossarySection">Glossary</a>
+</nav>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header" id="headerSection">
+  <h1>Consumer Staples &mdash; GICS Sector Visual Atlas</h1>
+  <p class="subtitle">Sourcing &rarr; Brands &rarr; Distribution</p>
+  <div class="legend">
+    <span class="legend-item" style="--lc: var(--tier1)">Sourcing, Processing &amp; Ingredients</span>
+    <span class="legend-item" style="--lc: var(--tier2)">Brand Owners &amp; Manufacturers</span>
+    <span class="legend-item" style="--lc: var(--tier3)">Distribution, Wholesale &amp; Retail</span>
+    <span class="legend-item" style="--lc: var(--macro)">Macro Drivers</span>
+  </div>
+</header>
+
+<!-- ═══ VALUE CHAIN FLOWCHART ═══ -->
+<section class="flowchart-section" id="flowchartSection">
+  <h2>Value Chain Architecture</h2>
+  <div class="flowchart-wrapper">
+    <svg class="flowchart-svg" id="flowchartSvg"></svg>
+    <div class="flowchart-tiers">
+
+      <!-- TIER 1: Sourcing, Processing & Ingredients -->
+      <div class="tier tier-1">
+        <div class="tier-label">Tier 1 &mdash; Sourcing, Processing &amp; Ingredients</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">Agricultural Products</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Agricultural Products &amp; Services" onclick="openBrief(this)">
+                <div class="node-name">Agricultural Products &amp; Ingredients</div>
+                <div class="node-tickers">ADM &middot; BG &middot; INGR &middot; CALM &middot; DAR &middot; ANDE &middot; VITL</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Protein Processing</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Commodity Protein Processing" onclick="openBrief(this)">
+                <div class="node-name">Commodity Protein Processing</div>
+                <div class="node-tickers">TSN &middot; HRL &middot; PPC &middot; SEB &middot; BRFS</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flow labels Tier 1 → 2 -->
+      <div class="inter-tier-flow">
+        <span class="flow-label">Raw materials &darr;</span>
+        <span class="flow-label">Commodity inputs &darr;</span>
+        <span class="flow-label">Grains &amp; sweeteners &darr;</span>
+        <span class="flow-label">Protein inputs &darr;</span>
+      </div>
+
+      <!-- TIER 2: Brand Owners & Manufacturers -->
+      <div class="tier tier-2">
+        <div class="tier-label">Tier 2 &mdash; Brand Owners &amp; Manufacturers</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">Packaged Foods</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Packaged Foods &amp; Meats (Branded)" onclick="openBrief(this)">
+                <div class="node-name">Packaged Foods</div>
+                <div class="node-tickers">MDLZ &middot; GIS &middot; HSY &middot; KHC &middot; SJM &middot; CPB &middot; MKC &middot; BRBR +12</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Non-Alc Beverages</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Beverages — Non-Alcoholic" onclick="openBrief(this)">
+                <div class="node-name">Non-Alcoholic Beverages</div>
+                <div class="node-tickers">KO &middot; PEP &middot; MNST &middot; KDP &middot; CELH &middot; COKE &middot; FIZZ</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Alcoholic Beverages</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Beverages — Alcoholic" onclick="openBrief(this)">
+                <div class="node-name">Alcoholic Beverages</div>
+                <div class="node-tickers">STZ &middot; BF.B &middot; TAP &middot; SAM &middot; DEO</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Tobacco</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Tobacco" onclick="openBrief(this)">
+                <div class="node-name">Tobacco &amp; Nicotine</div>
+                <div class="node-tickers">PM &middot; MO &middot; BTI &middot; TPB</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Household Products</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Household Products" onclick="openBrief(this)">
+                <div class="node-name">Household Products</div>
+                <div class="node-tickers">PG &middot; CL &middot; KMB &middot; CHD &middot; CLX &middot; ENR &middot; REYN +2</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Personal Care</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Personal Care Products" onclick="openBrief(this)">
+                <div class="node-name">Personal Care &amp; Beauty</div>
+                <div class="node-tickers">EL &middot; KVUE &middot; ELF &middot; COTY &middot; IPAR &middot; OLPX</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flow labels Tier 2 → 3 -->
+      <div class="inter-tier-flow">
+        <span class="flow-label">Foodservice channel &darr;</span>
+        <span class="flow-label">Retail channel &darr;</span>
+        <span class="flow-label">Brand-to-shelf &darr;</span>
+        <span class="flow-label">Licensed distribution &darr;</span>
+      </div>
+
+      <!-- TIER 3: Distribution, Wholesale & Retail -->
+      <div class="tier tier-3">
+        <div class="tier-label">Tier 3 &mdash; Distribution, Wholesale &amp; Retail</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">Food Distribution</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Food Distribution" onclick="openBrief(this)">
+                <div class="node-name">Food Distribution</div>
+                <div class="node-tickers">SYY &middot; USFD &middot; PFGC &middot; UNFI &middot; CHEF &middot; SPTN</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Mass &amp; Club Retail</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Consumer Staples Retail" onclick="openBrief(this)">
+                <div class="node-name">Staples Retail &mdash; Mass &amp; Club</div>
+                <div class="node-tickers">WMT &middot; COST &middot; KR &middot; TGT &middot; BJ &middot; SFM &middot; ACI &middot; GO &middot; PSMT</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Dollar &amp; Convenience</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Consumer Staples Retail" onclick="openBrief(this)">
+                <div class="node-name">Staples Retail &mdash; Dollar &amp; Convenience</div>
+                <div class="node-tickers">DG &middot; DLTR &middot; CASY &middot; WBA</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Macro Drivers Column -->
+    <div class="macro-drivers-column">
+      <div class="macro-circle">Consumer Wallet</div>
+      <div class="macro-circle">GLP-1 &amp; Health</div>
+      <div class="macro-circle">Input Cost Cycle</div>
+      <div class="macro-circle">Retailer Power</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TIER SUMMARY + MACRO CARDS ═══ -->
+<section class="summary-section">
+  <div class="tier-cards">
+    <div class="summary-card card-tier1">
+      <h3>Sourcing, Processing &amp; Ingredients</h3>
+      <p>Agricultural commodity processors, protein packers, and specialty ingredient suppliers that form the upstream input layer. Margins are driven by crush spreads, origination volumes, and protein cycle economics rather than brand premiums. Capital-intensive, cyclical, and exposed to weather, geopolitics, and commodity prices. The specialty ingredient shift is creating a bifurcation between commodity toll processors and higher-margin specialty suppliers.</p>
+    </div>
+    <div class="summary-card card-tier2">
+      <h3>Brand Owners &amp; Manufacturers</h3>
+      <p>The core value-creation layer &mdash; converting commodity inputs into branded products with pricing power through habit formation, shelf-space dominance, and marketing spend. The brand-to-commodity spread is the fundamental metric. Spans packaged foods, beverages, tobacco, household products, and personal care. Winners are global snacking platforms, tollbridge distributors (KO, PG), and niche insurgents riding health trends.</p>
+    </div>
+    <div class="summary-card card-tier3">
+      <h3>Distribution, Wholesale &amp; Retail</h3>
+      <p>Downstream gatekeepers controlling consumer access to all upstream products. WMT controls ~26% of US grocery spend with unmatched negotiating leverage. COST's membership model generates $4.8B+ in recurring fees. Retailers are transitioning from product margin businesses to platform businesses &mdash; advertising, data monetization, and marketplace revenue are the new high-margin profit pools.</p>
+    </div>
+  </div>
+  <div class="macro-cards">
+    <div class="macro-card">
+      <h4>Consumer Wallet</h4>
+      <p>Real wage growth vs. food CPI determines trade-down/trade-up behavior. When food inflation outpaces wages, private label gains share and dollar stores benefit. When wages lead, premiumization resumes and brand owners recover volume.</p>
+    </div>
+    <div class="macro-card">
+      <h4>GLP-1 &amp; Health</h4>
+      <p>GLP-1 drugs (Ozempic, Mounjaro) could structurally reduce caloric intake, pressuring packaged food volumes. Conversely, protein-forward and functional nutrition categories may benefit. The adoption curve and food consumption impact data are the key unknowns.</p>
+    </div>
+    <div class="macro-card">
+      <h4>Input Cost Cycle</h4>
+      <p>Cocoa at 3-4x historical prices pressures chocolate margins. Grain, pulp, protein, and resin costs cycle through the value chain with 6-12 month lags. Brand owners with pricing power pass through costs; private label narrows the gap when inputs spike.</p>
+    </div>
+    <div class="macro-card">
+      <h4>Retailer Power</h4>
+      <p>WMT and COST wield growing leverage over CPG suppliers. Private label penetration at record highs (~25% in food). Retail media networks (WMT Connect, Kroger Precision Marketing) are extracting incremental margin from brand owners for shelf placement and data access.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DISCOVERY GRID ═══ -->
+<section class="grid-section" id="gridSection">
+  <h2>Discovery Grid &mdash; Consumer Staples Company Registry</h2>
+  <p class="grid-subtitle">Filterable, searchable registry of 82 consumer staples companies across the full value chain</p>
+
+  <div class="grid-filters">
+    <input type="text" id="searchInput" placeholder="Search ticker or company...">
+    <select id="tierFilter"><option value="">All Tiers</option></select>
+    <select id="subIndustryFilter"><option value="">All Sub-Industries</option></select>
+    <select id="archetypeFilter"><option value="">All Archetypes</option></select>
+    <select id="capFilter"><option value="">All Market Caps</option></select>
+    <div class="filter-meta">
+      <span id="resultCount">82 companies</span>
+      <button id="clearBtn">Clear Filters</button>
+    </div>
+  </div>
+
+  <div class="factor-toggles">
+    <button class="factor-toggle" data-factor="val">Value</button>
+    <button class="factor-toggle" data-factor="mom">Momentum</button>
+    <button class="factor-toggle" data-factor="qual">Quality</button>
+    <button class="factor-toggle" data-factor="yld">Yield</button>
+  </div>
+
+  <div class="grid-table-wrapper">
+    <table class="grid-table">
+      <thead>
+        <tr>
+          <th data-col="ticker">Ticker <span class="sort-arrow"></span></th>
+          <th data-col="name">Company <span class="sort-arrow"></span></th>
+          <th data-col="subIndustry">Industry <span class="sort-arrow"></span></th>
+          <th data-col="tier">Tier <span class="sort-arrow"></span></th>
+          <th data-col="archetype">Archetype <span class="sort-arrow"></span></th>
+          <th data-col="marketCap">Mkt Cap <span class="sort-arrow"></span></th>
+          <th data-col="cyclePosition">Cycle <span class="sort-arrow"></span></th>
+        </tr>
+      </thead>
+      <tbody id="gridBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ SIGNAL CHAINS ═══ -->
+<section class="chains-section" id="chainsSection">
+  <h2>Signal Chains &mdash; Causal Logic Flows</h2>
+  <p class="chains-subtitle">8 interconnected chains showing how macro drivers propagate through the consumer staples value chain</p>
+  <div id="chainsContainer"></div>
+</section>
+
+<!-- ═══ GLOSSARY ═══ -->
+<section class="glossary-section" id="glossarySection">
+  <h2>Glossary &mdash; Key Terms &amp; Definitions</h2>
+  <p class="glossary-subtitle">36 sector-specific terms used throughout this atlas</p>
+  <input type="text" class="glossary-search" id="glossarySearch" placeholder="Search terms...">
+  <div class="glossary-grid" id="glossaryGrid"></div>
+</section>
+
+<!-- ═══ SLIDE-OUT BRIEF PANEL ═══ -->
+<div id="briefOverlay" class="brief-overlay" onclick="handleOverlayClick(event)">
+  <div id="briefPanel" class="brief-panel">
+    <button class="brief-close" onclick="closeBrief()">&#x2715;</button>
+    <div id="briefContent" class="brief-body"></div>
+  </div>
+</div>
+
+<script>
+// ═══ SECTOR DATA (82 companies) ═══
+const sectorData = [
+// TIER 1
+{t:"ADM",n:"Archer-Daniels-Midland",tier:1,sub:"Agricultural Products & Services",mc:"Large",arch:"Deep Value",cyc:"Late",fe:{val:1,mom:-1,qual:0,yld:1},d:"Global agricultural origination, processing & transportation. Oilseeds, corn, wheat milling. Margin driven by crush spreads and global trade flows. Under strategic review pressure from activists."},
+{t:"BG",n:"Bunge Global",tier:1,sub:"Agricultural Products & Services",mc:"Large",arch:"Cash Engine",cyc:"Mid",fe:{val:1,mom:0,qual:0,yld:1},d:"Agribusiness and food company processing oilseeds, grains, and sugar. Pending merger with Viterra transforms into largest global grain trader. Crush margins and origination spreads drive earnings."},
+{t:"INGR",n:"Ingredion",tier:1,sub:"Food Ingredients",mc:"Mid",arch:"Cash Engine",cyc:"Mid",fe:{val:1,mom:0,qual:1,yld:1},d:"Specialty ingredient solutions — starches, sweeteners, texturizers for food and beverage manufacturers. Shifting mix toward higher-margin specialty ingredients."},
+{t:"DAR",n:"Darling Ingredients",tier:1,sub:"Food Ingredients",mc:"Mid",arch:"Speculative Growth",cyc:"Early",fe:{val:1,mom:-1,qual:-1,yld:0},d:"Renders animal byproducts into renewable diesel feedstock, collagen, and specialty ingredients. Diamond Green Diesel JV with Valero is key earnings driver."},
+{t:"ANDE",n:"The Andersons",tier:1,sub:"Agricultural Products & Services",mc:"Small",arch:"Deep Value",cyc:"Late",fe:{val:2,mom:-1,qual:0,yld:1},d:"Diversified agribusiness — grain merchandising, ethanol production, plant nutrient distribution, and rail leasing."},
+{t:"VITL",n:"Vital Farms",tier:1,sub:"Agricultural Products & Services",mc:"Small",arch:"Compounder",cyc:"Early",fe:{val:-1,mom:2,qual:1,yld:0},d:"Pasture-raised egg brand with ethical sourcing model. Premium pricing power in growing conscious consumer segment. Asset-light farmer network model."},
+{t:"CALM",n:"Cal-Maine Foods",tier:1,sub:"Agricultural Products & Services",mc:"Mid",arch:"Cash Engine",cyc:"Mid",fe:{val:1,mom:1,qual:1,yld:2},d:"Largest US shell egg producer and distributor. Earnings swing wildly with egg price cycles. No long-term debt. Special dividend policy."},
+{t:"TSN",n:"Tyson Foods",tier:1,sub:"Packaged Foods & Meats",mc:"Large",arch:"Deep Value",cyc:"Early",fe:{val:2,mom:0,qual:-1,yld:1},d:"Largest US protein processor — beef, pork, chicken, prepared foods. Beef margins compressing on cattle cycle headwinds. Turnaround story under new management."},
+{t:"HRL",n:"Hormel Foods",tier:1,sub:"Packaged Foods & Meats",mc:"Mid",arch:"Cash Engine",cyc:"Late",fe:{val:1,mom:-1,qual:0,yld:2},d:"Branded protein company — SPAM, Jennie-O, Applegate, Planters. Shifting toward higher-margin branded and foodservice channels. Dividend aristocrat."},
+{t:"PPC",n:"Pilgrim's Pride",tier:1,sub:"Packaged Foods & Meats",mc:"Mid",arch:"Cash Engine",cyc:"Mid",fe:{val:1,mom:1,qual:0,yld:0},d:"Second-largest US chicken processor. JBS subsidiary. Benefiting from favorable chicken economics — low feed costs and strong demand."},
+{t:"SEB",n:"Seaboard Corporation",tier:1,sub:"Packaged Foods & Meats",mc:"Small",arch:"Deep Value",cyc:"Late",fe:{val:2,mom:-1,qual:0,yld:0},d:"Diversified agribusiness and transportation conglomerate — pork processing, commodity trading, marine transportation. Family-controlled. Deep discount to NAV."},
+{t:"BRFS",n:"BRF S.A.",tier:1,sub:"Packaged Foods & Meats",mc:"Mid",arch:"Turnaround",cyc:"Early",fe:{val:1,mom:1,qual:-1,yld:0},d:"Brazilian protein giant (poultry, pork) with global halal distribution. Turnaround under new management with cost discipline."},
+// TIER 2
+{t:"MDLZ",n:"Mondelez International",tier:2,sub:"Packaged Foods & Meats",mc:"Mega",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:0,qual:2,yld:1},d:"Global snacking powerhouse — Oreo, Cadbury, Ritz, Toblerone, belVita. Emerging market growth engine (~40% EM revenue). Cocoa cost inflation a headwind."},
+{t:"GIS",n:"General Mills",tier:2,sub:"Packaged Foods & Meats",mc:"Large",arch:"Cash Engine",cyc:"Late",fe:{val:1,mom:-1,qual:1,yld:2},d:"Iconic portfolio — Cheerios, Nature Valley, Häagen-Dazs, Blue Buffalo (pet), Pillsbury. Volume pressure from private label and GLP-1 overhang."},
+{t:"K",n:"Kellanova",tier:2,sub:"Packaged Foods & Meats",mc:"Large",arch:"Cash Engine",cyc:"Mid",fe:{val:0,mom:0,qual:1,yld:1},d:"Post-split snacking-focused company — Pringles, Cheez-It, Pop-Tarts, Eggo. Acquired by Mars in 2024 deal."},
+{t:"CAG",n:"Conagra Brands",tier:2,sub:"Packaged Foods & Meats",mc:"Mid",arch:"Deep Value",cyc:"Late",fe:{val:2,mom:-1,qual:0,yld:2},d:"Frozen and shelf-stable portfolio — Birds Eye, Healthy Choice, Slim Jim, Duncan Hines. Frozen food category under structural pressure. Leveraged balance sheet."},
+{t:"SJM",n:"J.M. Smucker",tier:2,sub:"Packaged Foods & Meats",mc:"Mid",arch:"Cash Engine",cyc:"Mid",fe:{val:1,mom:0,qual:1,yld:1},d:"Coffee, pet food, and spreads — Folgers, Café Bustelo, Jif, Milk-Bone. Hostess acquisition adds sweet baked goods. Deleveraging story."},
+{t:"CPB",n:"Campbell's",tier:2,sub:"Packaged Foods & Meats",mc:"Mid",arch:"Deep Value",cyc:"Late",fe:{val:1,mom:-1,qual:0,yld:2},d:"Soup, snacks, and meals — Campbell's, Goldfish, Pepperidge Farm, V8, Rao's (acquired Sovos). Legacy soup business in secular decline."},
+{t:"KHC",n:"Kraft Heinz",tier:2,sub:"Packaged Foods & Meats",mc:"Large",arch:"Turnaround",cyc:"Late",fe:{val:2,mom:-1,qual:-1,yld:2},d:"Massive legacy food portfolio — Heinz, Kraft, Oscar Mayer, Philadelphia, Velveeta. Post-3G Capital value destruction. Attempting brand reinvestment."},
+{t:"POST",n:"Post Holdings",tier:2,sub:"Packaged Foods & Meats",mc:"Mid",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:1,qual:1,yld:0},d:"Cereal and foodservice — Post cereals, Weetabix, Bob Evans, Michael Foods (eggs/refrigerated). Serial acquirer with strong capital allocation."},
+{t:"THS",n:"TreeHouse Foods",tier:2,sub:"Packaged Foods & Meats",mc:"Small",arch:"Turnaround",cyc:"Early",fe:{val:1,mom:0,qual:-1,yld:0},d:"Largest US private label food manufacturer. Strategic transformation to pure-play private label after portfolio divestitures. Margin recovery story."},
+{t:"SMPL",n:"Simply Good Foods",tier:2,sub:"Packaged Foods & Meats",mc:"Small",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:0,qual:1,yld:0},d:"Nutritional snacking — Atkins and Quest brands. Benefits from protein/low-carb mega-trend. Asset-light model. GLP-1 tailwind for protein-forward snacking."},
+{t:"MKC",n:"McCormick & Company",tier:2,sub:"Packaged Foods & Meats",mc:"Large",arch:"Compounder",cyc:"Mid",fe:{val:-1,mom:0,qual:2,yld:1},d:"Global spice and flavor leader — McCormick, French's, Frank's RedHot, OLD BAY, Cholula. Pricing power in fragmented spice category. Premium multiple."},
+{t:"LW",n:"Lamb Weston",tier:2,sub:"Packaged Foods & Meats",mc:"Mid",arch:"Deep Value",cyc:"Late",fe:{val:2,mom:-2,qual:0,yld:1},d:"Leading frozen potato processor — fries, hash browns for QSR and retail. Facing demand normalization and operational execution issues."},
+{t:"JJSF",n:"J&J Snack Foods",tier:2,sub:"Packaged Foods & Meats",mc:"Small",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:0,qual:1,yld:1},d:"Foodservice and retail snacks — SuperPretzel, ICEE, Luigi's Italian Ice, Dippin' Dots. Niche foodservice positioning. Steady compounder."},
+{t:"FRPT",n:"Freshpet",tier:2,sub:"Packaged Foods & Meats",mc:"Mid",arch:"Speculative Growth",cyc:"Early",fe:{val:-2,mom:1,qual:-1,yld:0},d:"Fresh, refrigerated pet food sold from branded fridges in retail stores. Unique DSD model. Rapid revenue growth with improving profitability."},
+{t:"BGS",n:"B&G Foods",tier:2,sub:"Packaged Foods & Meats",mc:"Small",arch:"Turnaround",cyc:"Late",fe:{val:2,mom:-1,qual:-2,yld:2},d:"Portfolio of acquired shelf-stable brands — Green Giant, Ortega, Cream of Wheat, Crisco. Overleveraged from acquisition spree. Dividend cut."},
+{t:"HAIN",n:"Hain Celestial",tier:2,sub:"Packaged Foods & Meats",mc:"Small",arch:"Turnaround",cyc:"Late",fe:{val:1,mom:-2,qual:-1,yld:0},d:"Natural and organic foods — Celestial Seasonings, Terra Chips, Earth's Best. Premium organic positioning lost to mainstream competitors."},
+{t:"FLO",n:"Flowers Foods",tier:2,sub:"Packaged Foods & Meats",mc:"Mid",arch:"Cash Engine",cyc:"Mid",fe:{val:0,mom:0,qual:1,yld:2},d:"Second-largest US commercial baker — Nature's Own, Dave's Killer Bread, Canyon Bakehouse. DSD distribution moat. Dividend aristocrat."},
+{t:"BRBR",n:"BellRing Brands",tier:2,sub:"Packaged Foods & Meats",mc:"Mid",arch:"Compounder",cyc:"Early",fe:{val:-1,mom:2,qual:1,yld:0},d:"Protein-forward nutrition — Premier Protein, Dymatize, PowerBar. Explosive growth driven by protein shake adoption and GLP-1 protein demand tailwind."},
+{t:"TR",n:"Tootsie Roll Industries",tier:2,sub:"Packaged Foods & Meats",mc:"Small",arch:"Cash Engine",cyc:"Mid",fe:{val:0,mom:0,qual:1,yld:1},d:"Iconic confectionery — Tootsie Roll, Junior Mints, Andes, Charms. Family-controlled. Minimal debt, steady cash flow. Ultra-defensive."},
+{t:"HSY",n:"Hershey Company",tier:2,sub:"Packaged Foods & Meats",mc:"Large",arch:"Compounder",cyc:"Late",fe:{val:0,mom:-1,qual:2,yld:2},d:"US chocolate leader — Hershey's, Reese's, Kit Kat (US), SkinnyPop. Dominant US share (~35%). Cocoa cost crisis pressuring margins in 2025-26."},
+{t:"KO",n:"Coca-Cola Company",tier:2,sub:"Soft Drinks & Non-Alcoholic Beverages",mc:"Mega",arch:"Tollbridge",cyc:"Mid",fe:{val:-1,mom:0,qual:2,yld:2},d:"Global beverage tollbridge — Coca-Cola, Sprite, Fanta, Minute Maid, Dasani, Costa Coffee, fairlife, BODYARMOR. Asset-light franchise bottler model generates exceptional ROIC."},
+{t:"PEP",n:"PepsiCo",tier:2,sub:"Soft Drinks & Non-Alcoholic Beverages",mc:"Mega",arch:"Cash Engine",cyc:"Mid",fe:{val:0,mom:-1,qual:2,yld:2},d:"Beverage + snacking duopoly position — Pepsi, Mountain Dew, Gatorade, Lay's, Doritos, Cheetos (Frito-Lay). Frito-Lay is the crown jewel (~60% of operating profit)."},
+{t:"MNST",n:"Monster Beverage",tier:2,sub:"Soft Drinks & Non-Alcoholic Beverages",mc:"Large",arch:"Compounder",cyc:"Mid",fe:{val:-1,mom:0,qual:2,yld:0},d:"Energy drink leader — Monster, Reign, Bang (acquired). Strategic distribution through Coca-Cola bottler network. International expansion runway."},
+{t:"KDP",n:"Keurig Dr Pepper",tier:2,sub:"Soft Drinks & Non-Alcoholic Beverages",mc:"Large",arch:"Cash Engine",cyc:"Mid",fe:{val:0,mom:0,qual:1,yld:2},d:"Unique dual platform — K-Cup coffee system (Keurig) + CSD portfolio (Dr Pepper, 7UP, Snapple). JAB Holdings-controlled. Deleveraging post-merger."},
+{t:"CELH",n:"Celsius Holdings",tier:2,sub:"Soft Drinks & Non-Alcoholic Beverages",mc:"Mid",arch:"Speculative Growth",cyc:"Early",fe:{val:-2,mom:0,qual:0,yld:0},d:"Functional fitness energy drink. PepsiCo distribution partnership transformed growth trajectory. Third-largest energy drink brand in US."},
+{t:"COKE",n:"Coca-Cola Consolidated",tier:2,sub:"Soft Drinks & Non-Alcoholic Beverages",mc:"Mid",arch:"Cash Engine",cyc:"Mid",fe:{val:0,mom:1,qual:1,yld:1},d:"Largest independent Coca-Cola bottler in the US. Territory-based monopoly distribution for KO brands. Steady toll-like economics. Strong FCF."},
+{t:"FIZZ",n:"National Beverage",tier:2,sub:"Soft Drinks & Non-Alcoholic Beverages",mc:"Small",arch:"Compounder",cyc:"Late",fe:{val:0,mom:-1,qual:1,yld:0},d:"LaCroix sparkling water and Shasta/Faygo sodas. LaCroix lost share to competitors. Family-controlled. Erratic management."},
+{t:"STZ",n:"Constellation Brands",tier:2,sub:"Brewers",mc:"Large",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:-1,qual:1,yld:1},d:"Premium beer portfolio — Modelo Especial (#1 US beer brand), Corona, Pacifico. Beer business is the crown jewel (~85% of operating income)."},
+{t:"BF.B",n:"Brown-Forman",tier:2,sub:"Distillers & Vintners",mc:"Large",arch:"Cash Engine",cyc:"Late",fe:{val:-1,mom:-1,qual:1,yld:1},d:"Premium spirits — Jack Daniel's, Woodford Reserve, Herradura. Family-controlled. Global spirits premiumization tailwind offset by near-term volume pressure."},
+{t:"SAM",n:"Boston Beer Company",tier:2,sub:"Brewers",mc:"Mid",arch:"Turnaround",cyc:"Late",fe:{val:1,mom:-1,qual:0,yld:0},d:"Samuel Adams, Twisted Tea, Truly hard seltzer, Angry Orchard. Truly volume collapsed post-seltzer bubble. Operational restructuring ongoing."},
+{t:"TAP",n:"Molson Coors Beverage",tier:2,sub:"Brewers",mc:"Mid",arch:"Deep Value",cyc:"Mid",fe:{val:2,mom:0,qual:0,yld:2},d:"Global brewer — Coors Light, Miller Lite, Blue Moon, Peroni, Madri. Beneficiary of Bud Light market share loss. Value trap risk."},
+{t:"DEO",n:"Diageo",tier:2,sub:"Distillers & Vintners",mc:"Mega",arch:"Cash Engine",cyc:"Late",fe:{val:1,mom:-1,qual:1,yld:2},d:"Global spirits leader — Johnnie Walker, Smirnoff, Captain Morgan, Guinness, Don Julio, Casamigos. Destocking cycle headwind in 2024-25."},
+{t:"PM",n:"Philip Morris International",tier:2,sub:"Tobacco",mc:"Mega",arch:"Tollbridge",cyc:"Mid",fe:{val:0,mom:1,qual:2,yld:2},d:"Global tobacco and smoke-free products — Marlboro (ex-US), IQOS heated tobacco, ZYN oral nicotine pouches. ZYN volume growth explosive. Regulatory moat."},
+{t:"MO",n:"Altria Group",tier:2,sub:"Tobacco",mc:"Mega",arch:"Cash Engine",cyc:"Late",fe:{val:1,mom:0,qual:1,yld:2},d:"US tobacco dominant — Marlboro (~42% US cigarette share), on! oral nicotine, NJOY vaping. Volume declines offset by pricing power. 8%+ dividend yield."},
+{t:"BTI",n:"British American Tobacco",tier:2,sub:"Tobacco",mc:"Large",arch:"Deep Value",cyc:"Late",fe:{val:2,mom:0,qual:0,yld:2},d:"Global tobacco — Lucky Strike, Camel, Newport, Vuse vaping, Velo pouches. New categories growth offsetting combustible decline. Value trap debate."},
+{t:"TPB",n:"Turning Point Brands",tier:2,sub:"Tobacco",mc:"Small",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:1,qual:1,yld:1},d:"Alternative tobacco — Zig-Zag rolling papers, Stoker's smokeless, FRE nicotine pouches. Niche positioning in growing alternative tobacco categories."},
+{t:"PG",n:"Procter & Gamble",tier:2,sub:"Household Products",mc:"Mega",arch:"Tollbridge",cyc:"Mid",fe:{val:-1,mom:0,qual:2,yld:2},d:"Global HPC tollbridge — Tide, Pampers, Gillette, Head & Shoulders, Oral-B, Dawn, Charmin, Bounty, Swiffer, SK-II. Category leadership. Pricing power benchmark."},
+{t:"CL",n:"Colgate-Palmolive",tier:2,sub:"Household Products",mc:"Mega",arch:"Compounder",cyc:"Mid",fe:{val:-1,mom:1,qual:2,yld:1},d:"Oral care global leader — Colgate (#1 toothpaste worldwide), Palmolive, Hill's Pet Nutrition. Hill's pet food is the high-margin growth engine. ~75% international."},
+{t:"KMB",n:"Kimberly-Clark",tier:2,sub:"Household Products",mc:"Large",arch:"Cash Engine",cyc:"Mid",fe:{val:0,mom:0,qual:1,yld:2},d:"Tissue and personal care — Huggies, Kleenex, Scott, Cottonelle, Depend. Duopoly with PG in diapers/tissue. Restructuring to improve margins."},
+{t:"CHD",n:"Church & Dwight",tier:2,sub:"Household Products",mc:"Large",arch:"Compounder",cyc:"Mid",fe:{val:-1,mom:1,qual:2,yld:1},d:"Power brands strategy — Arm & Hammer, OxiClean, Trojan, Vitafusion, Batiste, TheraBreath, Hero Cosmetics. Disciplined acquirer. Premium multiple."},
+{t:"CLX",n:"Clorox Company",tier:2,sub:"Household Products",mc:"Mid",arch:"Cash Engine",cyc:"Mid",fe:{val:0,mom:0,qual:1,yld:2},d:"Cleaning and household brands — Clorox, Pine-Sol, Glad, Kingsford, Burt's Bees, Hidden Valley. Cyberattack recovery complete. Steady defensive."},
+{t:"SPB",n:"Spectrum Brands",tier:2,sub:"Household Products",mc:"Small",arch:"Turnaround",cyc:"Early",fe:{val:1,mom:0,qual:-1,yld:0},d:"Diversified consumer brands — Hot Shot, Cutter, Spectracide, Black+Decker (hardware), Remington, GloFish. Post-HHI sale portfolio transformation."},
+{t:"ENR",n:"Energizer Holdings",tier:2,sub:"Household Products",mc:"Small",arch:"Deep Value",cyc:"Late",fe:{val:2,mom:0,qual:0,yld:2},d:"Batteries and auto care — Energizer, Eveready, Rayovac, Armor All, STP. Duopoly with Duracell. Overleveraged balance sheet."},
+{t:"REYN",n:"Reynolds Consumer Products",tier:2,sub:"Household Products",mc:"Small",arch:"Cash Engine",cyc:"Mid",fe:{val:1,mom:0,qual:1,yld:2},d:"Household staples — Reynolds Wrap, Hefty bags, presto products. Recession-proof. Limited growth but strong FCF yield."},
+{t:"CLE",n:"Central Garden & Pet",tier:2,sub:"Household Products",mc:"Small",arch:"Compounder",cyc:"Mid",fe:{val:1,mom:0,qual:0,yld:0},d:"Garden and pet products — Pennington seeds, Nylabone, Kaytee, Aqueon. Under-the-radar roll-up. Going-private transaction in progress."},
+{t:"EL",n:"Estée Lauder Companies",tier:2,sub:"Personal Care Products",mc:"Large",arch:"Deep Value",cyc:"Late",fe:{val:1,mom:-2,qual:0,yld:1},d:"Prestige beauty — Estée Lauder, Clinique, MAC, La Mer, Tom Ford, Jo Malone. China travel retail collapse crushed earnings."},
+{t:"KVUE",n:"Kenvue",tier:2,sub:"Personal Care Products",mc:"Large",arch:"Cash Engine",cyc:"Mid",fe:{val:1,mom:0,qual:1,yld:2},d:"J&J consumer health spin-off — Tylenol, Listerine, Band-Aid, Neutrogena, Aveeno, Zyrtec. Iconic brand portfolio. Margin expansion opportunity."},
+{t:"COTY",n:"Coty Inc.",tier:2,sub:"Personal Care Products",mc:"Mid",arch:"Turnaround",cyc:"Mid",fe:{val:1,mom:0,qual:0,yld:0},d:"Prestige and mass beauty — CoverGirl, Rimmel, Burberry Beauty, Gucci Beauty, Hugo Boss fragrance. Deleveraging and premiumization transformation."},
+{t:"ELF",n:"e.l.f. Beauty",tier:2,sub:"Personal Care Products",mc:"Mid",arch:"Compounder",cyc:"Early",fe:{val:-2,mom:1,qual:1,yld:0},d:"Value prestige cosmetics disruptor. Fastest share gainer in US color cosmetics. TikTok-native marketing engine. International expansion just beginning."},
+{t:"IPAR",n:"Inter Parfums",tier:2,sub:"Personal Care Products",mc:"Mid",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:1,qual:1,yld:1},d:"Licensed prestige fragrances — Montblanc, Jimmy Choo, Coach, GUESS, Abercrombie. Asset-light license model with strong ROIC."},
+{t:"OLPX",n:"Olaplex Holdings",tier:2,sub:"Personal Care Products",mc:"Small",arch:"Turnaround",cyc:"Late",fe:{val:1,mom:-1,qual:-1,yld:0},d:"Bond-building hair care technology. Professional salon channel + retail expansion. Overhyped post-IPO, now in a reset. Brand rebuilding phase."},
+// TIER 3
+{t:"SYY",n:"Sysco Corporation",tier:3,sub:"Food Distributors",mc:"Large",arch:"Tollbridge",cyc:"Mid",fe:{val:0,mom:0,qual:1,yld:1},d:"Largest US foodservice distributor. Scale moat in broadline distribution to restaurants, hospitals, schools. Recipe for Growth transformation."},
+{t:"USFD",n:"US Foods Holding",tier:3,sub:"Food Distributors",mc:"Mid",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:1,qual:1,yld:0},d:"Second-largest US foodservice distributor. CHEF'STORE cash-and-carry concept. Technology investments improving sales productivity."},
+{t:"PFGC",n:"Performance Food Group",tier:3,sub:"Food Distributors",mc:"Mid",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:1,qual:0,yld:0},d:"Third-largest US foodservice distributor. Acquisition-driven growth strategy (Cheney Bros, Core-Mark, Reinhart). Margin expansion runway."},
+{t:"UNFI",n:"United Natural Foods",tier:3,sub:"Food Distributors",mc:"Small",arch:"Turnaround",cyc:"Late",fe:{val:2,mom:-1,qual:-2,yld:0},d:"Largest distributor of natural/organic/specialty foods — primary supplier to Whole Foods. Overleveraged from SuperValu acquisition."},
+{t:"CHEF",n:"Chefs' Warehouse",tier:3,sub:"Food Distributors",mc:"Small",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:1,qual:0,yld:0},d:"Specialty foodservice distributor — premium proteins, artisan cheeses for high-end restaurants. Niche luxury foodservice positioning."},
+{t:"SPTN",n:"SpartanNash",tier:3,sub:"Food Distributors",mc:"Small",arch:"Deep Value",cyc:"Late",fe:{val:2,mom:-1,qual:0,yld:2},d:"Grocery wholesale distributor and retailer. Supplies independent grocers and military commissaries. Steady but no-growth defensive name."},
+{t:"WMT",n:"Walmart",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Mega",arch:"Tollbridge",cyc:"Mid",fe:{val:-1,mom:2,qual:2,yld:1},d:"World's largest retailer and grocery seller (~$260B in US grocery). Flywheel: Walmart+, advertising ($4B+), marketplace, fulfillment. The distribution tollbridge."},
+{t:"COST",n:"Costco Wholesale",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Mega",arch:"Tollbridge",cyc:"Mid",fe:{val:-2,mom:2,qual:2,yld:0},d:"Membership warehouse club — 130M+ cardholders. Kirkland Signature private label is a brand moat. 90%+ renewal rates. Perpetual premium multiple."},
+{t:"KR",n:"Kroger",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Large",arch:"Cash Engine",cyc:"Mid",fe:{val:1,mom:0,qual:1,yld:1},d:"Largest US supermarket chain — Kroger, Ralphs, Fred Meyer, Harris Teeter, Simple Truth. Data analytics (84.51°) and alternative profit streams growing."},
+{t:"TGT",n:"Target Corporation",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Large",arch:"Cash Engine",cyc:"Late",fe:{val:1,mom:-1,qual:1,yld:2},d:"Mass merchant with curated brand portfolio — Good & Gather, All in Motion, Threshold. Discretionary mix hurts in downturns. Margin recovery story."},
+{t:"BJ",n:"BJ's Wholesale Club",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Mid",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:0,qual:1,yld:0},d:"Eastern US warehouse club. Smaller format than Costco. Digital penetration growing. Membership economics strengthening."},
+{t:"ACI",n:"Albertsons Companies",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Mid",arch:"Deep Value",cyc:"Mid",fe:{val:2,mom:0,qual:0,yld:1},d:"Second-largest US supermarket — Albertsons, Safeway, Vons, Jewel-Osco. Kroger merger failed. Standalone transformation underway."},
+{t:"GO",n:"Grocery Outlet",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Small",arch:"Compounder",cyc:"Early",fe:{val:0,mom:0,qual:0,yld:0},d:"Extreme value grocery — opportunistic buying of closeout/overstock merchandise at 40-70% below conventional retail. Unit growth story."},
+{t:"SFM",n:"Sprouts Farmers Market",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Mid",arch:"Compounder",cyc:"Early",fe:{val:-1,mom:2,qual:1,yld:0},d:"Specialty natural/organic grocery. Smaller-format stores focused on fresh produce, supplements. Strong comp momentum. Health & wellness beneficiary."},
+{t:"DG",n:"Dollar General",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Large",arch:"Deep Value",cyc:"Late",fe:{val:1,mom:-1,qual:0,yld:1},d:"Largest US small-box discount retailer (~20K stores). Rural America staples exposure. Consumables mix ~82%. New CEO turnaround. Underinvested stores."},
+{t:"DLTR",n:"Dollar Tree",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Mid",arch:"Turnaround",cyc:"Late",fe:{val:1,mom:-1,qual:0,yld:0},d:"Value retailer — Dollar Tree (multi-price) and Family Dollar. Family Dollar dragging results. Strategic alternatives under review."},
+{t:"CASY",n:"Casey's General Stores",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Mid",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:1,qual:1,yld:1},d:"Midwest convenience store chain — fuel, prepared food (pizza), grocery. Small-town monopoly positioning. Pizza is the moat."},
+{t:"PSMT",n:"PriceSmart",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Small",arch:"Compounder",cyc:"Mid",fe:{val:0,mom:0,qual:1,yld:1},d:"Warehouse club operator in Central America, Caribbean, and Colombia. Costco-like model for underserved Latin American markets."},
+{t:"WBA",n:"Walgreens Boots Alliance",tier:3,sub:"Consumer Staples Merchandise Retail",mc:"Mid",arch:"Turnaround",cyc:"Late",fe:{val:2,mom:-2,qual:-2,yld:0},d:"US pharmacy chain under severe stress. Going-private with Sycamore Partners. Legacy retail pharmacy model challenged by mail-order and PBM vertical integration."}
+];
+
+// Normalize data fields
+sectorData.forEach(d => {
+  d.ticker = d.t;
+  d.name = d.n;
+  d.subIndustry = d.sub;
+  d.marketCap = d.mc;
+  d.archetype = d.arch;
+  d.cyclePosition = d.cyc;
+  d.factorExposures = d.fe;
+  d.description = d.d;
+  if (d.tier === 1) d.node = 'Sourcing & Ingredients';
+  else if (d.tier === 2) d.node = 'Brands & Manufacturers';
+  else d.node = 'Distribution & Retail';
+});
+
+// ═══ INDUSTRY BRIEFS (10 briefs) ═══
+const industryBriefsArr = [
+{title:"Agricultural Products & Services",tier:1,overview:"The upstream commodity layer that supplies raw inputs — grains, oilseeds, sweeteners, and specialty ingredients — to the entire Consumer Staples value chain. Margins are driven by origination spreads, crush margins, and global trade flows rather than brand premiums. The shift toward specialty ingredients (clean-label, plant-based, functional) is creating a bifurcation: commodity processors face margin compression while specialty ingredient suppliers earn premium multiples.",keyDynamics:["Crush spread economics (soybean, corn) drive processor profitability","Global trade policy and tariffs directly impact origination volumes","Specialty ingredient mix shift toward plant-based, clean-label, and functional compounds","Consolidation wave (Bunge-Viterra) creating scale advantages in global grain trading","Renewable fuel mandates (RFS/SAF) create competing demand for agricultural feedstocks","Weather volatility and climate adaptation increasing basis risk"],variantPerception:{consensus:"Commodity processors are low-margin, capital-intensive toll operators exposed to volatile spreads and trade policy.",bull:"Specialty ingredient shift structurally lifts margins for companies executing the transition (INGR). Bunge-Viterra creates a global grain trading duopoly with ADM. Renewable fuel demand creates structural floor for feedstock prices.",bear:"AI-optimized farming and precision agriculture reduce basis volatility, compressing trader margins. Renewable fuel mandates weakened under new administration. China demand structurally lower.",resolutionSignal:"Watch specialty ingredient revenue mix at INGR (target >40%), Bunge-Viterra deal closure, and RFS waiver decisions."},revenueBreakdown:{"Grain origination & trading":"35%","Oilseed processing (crush)":"25%","Specialty ingredients & solutions":"20%","Animal nutrition":"10%","Other (ethanol, transport)":"10%"},anchorTickers:["ADM","BG","INGR","CALM"],keyMetrics:["Crush margins ($/bu)","Specialty mix (% revenue)","Global grain trade volumes","Egg price index (CALM)","ROIC vs. WACC spread"],watchlist:["Bunge-Viterra merger regulatory approval","RFS/SAF mandate updates","China soybean import volumes","Avian influenza outbreaks (CALM catalyst)","ADM activist pressure and strategic review"]},
+{title:"Commodity Protein Processing",tier:1,overview:"Processes raw animal protein (beef, pork, chicken) into food products for retail and foodservice. Margins are thin, cyclical, and driven by the spread between live animal costs and wholesale protein prices. Scale is the primary moat — the top 4 US processors control ~85% of beef and ~60% of chicken.",keyDynamics:["Beef cycle turning negative as cattle herd contracts to multi-decade lows","Chicken cycle favorable — short production cycle allows quick supply response","Branded/prepared foods shift by TSN and HRL to escape commodity treadmill","GLP-1 drugs could structurally boost lean protein demand","USDA Packers & Stockyards Act enforcement and antitrust scrutiny"],variantPerception:{consensus:"Commodity protein is a low-return cyclical business. TSN is cheap but execution risk is high.",bull:"Chicken economics remain favorable for 2+ years. TSN turnaround under new management unlocks margin expansion. GLP-1 drugs drive protein demand higher.",bear:"Beef losses deepen as cattle costs spike. Labor shortages raise costs. Plant-based alternatives capture share. TSN execution fails again.",resolutionSignal:"TSN chicken segment margins (sustainable >10% = bull confirmed), US cattle on feed reports, HRL Jennie-O turkey recovery."},revenueBreakdown:{"Beef processing":"35%","Chicken processing":"30%","Pork processing":"15%","Prepared foods / branded":"15%","Other (international, feed)":"5%"},anchorTickers:["TSN","HRL","PPC","CALM"],keyMetrics:["Protein spreads (beef/chicken/pork)","USDA cattle on feed","Feed cost index","Operating margins by protein segment","Branded mix as % of total revenue"],watchlist:["TSN management turnaround execution","Avian flu outbreak status","Cattle cycle herd rebuild timing","GLP-1 protein demand impact data","USDA antitrust enforcement actions"]},
+{title:"Packaged Foods & Meats (Branded)",tier:2,overview:"The core value-creation layer — converting commodity inputs into branded products with pricing power through habit formation, shelf-space dominance, and marketing spend. The brand-to-commodity spread is the fundamental metric. Mega-cap incumbents face secular headwinds: private label share gains, GLP-1 fears, and younger consumers' brand indifference. Winners are global snacking platforms with EM growth (MDLZ) or niche insurgents riding health/protein trends (BRBR, SMPL).",keyDynamics:["Private label share at record highs as consumer wallet pressure intensifies","GLP-1 drugs creating caloric intake uncertainty across packaged foods","Snacking continues to outgrow center-store shelf-stable categories","Cocoa cost crisis (3-4x historical prices) pressuring chocolate margins","Protein/functional nutrition categories growing at 2-3x sector average","M&A premiums compressing as debt costs remain elevated"],variantPerception:{consensus:"Packaged food is ex-growth. Volume declines accelerating. Private label winning. GLP-1 is an existential headwind.",bull:"GLP-1 adoption tops out at <10% of population. Protein-forward snacking (BRBR, SMPL) actually benefits. Cocoa costs normalize by 2027. Private label share gains plateau as brands reinvest.",bear:"GLP-1 penetration reaches 15-20%, structurally reducing caloric intake. Private label crosses 30% share. Input cost inflation persists. Consumer trade-down becomes permanent.",resolutionSignal:"GLP-1 prescription volumes and food consumption surveys. Private label share trajectory in Nielsen data. Cocoa futures curve. MDLZ/HSY gross margin trajectory."},revenueBreakdown:{"Snacks (salty + sweet)":"30%","Shelf-stable meals & sides":"20%","Frozen foods":"15%","Confectionery & chocolate":"12%","Condiments & dressings":"8%","Pet food":"8%","Baked goods":"7%"},anchorTickers:["MDLZ","GIS","HSY","KHC","SJM","CPB","MKC","BRBR"],keyMetrics:["Organic revenue growth (volume vs. price)","Gross margin expansion/contraction","A&P spend as % of sales","Private label share by category","Cocoa, coffee, wheat input costs"],watchlist:["GLP-1 food consumption impact studies","MDLZ cocoa margin recovery timeline","BRBR protein shake category growth","KHC brand reinvestment ROI","Mars-Kellanova integration progress"]},
+{title:"Beverages — Non-Alcoholic",tier:2,overview:"Among the widest brand-to-commodity spreads in Consumer Staples. KO's franchise bottler model generates 30%+ ROIC with minimal capex. Energy drinks remain the fastest-growing category. The key structural advantage is distribution — owning or controlling the route-to-market creates a near-unbreachable moat.",keyDynamics:["KO franchise bottler model = asset-light tollbridge with 60%+ gross margins","Energy drink market still growing mid-to-high single digits annually","GLP-1 drugs potentially accelerating shift to zero-sugar, functional beverages","PEP Frito-Lay snacking business generates ~60% of operating profit","KDP K-Cup installed base creates recurring consumable revenue stream","International expansion runway for MNST and CELH"],variantPerception:{consensus:"KO/PEP are defensive compounders. MNST is high-quality growth. Energy drink competition is intensifying.",bull:"GLP-1 tailwind for zero-sugar/functional variants. Energy drink TAM still expanding internationally. KDP K-Cup installed base underappreciated.",bear:"Sugar taxes expand globally. Energy drink regulation tightens. CELH growth decelerates sharply. PEP North America volumes in structural decline.",resolutionSignal:"KO zero-sugar portfolio volume growth. CELH scanner data trajectory. PEP Frito-Lay volume trends. Energy drink category growth (US vs. international)."},revenueBreakdown:{"Carbonated soft drinks":"35%","Energy drinks":"18%","Water & enhanced water":"12%","Coffee (K-Cup & RTD)":"12%","Sports drinks":"10%","Juice & juice drinks":"8%","Tea & other":"5%"},anchorTickers:["KO","PEP","MNST","KDP","CELH","COKE"],keyMetrics:["Organic revenue growth (price/mix vs. volume)","Case volume growth by category","Share of stomach metrics","Energy drink market share"],watchlist:["GLP-1 beverage consumption data","CELH international launch cadence","PEP Frito-Lay volume recovery","KO fairlife and BODYARMOR integration","Sugar tax legislation globally"]},
+{title:"Beverages — Alcoholic",tier:2,overview:"Premiumization has been the multi-decade structural trend: consumers drinking less but drinking better. Spirits gaining share from beer for 20+ years, though beer premiumization creates pockets of strength. Key variant: is the Gen Z moderation trend a temporary cultural moment or a structural shift? STZ's Modelo franchise is arguably the best asset in the sector.",keyDynamics:["Moderation trend among Gen Z driving flat-to-declining alcohol volumes","Premiumization continues — spirits > beer, premium beer > mainstream","Modelo Especial became #1 US beer brand","Spirits destocking cycle created 2024-25 headwind now normalizing","GLP-1 drugs may accelerate alcohol reduction in heavy consumers"],variantPerception:{consensus:"Alcohol volumes are flat-to-declining. Premiumization provides modest pricing offset. STZ is the best positioned.",bull:"Modelo share gains are structural (demographic tailwind). Spirits destocking complete by mid-2026. Brown-Forman's Jack Daniel's brand equity is indestructible.",bear:"Gen Z moderation is permanent. GLP-1 drugs reduce alcohol consumption. Cannabis displaces alcohol occasions. Tariffs on imports create margin pressure.",resolutionSignal:"US alcohol volume growth data (NABCA/DISCUS). STZ Modelo depletion rates. BF.B/DEO organic sales recovery. Gen Z consumption surveys."},revenueBreakdown:{"Beer (domestic + import)":"45%","Spirits":"35%","Wine":"12%","RTD cocktails & hard seltzer":"8%"},anchorTickers:["STZ","BF.B","TAP","SAM","DEO"],keyMetrics:["Depletion/shipment ratio","Price/mix vs. volume decomposition","Beer market share (IRI/Nielsen)","Distributor inventory levels"],watchlist:["STZ Modelo depletion sustainability","DEO/BF.B destocking recovery","GLP-1 alcohol consumption data","Cannabis legalization progress","Tariff risk on imported beverages"]},
+{title:"Tobacco",tier:2,overview:"The highest brand-to-commodity spread in all of Consumer Staples. US cigarette volumes decline ~3-5% annually but pricing power of 8-10% more than offsets. The key variant is the transition to reduced-risk products: PM's IQOS and ZYN represent a potential second growth curve. Regulatory moat protects incumbents — FDA's PMTA process bars new entrants. The ultimate cash engine: minimal capex, massive FCF, high dividends.",keyDynamics:["US cigarette volumes declining 3-5% annually offset by 8-10% pricing power","PM's IQOS and ZYN pouches creating a smoke-free growth engine","Oral nicotine pouch category growing 40-50% annually","FDA PMTA regulatory moat prevents new entrants","ESG exclusion creates artificial valuation discount"],variantPerception:{consensus:"Tobacco is a melting ice cube. 7-8% dividend yields compensate for terminal value concerns.",bull:"PM's IQOS + ZYN create a $100B+ smoke-free franchise that re-rates the stock. Oral nicotine TAM vastly underestimated. MO's 8%+ yield is sustainable given pricing power.",bear:"FDA bans menthol cigarettes (>35% of US market). Nicotine pouch regulation tightens. GLP-1 drugs reduce addictive behavior. Cigarette pricing power breaks.",resolutionSignal:"FDA menthol ban status. ZYN can volume growth (sustainable >40%?). IQOS user conversion rates. US cigarette volume decline rate."},revenueBreakdown:{"Combustible cigarettes":"65%","Heated tobacco (IQOS)":"15%","Oral nicotine (ZYN, on!)":"8%","Cigars & smokeless":"7%","Vaping (NJOY, Vuse)":"5%"},anchorTickers:["PM","MO","BTI","TPB"],keyMetrics:["Cigarette volume decline rate","Smoke-free product revenue growth","ZYN shipment volumes (cans)","Pricing realization vs. volume decline","FCF yield and dividend coverage"],watchlist:["FDA menthol ban ruling","ZYN capacity expansion","IQOS ILUMA US market authorization","MO NJOY market share trajectory","Nicotine pouch regulation"]},
+{title:"Household Products",tier:2,overview:"Defensive compounders with wide and durable brand-to-commodity spreads. PG is the sector benchmark — category leadership in nearly every HPC segment with unmatched A&P spend and innovation. The moat is shelf-space dominance + habitual repurchase + retailer interdependence. Private label penetration is lower in HPC than in food because brand trust matters more. CHD is the most interesting capital allocator — systematically acquiring under-marketed brands and scaling them.",keyDynamics:["Brand loyalty stronger in HPC than food — private label penetration ~15% vs. ~25% in food","Commodity inputs (pulp, resin, surfactants) cycling from peak inflation","Pricing power proven during 2022-24 inflation — minimal volume elasticity","Innovation cycle accelerating (laundry sheets, refill pods, sustainable packaging)","EM penetration runway for PG, CL","CHD power brands strategy setting the M&A playbook"],variantPerception:{consensus:"PG is the safest name in staples but priced for perfection. CL is an EM story. CHD is a premium compounder.",bull:"PG pricing power extends another 2-3 years. CL's Hill's pet food worth nearly the entire EV. CHD's M&A pipeline accelerates organic growth. Commodity deflation = margin expansion.",bear:"Retailer private label programs improve and take share. EM consumers trade down. PG multiple de-rates from 25x+. Innovation ROI diminishes.",resolutionSignal:"PG organic volume growth sustainability. CL Hill's pet food growth rate. CHD acquired brand revenue trajectory. Private label share in HPC categories."},revenueBreakdown:{"Laundry & fabric care":"22%","Baby & feminine care":"18%","Home care & cleaning":"17%","Oral care":"12%","Paper products (tissue, towel)":"12%","Grooming & shaving":"8%","Air care & batteries":"6%","Other (pest, garden)":"5%"},anchorTickers:["PG","CL","KMB","CHD","CLX","ENR","REYN"],keyMetrics:["Organic sales growth (volume vs. price/mix)","Gross margin trajectory","A&P spend as % of sales","Private label share by category","Market share in top 10 categories (PG)"],watchlist:["PG FY guidance and organic growth outlook","CL Hill's pet food growth","CHD next acquisition target","KMB restructuring savings","Commodity cost deflation (resin, pulp, palm oil)"]},
+{title:"Personal Care Products",tier:2,overview:"The highest-margin sub-industry within Consumer Staples, particularly in prestige beauty and fragrance. The moat is aspirational brand equity + emotional purchase behavior + high repurchase rates. EL's prestige portfolio is the benchmark but currently impaired by China travel retail collapse. The insurgent wave is real — ELF has been the fastest share gainer in US color cosmetics. Fragrance has been the fastest-growing prestige beauty category (IPAR is a pure-play beneficiary).",keyDynamics:["Prestige beauty outgrowing mass beauty globally","China/Hainan travel retail collapse impaired EL","TikTok-driven brand discovery cycle accelerating (benefits ELF, indie brands)","Fragrance fastest-growing prestige category (IPAR beneficiary)","KVUE post-J&J separation creating standalone value unlocking","K-beauty and J-beauty innovation driving ingredient trends"],variantPerception:{consensus:"EL is broken and needs China recovery. ELF is expensive but best-in-class growth. KVUE is boring but cheap.",bull:"EL at 20x forward earnings is a generational entry point if China recovers. ELF international expansion could double the TAM. KVUE margin expansion to PG-like levels.",bear:"China travel retail permanently impaired. ELF growth decelerates as distribution matures. KVUE brands face private label pressure in OTC. Fragrance cycle peaks.",resolutionSignal:"China Hainan duty-free sales data. ELF international revenue growth. KVUE operating margin trajectory. EL inventory levels in Asia."},revenueBreakdown:{"Skincare":"30%","Color cosmetics (makeup)":"22%","Fragrance":"18%","Hair care":"12%","OTC health & wellness":"10%","Oral care":"5%","Other":"3%"},anchorTickers:["EL","KVUE","ELF","COTY","IPAR"],keyMetrics:["Prestige beauty market growth rate","China travel retail sales trajectory","ELF market share gains (Nielsen)","KVUE gross/operating margins","Fragrance category growth rate"],watchlist:["EL China recovery and turnaround plan","ELF international expansion cadence","KVUE margin expansion program","COTY deleveraging progress","IPAR new license wins"]},
+{title:"Food Distribution",tier:3,overview:"The logistical spine connecting Tier 2 brand owners to foodservice end-markets (restaurants, hospitals, schools, hotels). SYY is the tollbridge — largest broadline foodservice distributor with unmatched route density creating a cost advantage that widens with scale. Margins are thin (4-6% EBITDA) but expand with volume leverage. The sector is consolidating as independents lose share to national broadliners.",keyDynamics:["Restaurant traffic trends directly drive distributor volumes","Broadline distributors gaining share from independents","Technology investment creating scale advantages","Private label penetration growing as restaurants seek margin","Specialty distribution (CHEF) outgrowing broadline"],variantPerception:{consensus:"SYY is a steady mid-single-digit grower. USFD and PFGC gaining share. Restaurant traffic is resilient.",bull:"SYY Recipe for Growth drives accelerating share gains. PFGC integration creates a legitimate third broadliner. Restaurant traffic resilient in recession. CHEF is a structural growth story.",bear:"Restaurant traffic declines in recession. Labor costs squeeze margins. UNFI trapped by Whole Foods/Amazon pricing pressure.",resolutionSignal:"Restaurant traffic data (Black Box Intelligence). SYY case volume growth vs. market. UNFI Whole Foods contract terms."},revenueBreakdown:{"Broadline foodservice":"55%","Healthcare & education":"15%","Hospitality":"10%","Convenience & vending":"8%","Specialty / premium":"7%","Military & government":"5%"},anchorTickers:["SYY","USFD","PFGC","UNFI","CHEF"],keyMetrics:["Case volume growth","Gross profit per case","Operating margin expansion","Restaurant traffic trends","Market share gains"],watchlist:["SYY Recipe for Growth milestones","PFGC acquisition integration","USFD technology investments","UNFI Whole Foods contract renewal","Restaurant traffic and spending trends"]},
+{title:"Consumer Staples Retail",tier:3,overview:"The downstream gatekeepers controlling consumer access to all upstream products. WMT controls ~26% of US grocery spend with unmatched negotiating leverage. COST's membership model generates $4.8B+ in high-margin recurring fees. Retailers are transitioning from product margin businesses to platform businesses — advertising, data monetization, and marketplace revenue are the new high-margin profit pools. Dollar stores serve as essential grocery access for 20M+ low-income rural Americans but face execution challenges.",keyDynamics:["WMT advertising revenue ($4B+) growing faster than product sales","COST membership renewal rates >90% create annuity-like economics","Private label penetration accelerating (Kirkland, Great Value, Simple Truth)","Dollar stores struggling with execution, labor costs, and shrink","Club channel consistently gaining share from traditional supermarkets","SFM and specialty grocery outperforming conventional"],variantPerception:{consensus:"WMT and COST are the structural winners. KR is cheap but boring. Dollar stores are turnaround stories.",bull:"WMT's flywheel (e-commerce + advertising + marketplace + Walmart+) creates margin expansion runway. COST international expansion adds 25+ warehouses/year. SFM is a white space opportunity.",bear:"Grocery deflation crushes comp sales. Amazon Fresh gains share. DG/DLTR turnarounds fail. Grocery e-commerce economics never work for non-WMT/COST players.",resolutionSignal:"WMT advertising and marketplace growth. COST membership fee increases. SFM comp trajectory. DG traffic and shrink improvement."},revenueBreakdown:{"Grocery & consumables":"55%","General merchandise":"15%","Health & wellness":"10%","Fresh food & produce":"10%","Fuel":"5%","Membership fees":"3%","Other (advertising, marketplace)":"2%"},anchorTickers:["WMT","COST","KR","TGT","DG","DLTR","SFM","BJ","CASY"],keyMetrics:["Comp store sales (traffic vs. ticket)","Private label penetration rate","E-commerce sales growth","Advertising revenue growth (WMT, KR)","Membership renewal rates (COST, BJ)","Shrink rates (DG, DLTR)"],watchlist:["WMT advertising trajectory (path to $10B+)","COST membership fee increase timing","SFM comp sales sustainability","DG CEO turnaround milestones","DLTR Family Dollar strategic review","WBA going-private with Sycamore"]}
+];
+
+// Convert briefs array to object keyed by title
+const industryBriefs = {};
+industryBriefsArr.forEach(b => { industryBriefs[b.title] = b; });
+
+// ═══ GLOSSARY (36 terms) ═══
+const glossary = [
+{term:"Brand-to-Commodity Spread",def:"The margin gap between what consumers pay for a branded product and the cost of the underlying commodity input. Wider spreads indicate stronger brand equity and pricing power."},
+{term:"Organic Revenue Growth",def:"Revenue growth excluding acquisitions, divestitures, and FX impacts. Decomposed into volume growth and price/mix — volume growth is more sustainable and valuable than pricing alone."},
+{term:"Private Label Penetration",def:"The share of a product category captured by store-brand or retailer-owned products. Currently ~20% in US grocery overall but varies dramatically by category."},
+{term:"Crush Spread",def:"The difference between the cost of raw soybeans and the combined revenue from soybean oil and soybean meal. The primary profitability driver for agricultural processors like ADM and BG."},
+{term:"Trade Spend",def:"Promotional dollars CPG manufacturers pay to retailers for shelf placement, end-cap displays, and temporary price reductions. Typically 15-25% of gross revenue for packaged food companies."},
+{term:"Velocity",def:"The rate at which a product sells through retail shelves, measured in units per store per week. High-velocity SKUs earn prime shelf space; low-velocity items face delisting."},
+{term:"Category Captain",def:"The leading brand in a retail category that advises the retailer on shelf layout, assortment, and pricing strategy. Provides structural competitive advantage and information asymmetry."},
+{term:"DSD (Direct Store Delivery)",def:"Distribution model where the manufacturer delivers directly to retail stores, bypassing retailer warehouses. Used by KO, PEP, MNST, FLO. Higher cost but ensures better shelf presence."},
+{term:"Franchise Bottler Model",def:"KO's capital-light model where independent bottlers handle manufacturing and distribution under long-term franchise agreements. KO earns concentrate margins (~60% gross) while bottlers absorb capex."},
+{term:"Premiumization",def:"The secular trend of consumers trading up to higher-priced, higher-quality products within a category. Drives mix improvement and margin expansion across beverages and personal care."},
+{term:"GLP-1 Impact",def:"The potential effect of GLP-1 receptor agonist drugs (Ozempic, Wegovy, Mounjaro) on food and beverage consumption. These drugs reduce appetite and caloric intake — key debate for packaged food valuations."},
+{term:"Elasticity of Demand",def:"The sensitivity of volume to price changes. Inelastic demand (tobacco, diapers, pet food) allows significant pricing. Elastic demand means price hikes cause volume loss."},
+{term:"Power Brands",def:"CHD's strategy of focusing resources on a concentrated portfolio of high-potential brands rather than spreading spend across hundreds of SKUs."},
+{term:"PMTA",def:"FDA Premarket Tobacco Product Application — regulatory pathway requiring new tobacco products to demonstrate public health benefit. Creates massive barrier to entry protecting incumbents."},
+{term:"Smoke-Free Products / RRP",def:"Reduced-risk products including heated tobacco (IQOS), oral nicotine pouches (ZYN, on!), and vaping. Growing 30-50% annually as PM's key growth strategy."},
+{term:"IQOS",def:"Philip Morris International's heated tobacco system that heats tobacco sticks to release nicotine vapor without combustion. Category-defining product in Japan, Europe. Pending broader US rollout."},
+{term:"ZYN",def:"PM's oral nicotine pouch brand (via Swedish Match). White pouches placed between lip and gum deliver nicotine without tobacco leaf. US shipments growing 40%+ annually."},
+{term:"Depletion Rate",def:"In beverage alcohol, the rate at which distributors sell through inventory to retailers. Depletion-to-shipment ratio indicates channel health."},
+{term:"SKU Rationalization",def:"Eliminating low-velocity, low-margin stock keeping units from a product portfolio. Reduces complexity, improves efficiency. A common early move in CPG turnarounds."},
+{term:"Slotting Fees",def:"One-time payments CPG manufacturers make to retailers to secure shelf space for new product launches. A significant barrier to entry for small brands."},
+{term:"Route Density",def:"In distribution businesses, the number of delivery stops per route mile. Higher route density = lower cost per delivery = wider competitive moat."},
+{term:"Shrink",def:"Inventory loss from theft, damage, spoilage, or administrative error. Critical for retailers, particularly dollar stores where shrink rates have spiked to 3%+ of sales."},
+{term:"Alternative Profit Streams",def:"Non-product revenue for retailers including advertising/retail media (WMT Connect, KR Precision Marketing), marketplace commissions, data monetization. These high-margin businesses are reshaping retail economics."},
+{term:"Membership Model",def:"COST/BJ/PSMT model where customers pay annual fees for access to discounted merchandise. Membership fees are nearly pure profit (~70%+ margin) that subsidize product pricing."},
+{term:"Cocoa Cost Crisis",def:"2024-26 cocoa price spike (3-4x historical levels) driven by West African crop failure. Directly pressures margins at HSY and MDLZ."},
+{term:"Moderation Trend",def:"The increasing tendency of younger consumers (particularly Gen Z) to drink less alcohol or abstain entirely. Structural headwind for alcoholic beverage companies."},
+{term:"Installed Base Economics",def:"KDP's Keurig model: sell brewers at/near cost to build an installed base, then earn recurring revenue from K-Cup pod purchases. Installed base of ~40M US households."},
+{term:"Hill's Model",def:"CL's Hill's Pet Nutrition — premium veterinary-recommended pet food with ~30% operating margins. Represents ~20% of CL revenue but a disproportionate share of value."},
+{term:"Travel Retail",def:"Duty-free retail at airports and Hainan Island free-trade port. The key channel for prestige beauty (EL). China travel retail collapse has been EL's biggest headwind."},
+{term:"Protein-Forward Snacking",def:"Growth trend toward high-protein snacks (shakes, bars, jerky). Driven by fitness culture and amplified by GLP-1 drugs (patients need protein to prevent muscle loss). BRBR and SMPL benefit."},
+{term:"Clean Label",def:"Products made with simple, recognizable ingredients without artificial additives. Consumer demand driving reformulation across CPG and creating opportunities for specialty ingredient suppliers."},
+{term:"Shopper Marketing",def:"In-store promotional strategies designed to influence purchase decisions at point of sale. Increasingly digital as retailers deploy electronic shelf labels and in-store media networks."},
+{term:"Category Management",def:"Joint retailer-manufacturer process to optimize product assortment, pricing, promotion, and shelf layout. Data analytics (84.51° at KR) increasingly drive decisions."},
+{term:"Dividend Aristocrat",def:"S&P 500 company that has increased its dividend for 25+ consecutive years. Consumer Staples has the highest concentration (PG, KO, CL, PEP, ADM, GIS, HRL, MKC, etc.)."},
+{term:"Destocking Cycle",def:"A period when distributors reduce inventory levels, causing manufacturer shipments to fall below end-consumer demand. Common in alcoholic beverages and CPG."},
+{term:"Share of Stomach",def:"The portion of consumer food and beverage spending captured by a company or category. A zero-sum metric — the fundamental competitive framework for packaged food."}
+];
+
+// ═══ SIGNAL CHAINS (8 chains) ═══
+const signalChains = [
+{id:"SC-CS-01",title:"GLP-1 Caloric Displacement Chain",trigger:"GLP-1 drug prescriptions accelerate beyond 10M US patients",chain:["GLP-1 drugs reduce appetite and caloric intake by 15-25% in users","Packaged food volume growth decelerates as per-capita consumption falls","Sugary beverages and high-calorie snacks face disproportionate volume pressure","Protein-forward products (BRBR, SMPL) benefit as patients prioritize protein","Zero-sugar/functional beverages (CELH, KO Zero) capture share","CPG companies accelerate reformulation toward high-protein, low-calorie portfolios"],winners:["BRBR","SMPL","CELH","MNST"],losers:["HSY","GIS","CAG","KHC"],monitorMetrics:["GLP-1 prescription volumes (IQVIA)","Food consumption surveys (USDA/BLS)","Caloric intake per capita trends","Protein snack category growth rate"],timeframe:"12-36 months"},
+{id:"SC-CS-02",title:"Private Label Share Gain Chain",trigger:"Consumer wallet pressure intensifies (real wage growth < food inflation for 3+ quarters)",chain:["Lower-income consumers trade down from branded to private label","Retailer private label share crosses 25% in US grocery","CPG companies face volume declines, respond with increased trade spend","Trade spend increase compresses branded manufacturer margins","Strongest brands (PG, KO, MNST) lose least share","Private label manufacturers (THS) and retailers (WMT, COST) benefit"],winners:["WMT","COST","THS","KR"],losers:["KHC","CAG","BGS","GIS"],monitorMetrics:["Private label share by category (Nielsen/Circana)","Real wage growth vs. food CPI","Consumer confidence index","Branded vs. private label price gap"],timeframe:"6-18 months"},
+{id:"SC-CS-03",title:"Cocoa Cost Spiral Chain",trigger:"West African cocoa crop failure continues (El Niño + tree aging + disease)",chain:["Cocoa futures remain at 3-4x historical levels through 2026","Chocolate manufacturers (HSY, MDLZ) face unprecedented input cost inflation","Companies attempt pass-through via price increases and shrinkflation","Consumer resistance to higher chocolate prices compresses volume","HSY margin pressure acute — US-focused portfolio lacks diversification","MDLZ better positioned — global scale + biscuit diversification dilutes cocoa exposure","If cocoa normalizes by 2027, margin snapback creates significant EPS upside"],winners:["MDLZ","TR"],losers:["HSY","HAIN"],monitorMetrics:["Cocoa futures curve (front and forward)","West African harvest forecasts (ICCO)","HSY/MDLZ gross margin trend","Chocolate category volume (scanner data)"],timeframe:"12-24 months"},
+{id:"SC-CS-04",title:"Smoke-Free Product Adoption Chain",trigger:"PM's ZYN shipments exceed 800M cans annually; IQOS receives ILUMA US authorization",chain:["Oral nicotine pouch TAM expands beyond smoker conversion into new users","ZYN becomes a mainstream consumer brand","PM revenue growth re-accelerates to mid-single digits","Investor base broadens as ESG exclusion logic weakens","PM multiple re-rates from 15x toward 20x","MO struggles as its smoke-free portfolio fails to achieve ZYN-like traction","BTI caught between — Velo gaining but behind ZYN"],winners:["PM","TPB"],losers:["MO","BTI"],monitorMetrics:["ZYN shipment volumes (quarterly)","IQOS ILUMA FDA authorization status","PM smoke-free revenue % of total","Nicotine pouch category growth","ESG fund tobacco exclusion changes"],timeframe:"12-36 months"},
+{id:"SC-CS-05",title:"Retail Media Profit Flywheel Chain",trigger:"WMT Connect advertising revenue crosses $5B; KR Precision Marketing reaches $2B",chain:["Retailer advertising grows 25-30% as CPG shifts spend from linear TV","Advertising margins (70%+) dramatically higher than product retail margins (2-3%)","Incremental ad profit subsidizes lower product prices, driving traffic","Higher traffic drives more ad impressions — virtuous flywheel","WMT Walmart+ membership grows as platform becomes primary CPG channel","CPG companies face escalating 'shelf rent' costs","COST uniquely insulated — membership model doesn't require ad subsidy"],winners:["WMT","KR","COST"],losers:["DG","DLTR","WBA"],monitorMetrics:["WMT Connect revenue growth","KR alternative profit stream disclosure","CPG ad budget allocation surveys","Walmart+ subscriber count"],timeframe:"12-36 months"},
+{id:"SC-CS-06",title:"Gen Z Moderation Chain",trigger:"US alcohol volume decline accelerates to >2% annually",chain:["Gen Z consumes 20% less alcohol per capita than Millennials at same age","Total US alcohol volume turns negative for first time in decades","Beer faces steepest declines; spirits slow from positive to flat","Premiumization partially offsets — fewer drinks but higher price per drink","Cannabis legalization displaces some alcohol occasions","STZ protected by Hispanic demographic tailwind (Modelo)","SAM/TAP most exposed to mainstream volume decline"],winners:["STZ","KO","MNST"],losers:["SAM","TAP","BF.B"],monitorMetrics:["NABCA/DISCUS alcohol volume by age cohort","Cannabis retail sales in legal states","Non-alcoholic beverage category growth","Modelo depletion rates vs. total beer","Gen Z alcohol consumption surveys"],timeframe:"24-60 months"},
+{id:"SC-CS-07",title:"China Travel Retail Recovery Chain",trigger:"Chinese consumer confidence improves; Hainan duty-free traffic rebounds to 80%+ of 2019 peak",chain:["Chinese consumer spending recovers as property market stabilizes","Hainan duty-free sales rebound (currently ~50% below peak)","EL prestige beauty sales in Asia travel retail inflect to positive growth","Inventory destocking completes, normalizing shipments","EL margin recovery accelerates as high-margin products regain volume","EL re-rates from 20x to 25x+ forward earnings","Broader prestige beauty recovery benefits COTY, IPAR"],winners:["EL","COTY","IPAR"],losers:[],monitorMetrics:["Hainan duty-free sales (monthly)","Chinese consumer confidence index","EL Asia/Pacific organic revenue","Prestige beauty market growth","Chinese outbound tourism numbers"],timeframe:"12-24 months"},
+{id:"SC-CS-08",title:"Dollar Store Turnaround or Collapse Chain",trigger:"DG/DLTR comp store traffic trends — sustained improvement = turnaround; continued decline = structural impairment",chain:["Dollar stores serve as essential grocery access for 20M+ low-income rural Americans","Store-level execution deterioration drives traffic decline","If turnaround succeeds: DG re-rates from 12x to 16x+ as margins recover","If turnaround fails: store closures create rural food desert crisis","DLTR Family Dollar divestiture would crystallize write-down but improve portfolio","WMT and convenience stores (CASY) capture displaced traffic"],winners:["WMT","CASY"],losers:["DG","DLTR"],monitorMetrics:["DG same-store traffic (comp transactions)","DLTR Family Dollar comp sales","Shrink rate improvement","Employee satisfaction/turnover metrics","Store closure announcements"],timeframe:"6-18 months"}
+];
+</script>
+
+<script>
+// ═══ APPLICATION LOGIC ═══
+
+// ─── State ───
+let sortCol = 'ticker';
+let sortAsc = true;
+let expandedTicker = null;
+let activeFactors = new Set();
+
+// ─── DOM refs ───
+const searchInput = document.getElementById('searchInput');
+const tierFilter = document.getElementById('tierFilter');
+const subIndustryFilter = document.getElementById('subIndustryFilter');
+const archetypeFilter = document.getElementById('archetypeFilter');
+const capFilter = document.getElementById('capFilter');
+const resultCount = document.getElementById('resultCount');
+const gridBody = document.getElementById('gridBody');
+const briefOverlay = document.getElementById('briefOverlay');
+const briefContent = document.getElementById('briefContent');
+
+// ─── Sort orders ───
+const capOrder = { 'Mega': 0, 'Large': 1, 'Mid': 2, 'Small': 3 };
+const cycleOrder = { 'Early': 0, 'Mid': 1, 'Late': 2 };
+const tierNames = { 1: 'Tier 1 — Sourcing', 2: 'Tier 2 — Brands', 3: 'Tier 3 — Distribution' };
+
+// ─── Factor labels ───
+const factorLabels = { val: 'Value', mom: 'Momentum', qual: 'Quality', yld: 'Yield' };
+
+// ─── Archetype tooltips ───
+const archetypeTooltips = {
+  "Tollbridge": "Owns critical infrastructure others must pay to use. High barriers, recurring revenue, pricing power.",
+  "Cash Engine": "Mature business generating consistent FCF with limited reinvestment needs. Often returns capital via dividends/buybacks.",
+  "Compounder": "Delivers steady double-digit earnings growth by reinvesting at high ROIC. Long-duration growth story.",
+  "Deep Value": "Trading below estimated intrinsic value, often due to temporary dislocations. Requires catalyst identification.",
+  "Turnaround": "Company undergoing fundamental strategic transformation — new management, business model pivot, or restructuring.",
+  "Speculative Growth": "High revenue growth but unproven unit economics or unclear path to sustainable profitability."
+};
+
+// ─── Populate Filters ───
+function populateFilters() {
+  const tiers = [1, 2, 3];
+  const subIndustries = [...new Set(sectorData.map(d => d.subIndustry))].sort();
+  const archetypes = [...new Set(sectorData.map(d => d.archetype))].sort();
+  const caps = ['Mega', 'Large', 'Mid', 'Small'];
+
+  tiers.forEach(v => tierFilter.add(new Option(tierNames[v], v)));
+  subIndustries.forEach(v => subIndustryFilter.add(new Option(v, v)));
+  archetypes.forEach(v => archetypeFilter.add(new Option(v, v)));
+  caps.forEach(v => capFilter.add(new Option(v, v)));
+}
+
+// ─── Get Filtered Data ───
+function getFiltered() {
+  const q = searchInput.value.toLowerCase().trim();
+  const tf = tierFilter.value;
+  const sif = subIndustryFilter.value;
+  const af = archetypeFilter.value;
+  const cf = capFilter.value;
+
+  return sectorData.filter(d => {
+    if (tf && d.tier !== Number(tf)) return false;
+    if (sif && d.subIndustry !== sif) return false;
+    if (af && d.archetype !== af) return false;
+    if (cf && d.marketCap !== cf) return false;
+    if (q) {
+      const haystack = (d.ticker + ' ' + d.name + ' ' + d.subIndustry + ' ' + d.description).toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+// ─── Sort Data ───
+function sortData(data) {
+  return [...data].sort((a, b) => {
+    let va = a[sortCol] || '';
+    let vb = b[sortCol] || '';
+    if (sortCol === 'marketCap') { va = capOrder[va] ?? 99; vb = capOrder[vb] ?? 99; }
+    else if (sortCol === 'cyclePosition') { va = cycleOrder[va] ?? 99; vb = cycleOrder[vb] ?? 99; }
+    else if (sortCol === 'tier') { va = a.tier; vb = b.tier; }
+    else { va = String(va).toLowerCase(); vb = String(vb).toLowerCase(); }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+}
+
+// ─── Badge helpers ───
+function getNodeClass(tier) {
+  return tier === 1 ? 'node-tier1' : tier === 2 ? 'node-tier2' : 'node-tier3';
+}
+function getNodeLabel(tier) {
+  return tier === 1 ? 'Sourcing' : tier === 2 ? 'Brand' : 'Retail';
+}
+function getArchClass(a) {
+  const map = { 'Tollbridge':'arch-tollbridge','Cash Engine':'arch-cashengine','Compounder':'arch-compounder','Deep Value':'arch-deepvalue','Speculative Growth':'arch-specgrowth','Turnaround':'arch-turnaround' };
+  return map[a] || '';
+}
+
+// ─── Factor tint ───
+function getFactorTint(d) {
+  if (activeFactors.size === 0) return '';
+  let total = 0, count = 0;
+  activeFactors.forEach(f => {
+    if (d.factorExposures && d.factorExposures[f] !== undefined) {
+      total += d.factorExposures[f]; count++;
+    }
+  });
+  if (count === 0) return '';
+  if (total >= 2) return 'background: rgba(39,174,96,0.12);';
+  if (total > 0) return 'background: rgba(39,174,96,0.06);';
+  if (total <= -2) return 'background: rgba(231,76,60,0.12);';
+  if (total < 0) return 'background: rgba(231,76,60,0.06);';
+  return '';
+}
+
+function getFactorDotClass(val) {
+  if (val >= 2) return 'dot-strong-positive';
+  if (val > 0) return 'dot-positive';
+  if (val <= -2) return 'dot-strong-negative';
+  if (val < 0) return 'dot-negative';
+  return 'dot-neutral';
+}
+
+// ─── Render Grid ───
+function render() {
+  const filtered = getFiltered();
+  const sorted = sortData(filtered);
+  resultCount.textContent = sorted.length + ' compan' + (sorted.length === 1 ? 'y' : 'ies');
+  gridBody.innerHTML = '';
+
+  if (sorted.length === 0) {
+    gridBody.innerHTML = '<tr><td colspan="7" class="empty-state">No companies match the current filters.</td></tr>';
+    return;
+  }
+
+  sorted.forEach(d => {
+    const tint = getFactorTint(d);
+    const tr = document.createElement('tr');
+    tr.style.cssText = tint;
+    const tooltipText = archetypeTooltips[d.archetype] || '';
+    tr.innerHTML = `
+      <td class="td-ticker">${d.ticker}</td>
+      <td class="td-company">${d.name}</td>
+      <td class="td-industry">${d.subIndustry}</td>
+      <td><span class="node-badge ${getNodeClass(d.tier)}">${getNodeLabel(d.tier)}</span></td>
+      <td><span class="arch-badge ${getArchClass(d.archetype)}">${d.archetype}${tooltipText ? '<span class="tooltip">' + tooltipText + '</span>' : ''}</span></td>
+      <td class="td-cap">${d.marketCap}</td>
+      <td><span class="cycle-badge">${d.cyclePosition}</span></td>
+    `;
+    tr.addEventListener('click', () => toggleExpand(d.ticker));
+    gridBody.appendChild(tr);
+
+    if (expandedTicker === d.ticker) {
+      const expTr = document.createElement('tr');
+      expTr.className = 'expanded-row';
+      const factorHtml = d.factorExposures ? Object.entries(d.factorExposures).map(([k, v]) => {
+        const label = factorLabels[k] || k;
+        const dotClass = getFactorDotClass(v);
+        const valStr = v > 0 ? '+' + v : String(v);
+        return '<div class="factor-dot"><span class="dot ' + dotClass + '"></span>' + label + ': ' + valStr + '</div>';
+      }).join('') : '';
+      expTr.innerHTML = '<td colspan="7"><div class="expanded-content"><div class="exp-block" style="grid-column:1/-1"><h5>Description</h5><p>' + (d.description || '') + '</p></div><div class="exp-factors"><h5>Factor Exposures</h5><div class="factor-dots">' + factorHtml + '</div></div></div></td>';
+      gridBody.appendChild(expTr);
+    }
+  });
+
+  document.querySelectorAll('.grid-table thead th').forEach(th => {
+    const col = th.dataset.col;
+    th.classList.toggle('sorted', col === sortCol);
+    const arrow = th.querySelector('.sort-arrow');
+    if (arrow) arrow.textContent = col === sortCol ? (sortAsc ? '\u25B2' : '\u25BC') : '';
+  });
+}
+
+function toggleExpand(ticker) {
+  expandedTicker = expandedTicker === ticker ? null : ticker;
+  render();
+}
+
+// ─── Brief Panel ───
+function openBrief(el) {
+  const key = el.getAttribute('data-brief');
+  if (!key || !industryBriefs[key]) return;
+  renderBrief(key);
+  briefOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBrief() {
+  briefOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === briefOverlay) closeBrief();
+}
+
+function renderBrief(key) {
+  var b = industryBriefs[key];
+  if (!b) return;
+  var html = '';
+  html += '<h2>' + key + '</h2>';
+  html += '<p class="brief-subtitle">' + (b.title || key) + '</p>';
+
+  html += '<div class="brief-section-title">Overview</div>';
+  html += '<div class="brief-overview">' + (b.overview || '') + '</div>';
+
+  if (b.keyDynamics && b.keyDynamics.length) {
+    html += '<div class="brief-section-title">Key Dynamics</div>';
+    html += '<ul class="dynamics-list">';
+    b.keyDynamics.forEach(function(d) { html += '<li>' + d + '</li>'; });
+    html += '</ul>';
+  }
+
+  if (b.variantPerception) {
+    html += '<div class="brief-section-title">Consensus &amp; Variant Perception</div>';
+    if (b.variantPerception.consensus) {
+      html += '<div class="consensus-text">' + b.variantPerception.consensus + '</div>';
+    }
+    html += '<div class="variant-card"><div class="variant-q">Variant Perception</div>';
+    if (b.variantPerception.bull) html += '<div class="variant-case variant-bull"><div class="variant-label">Bull Case</div>' + b.variantPerception.bull + '</div>';
+    if (b.variantPerception.bear) html += '<div class="variant-case variant-bear"><div class="variant-label">Bear Case</div>' + b.variantPerception.bear + '</div>';
+    if (b.variantPerception.resolutionSignal) html += '<div class="variant-case variant-signal"><div class="variant-label">Resolution Signal</div>' + b.variantPerception.resolutionSignal + '</div>';
+    html += '</div>';
+  }
+
+  if (b.revenueBreakdown) {
+    html += '<div class="brief-section-title">Revenue Breakdown</div>';
+    html += '<table class="rev-table"><thead><tr><th>Segment</th><th>Share</th><th></th></tr></thead><tbody>';
+    Object.entries(b.revenueBreakdown).forEach(function([seg, pct]) {
+      var numVal = parseInt(pct);
+      html += '<tr><td>' + seg + '</td><td>' + pct + '</td><td class="rev-bar-cell"><div class="rev-bar" style="width:' + (numVal * 2.5) + 'px"></div></td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+
+  if (b.anchorTickers && b.anchorTickers.length) {
+    html += '<div class="brief-section-title">Anchor Tickers</div>';
+    html += '<div class="anchor-list">';
+    b.anchorTickers.forEach(function(t) {
+      html += '<span class="anchor-tag" onclick="navigateToTicker(\'' + t + '\')">' + t + '</span>';
+    });
+    html += '</div>';
+  }
+
+  if (b.keyMetrics && b.keyMetrics.length) {
+    html += '<div class="brief-section-title">Key Metrics to Watch</div>';
+    html += '<div class="metrics-list">';
+    b.keyMetrics.forEach(function(m) { html += '<span class="metric-tag">' + m + '</span>'; });
+    html += '</div>';
+  }
+
+  if (b.watchlist && b.watchlist.length) {
+    html += '<div class="brief-section-title">Watchlist</div>';
+    b.watchlist.forEach(function(w) { html += '<div class="watchlist-item">' + w + '</div>'; });
+  }
+
+  briefContent.innerHTML = html;
+}
+
+function navigateToTicker(ticker) {
+  closeBrief();
+  searchInput.value = ticker;
+  tierFilter.value = '';
+  subIndustryFilter.value = '';
+  archetypeFilter.value = '';
+  capFilter.value = '';
+  expandedTicker = ticker;
+  render();
+  setTimeout(function() {
+    document.getElementById('gridSection').scrollIntoView({ behavior: 'smooth' });
+  }, 350);
+}
+
+function navigateToSubIndustry(subIndustry) {
+  closeBrief();
+  subIndustryFilter.value = subIndustry;
+  searchInput.value = '';
+  tierFilter.value = '';
+  archetypeFilter.value = '';
+  capFilter.value = '';
+  expandedTicker = null;
+  render();
+  setTimeout(function() {
+    document.getElementById('gridSection').scrollIntoView({ behavior: 'smooth' });
+  }, 350);
+}
+
+// ─── Render Signal Chains ───
+function renderSignalChains() {
+  const container = document.getElementById('chainsContainer');
+  let html = '';
+  signalChains.forEach(chain => {
+    html += '<div class="chain-card">';
+    html += '<div class="chain-name">' + chain.title + '</div>';
+    html += '<div class="chain-trigger">' + chain.trigger + '</div>';
+    html += '<div class="chain-flow">';
+    chain.chain.forEach((step, i) => {
+      if (i > 0) html += '<span class="chain-arrow">\u2192</span>';
+      var shortStep = step.length > 80 ? step.substring(0, 77) + '...' : step;
+      html += '<span class="chain-entity" title="' + step.replace(/"/g, '&quot;') + '">' + shortStep + '</span>';
+    });
+    html += '</div>';
+    html += '<div class="chain-meta">';
+    if (chain.winners && chain.winners.length) {
+      html += '<div class="chain-winners"><span class="chain-meta-label winners">Winners:</span>';
+      chain.winners.forEach(t => {
+        html += '<span class="chain-ticker-tag winner" onclick="navigateToTicker(\'' + t + '\')">' + t + '</span>';
+      });
+      html += '</div>';
+    }
+    if (chain.losers && chain.losers.length) {
+      html += '<div class="chain-losers"><span class="chain-meta-label losers">Losers:</span>';
+      chain.losers.forEach(t => {
+        html += '<span class="chain-ticker-tag loser" onclick="navigateToTicker(\'' + t + '\')">' + t + '</span>';
+      });
+      html += '</div>';
+    }
+    html += '<span class="chain-timeframe">' + chain.timeframe + '</span>';
+    html += '</div>';
+    if (chain.monitorMetrics && chain.monitorMetrics.length) {
+      html += '<div class="chain-metrics">';
+      chain.monitorMetrics.forEach(m => {
+        html += '<span class="chain-metric-tag">' + m + '</span>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+// ─── Render Glossary ───
+function renderGlossary(filter) {
+  const grid = document.getElementById('glossaryGrid');
+  const q = (filter || '').toLowerCase().trim();
+  const sorted = [...glossary].sort((a, b) => a.term.localeCompare(b.term));
+  let html = '';
+  sorted.forEach(g => {
+    if (q && !g.term.toLowerCase().includes(q) && !g.def.toLowerCase().includes(q)) return;
+    html += '<div class="glossary-card" onclick="this.classList.toggle(\'open\')">';
+    html += '<div class="glossary-term">' + g.term + '<span class="toggle-icon">\u203A</span></div>';
+    html += '<div class="glossary-def">' + g.def + '</div>';
+    html += '</div>';
+  });
+  grid.innerHTML = html || '<div class="empty-state">No terms match your search.</div>';
+}
+
+// ─── Event Listeners ───
+[searchInput].forEach(el => el.addEventListener('input', () => { expandedTicker = null; render(); }));
+[tierFilter, subIndustryFilter, archetypeFilter, capFilter].forEach(el => {
+  el.addEventListener('change', () => { expandedTicker = null; render(); });
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  searchInput.value = '';
+  tierFilter.value = '';
+  subIndustryFilter.value = '';
+  archetypeFilter.value = '';
+  capFilter.value = '';
+  expandedTicker = null;
+  activeFactors.clear();
+  document.querySelectorAll('.factor-toggle').forEach(b => b.classList.remove('active'));
+  render();
+});
+
+document.querySelectorAll('.grid-table thead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (!col) return;
+    if (sortCol === col) { sortAsc = !sortAsc; }
+    else { sortCol = col; sortAsc = true; }
+    render();
+  });
+});
+
+document.querySelectorAll('.factor-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const factor = btn.dataset.factor;
+    if (activeFactors.has(factor)) { activeFactors.delete(factor); btn.classList.remove('active'); }
+    else { activeFactors.add(factor); btn.classList.add('active'); }
+    render();
+  });
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBrief(); });
+
+document.getElementById('glossarySearch').addEventListener('input', function() {
+  renderGlossary(this.value);
+});
+
+// ─── Initialize ───
+populateFilters();
+render();
+renderSignalChains();
+renderGlossary('');
+
+// ═══ SVG VALUE CHAIN CONNECTING LINES ═══
+var svgConnections = [
+  {from:"Agricultural Products & Services",to:"Packaged Foods & Meats (Branded)",label:"Grains & sweeteners",style:"solid"},
+  {from:"Agricultural Products & Services",to:"Beverages — Non-Alcoholic",label:"Sweeteners & water",style:"solid"},
+  {from:"Commodity Protein Processing",to:"Packaged Foods & Meats (Branded)",label:"Protein inputs",style:"solid"},
+  {from:"Packaged Foods & Meats (Branded)",to:"Food Distribution",label:"Foodservice channel",style:"solid"},
+  {from:"Packaged Foods & Meats (Branded)",to:"Consumer Staples Retail",label:"Retail channel",style:"solid"},
+  {from:"Beverages — Non-Alcoholic",to:"Food Distribution",label:"Fountain & foodservice",style:"dashed"},
+  {from:"Beverages — Non-Alcoholic",to:"Consumer Staples Retail",label:"Retail shelves",style:"solid"},
+  {from:"Beverages — Alcoholic",to:"Consumer Staples Retail",label:"Licensed retail",style:"dashed"},
+  {from:"Household Products",to:"Consumer Staples Retail",label:"HPC aisle",style:"solid"},
+  {from:"Personal Care Products",to:"Consumer Staples Retail",label:"Beauty & wellness",style:"dashed"},
+  {from:"Tobacco",to:"Consumer Staples Retail",label:"Behind the counter",style:"dotted"}
+];
+
+function getNodeRect(brief) {
+  var node = document.querySelector('[data-brief="' + brief.replace(/&/g,'&amp;') + '"]');
+  if (!node) node = document.querySelector('[data-brief="' + brief + '"]');
+  var wrapper = document.querySelector('.flowchart-wrapper');
+  if (!node || !wrapper) return null;
+  var nr = node.getBoundingClientRect();
+  var wr = wrapper.getBoundingClientRect();
+  return {
+    x: nr.left + nr.width/2 - wr.left,
+    y: nr.top + nr.height/2 - wr.top,
+    top: nr.top - wr.top,
+    bottom: nr.bottom - wr.top,
+    left: nr.left - wr.left,
+    right: nr.right - wr.left,
+    w: nr.width, h: nr.height
+  };
+}
+
+function drawConnections() {
+  var svg = document.getElementById('flowchartSvg');
+  if (!svg) return;
+  svg.innerHTML = '';
+  var wrapper = document.querySelector('.flowchart-wrapper');
+  if (!wrapper) return;
+  var wRect = wrapper.getBoundingClientRect();
+  svg.setAttribute('viewBox', '0 0 ' + wRect.width + ' ' + wRect.height);
+  svg.style.width = wRect.width + 'px';
+  svg.style.height = wRect.height + 'px';
+
+  var ns = 'http://www.w3.org/2000/svg';
+  var defs = document.createElementNS(ns, 'defs');
+  ['solid','dashed','dotted'].forEach(function(type) {
+    var marker = document.createElementNS(ns, 'marker');
+    marker.setAttribute('id', 'arrow-' + type);
+    marker.setAttribute('markerWidth', '6');
+    marker.setAttribute('markerHeight', '4');
+    marker.setAttribute('refX', '5');
+    marker.setAttribute('refY', '2');
+    marker.setAttribute('orient', 'auto');
+    var poly = document.createElementNS(ns, 'polygon');
+    poly.setAttribute('points', '0 0, 6 2, 0 4');
+    poly.setAttribute('fill', type === 'dashed' ? '#888' : '#cd853f');
+    poly.setAttribute('opacity', type === 'dotted' ? '0.4' : '0.6');
+    marker.appendChild(poly);
+    defs.appendChild(marker);
+  });
+  svg.appendChild(defs);
+
+  svgConnections.forEach(function(conn) {
+    var fromR = getNodeRect(conn.from);
+    var toR = getNodeRect(conn.to);
+    if (!fromR || !toR) return;
+
+    var path = document.createElementNS(ns, 'path');
+    var sx = fromR.x, sy = fromR.bottom;
+    var ex = toR.x, ey = toR.top;
+    var my = (sy + ey) / 2;
+    var d = 'M ' + sx + ' ' + sy + ' C ' + sx + ' ' + my + ', ' + ex + ' ' + my + ', ' + ex + ' ' + ey;
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'none');
+
+    if (conn.style === 'solid') {
+      path.setAttribute('stroke', '#cd853f');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('opacity', '0.5');
+      path.setAttribute('marker-end', 'url(#arrow-solid)');
+    } else if (conn.style === 'dashed') {
+      path.setAttribute('stroke', '#888');
+      path.setAttribute('stroke-width', '1');
+      path.setAttribute('stroke-dasharray', '6,4');
+      path.setAttribute('opacity', '0.4');
+      path.setAttribute('marker-end', 'url(#arrow-dashed)');
+    } else {
+      path.setAttribute('stroke', '#cd853f');
+      path.setAttribute('stroke-width', '1');
+      path.setAttribute('stroke-dasharray', '2,3');
+      path.setAttribute('opacity', '0.3');
+      path.setAttribute('marker-end', 'url(#arrow-dotted)');
+    }
+    svg.appendChild(path);
+
+    if (conn.label) {
+      try {
+        var pathLen = path.getTotalLength();
+        var mid = path.getPointAtLength(pathLen * 0.5);
+        var text = document.createElementNS(ns, 'text');
+        text.setAttribute('x', mid.x);
+        text.setAttribute('y', mid.y - 4);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '7');
+        text.setAttribute('fill', '#777');
+        text.setAttribute('font-family', "'JetBrains Mono', monospace");
+        text.textContent = conn.label;
+        svg.appendChild(text);
+        var bb = text.getBBox();
+        var bg = document.createElementNS(ns, 'rect');
+        bg.setAttribute('x', bb.x - 3);
+        bg.setAttribute('y', bb.y - 1);
+        bg.setAttribute('width', bb.width + 6);
+        bg.setAttribute('height', bb.height + 2);
+        bg.setAttribute('fill', '#0a0a0f');
+        bg.setAttribute('rx', '2');
+        svg.insertBefore(bg, text);
+      } catch(e) {}
+    }
+  });
+
+  // Feedback loop: Tier 3 → Tier 1
+  var t3 = getNodeRect('Consumer Staples Retail');
+  var t1 = getNodeRect('Agricultural Products & Services');
+  if (t3 && t1) {
+    var feedPath = document.createElementNS(ns, 'path');
+    var fsx = t3.right + 6, fsy = t3.y;
+    var fex = t1.right + 6, fey = t1.y;
+    var farR = Math.max(fsx, fex) + 50;
+    var fd = 'M ' + fsx + ' ' + fsy + ' C ' + farR + ' ' + fsy + ', ' + farR + ' ' + fey + ', ' + fex + ' ' + fey;
+    feedPath.setAttribute('d', fd);
+    feedPath.setAttribute('fill', 'none');
+    feedPath.setAttribute('stroke', '#cd853f');
+    feedPath.setAttribute('stroke-width', '1.2');
+    feedPath.setAttribute('stroke-dasharray', '6,3');
+    feedPath.setAttribute('opacity', '0.4');
+    svg.appendChild(feedPath);
+
+    try {
+      var pLen = feedPath.getTotalLength();
+      var mp = feedPath.getPointAtLength(pLen * 0.5);
+      var fbText = document.createElementNS(ns, 'text');
+      fbText.setAttribute('x', mp.x + 5);
+      fbText.setAttribute('y', mp.y);
+      fbText.setAttribute('text-anchor', 'start');
+      fbText.setAttribute('font-size', '7');
+      fbText.setAttribute('fill', '#cd853f');
+      fbText.setAttribute('font-family', "'JetBrains Mono', monospace");
+      fbText.setAttribute('opacity', '0.7');
+      fbText.textContent = 'Demand signals & procurement';
+      svg.appendChild(fbText);
+      var fbb = fbText.getBBox();
+      var fbBg = document.createElementNS(ns, 'rect');
+      fbBg.setAttribute('x', fbb.x - 3);
+      fbBg.setAttribute('y', fbb.y - 1);
+      fbBg.setAttribute('width', fbb.width + 6);
+      fbBg.setAttribute('height', fbb.height + 2);
+      fbBg.setAttribute('fill', '#0a0a0f');
+      fbBg.setAttribute('rx', '2');
+      svg.insertBefore(fbBg, fbText);
+    } catch(e) {}
+  }
+}
+
+window.addEventListener('load', function() { setTimeout(drawConnections, 200); });
+var resizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(drawConnections, 150);
+});
+</script>
+</body>
+</html>
