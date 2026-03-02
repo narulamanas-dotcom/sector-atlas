@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Materials &mdash; GICS Sector Visual Atlas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #0e0e16;
+  --bg-hover: #14141e;
+  --border: rgba(255,255,255,0.06);
+  --border-light: rgba(255,255,255,0.1);
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --text-muted: #666;
+  --infra: #B87333;
+  --infra-bg: rgba(184,115,51,0.08);
+  --infra-border: rgba(184,115,51,0.25);
+  --balance: #708090;
+  --balance-bg: rgba(112,128,144,0.08);
+  --balance-border: rgba(112,128,144,0.25);
+  --capital: #2EC4B6;
+  --capital-bg: rgba(46,196,182,0.08);
+  --capital-border: rgba(46,196,182,0.25);
+  --macro: #DAA520;
+  --macro-bg: rgba(218,165,32,0.08);
+  --macro-border: rgba(218,165,32,0.25);
+  --tollbridge: #00d4aa;
+  --cashengine: #4a9eff;
+  --compounder: #9b59b6;
+  --ruleof40: #3498db;
+  --deepvalue: #e67e22;
+  --specgrowth: #f1c40f;
+  --turnaround: #e74c3c;
+  --positive: rgba(39,174,96,0.08);
+  --negative: rgba(231,76,60,0.08);
+  --amber: rgba(230,126,34,0.08);
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 24px;
+  padding-top: 64px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+/* ─── STICKY NAV ─── */
+.sticky-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+  background: rgba(10,10,15,0.92); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: center; gap: 8px;
+  padding: 10px 20px; flex-wrap: wrap;
+}
+.sticky-nav a {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 500;
+  color: var(--text-dim); text-decoration: none;
+  padding: 6px 14px; border-radius: 6px;
+  border: 1px solid transparent; transition: all 0.2s;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.sticky-nav a:hover { color: var(--text); border-color: var(--border-light); }
+.sticky-nav a.active { color: var(--infra); border-color: var(--infra-border); }
+/* ─── HEADER ─── */
+.header {
+  text-align: center;
+  padding: 40px 0 30px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--infra), var(--balance), var(--capital));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+.header .subtitle {
+  font-family: var(--mono);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.header .tagline {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+  max-width: 700px;
+  margin: 12px auto 0;
+  line-height: 1.5;
+}
+.header .stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.header .stat-item {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+.header .stat-item strong {
+  color: var(--text);
+  font-weight: 700;
+}
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.legend-item::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--lc);
+  flex-shrink: 0;
+}
+/* ─── SPEC MOAT CARD ─── */
+.spec-moat-card {
+  border: 1px solid var(--capital-border);
+  border-radius: 12px;
+  padding: 24px 28px;
+  background: var(--capital-bg);
+  margin-bottom: 40px;
+  line-height: 1.7;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+.spec-moat-card h3 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--capital);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+/* ─── ESCALATOR & SPECTRUM SECTIONS ─── */
+.escalator-section, .spectrum-section {
+  margin-bottom: 48px;
+  text-align: center;
+}
+.escalator-section h2, .spectrum-section h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 20px;
+}
+.escalator-section svg, .spectrum-section svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+/* ─── SUMMARY SECTION ─── */
+.summary-section {
+  margin-bottom: 48px;
+}
+.tier-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.summary-card {
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.summary-card h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.card-infra { border-color: var(--infra-border); }
+.card-infra h3 { color: var(--infra); }
+.card-balance { border-color: var(--balance-border); }
+.card-balance h3 { color: var(--balance); }
+.card-capital { border-color: var(--capital-border); }
+.card-capital h3 { color: var(--capital); }
+.summary-card p {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.macro-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.macro-card {
+  background: var(--macro-bg);
+  border: 1px solid var(--macro-border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.macro-card h4 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--macro);
+  margin-bottom: 8px;
+}
+.macro-card p {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+/* ─── SUB-INDUSTRY BROWSER ─── */
+.sub-industry-browser {
+  margin-bottom: 48px;
+}
+.sub-industry-browser h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.sub-industry-browser .grid-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.sub-industry-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.sub-industry-card {
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sub-industry-card:hover { transform: translateY(-2px); }
+.sub-industry-card .sub-card-tickers {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.tier-capital-card { border-color: var(--capital-border); }
+.tier-capital-card:hover { box-shadow: 0 0 12px rgba(46,196,182,0.2); border-color: var(--capital); }
+.tier-balance-card { border-color: var(--balance-border); }
+.tier-balance-card:hover { box-shadow: 0 0 12px rgba(112,128,144,0.2); border-color: var(--balance); }
+.tier-infra-card { border-color: var(--infra-border); }
+.tier-infra-card:hover { box-shadow: 0 0 12px rgba(184,115,51,0.2); border-color: var(--infra); }
+/* ─── DISCOVERY GRID ─── */
+.grid-section {
+  margin-bottom: 48px;
+}
+.grid-section h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.grid-section .grid-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.grid-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.grid-filters input,
+.grid-filters select {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.grid-filters input:focus,
+.grid-filters select:focus {
+  border-color: var(--infra);
+}
+.grid-filters input { flex: 1; min-width: 180px; }
+.grid-filters select { min-width: 120px; }
+.filter-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+#resultCount {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+#clearBtn {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font);
+}
+#clearBtn:hover { border-color: var(--text-dim); color: var(--text); }
+/* Factor toggles */
+.factor-toggles {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.factor-toggle {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font);
+}
+.factor-toggle:hover { border-color: var(--text-muted); }
+.factor-toggle.active {
+  border-color: var(--macro);
+  color: var(--macro);
+  box-shadow: 0 0 8px rgba(218,165,32,0.2);
+  background: var(--macro-bg);
+}
+/* Table */
+.grid-table-wrapper { overflow-x: auto; }
+.grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+.grid-table thead th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.grid-table thead th:hover { color: var(--text); }
+.grid-table thead th.sorted { color: var(--infra); }
+.grid-table thead th .sort-arrow {
+  font-size: 0.6rem;
+  margin-left: 4px;
+  opacity: 0.5;
+}
+.grid-table thead th.sorted .sort-arrow { opacity: 1; color: var(--infra); }
+.grid-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.grid-table tbody tr:hover { background: var(--bg-hover); }
+.grid-table tbody td {
+  padding: 10px 12px;
+  vertical-align: middle;
+}
+.td-ticker {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--infra);
+  font-size: 0.8rem;
+}
+.td-company { font-size: 0.78rem; }
+.td-industry { font-size: 0.74rem; color: var(--text-dim); }
+.node-badge, .arch-badge, .cycle-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.node-infra { background: var(--infra-bg); color: var(--infra); border: 1px solid var(--infra-border); }
+.node-balance { background: var(--balance-bg); color: var(--balance); border: 1px solid var(--balance-border); }
+.node-capital { background: var(--capital-bg); color: var(--capital); border: 1px solid var(--capital-border); }
+.arch-tollbridge { background: rgba(0,212,170,0.1); color: var(--tollbridge); border: 1px solid rgba(0,212,170,0.25); }
+.arch-cashengine { background: rgba(74,158,255,0.1); color: var(--cashengine); border: 1px solid rgba(74,158,255,0.25); }
+.arch-compounder { background: rgba(155,89,182,0.1); color: var(--compounder); border: 1px solid rgba(155,89,182,0.25); }
+.arch-ruleof40 { background: rgba(52,152,219,0.1); color: var(--ruleof40); border: 1px solid rgba(52,152,219,0.25); }
+.arch-deepvalue { background: rgba(230,126,34,0.1); color: var(--deepvalue); border: 1px solid rgba(230,126,34,0.25); }
+.arch-specgrowth { background: rgba(241,196,15,0.1); color: var(--specgrowth); border: 1px solid rgba(241,196,15,0.25); }
+.arch-turnaround { background: rgba(231,76,60,0.1); color: var(--turnaround); border: 1px solid rgba(231,76,60,0.25); }
+/* Archetype tooltip */
+.arch-badge {
+  position: relative;
+  cursor: help;
+}
+.arch-badge .tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: #1a1a2e;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 280px;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.5;
+  white-space: normal;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+.arch-badge .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 20px;
+  border: 6px solid transparent;
+  border-top-color: #1a1a2e;
+}
+.arch-badge:hover .tooltip { display: block; }
+.cycle-badge {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+}
+.td-cap {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+/* Expanded row */
+.expanded-row td { padding: 0 !important; border-bottom: 1px solid var(--border-light); }
+.expanded-content {
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.015);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.exp-block h5 {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.exp-block p {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.exp-factors {
+  grid-column: 1 / -1;
+}
+.exp-factors h5 {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.factor-dots {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.factor-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.factor-dot .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dot-positive { background: #27ae60; }
+.dot-negative { background: #e74c3c; }
+.dot-neutral { background: #555; }
+.dot-strong-positive { background: #1abc9c; }
+.dot-strong-negative { background: #c0392b; }
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+/* ─── SIGNAL CHAINS SECTION ─── */
+.chains-section {
+  margin-bottom: 48px;
+}
+.chains-section h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.chains-section .chains-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.chain-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  background: var(--bg-card);
+}
+.chain-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.chain-trigger {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+.chain-flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.chain-flow-vertical {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+.chain-entity {
+  font-size: 0.7rem;
+  padding: 6px 10px;
+  background: rgba(184,115,51,0.08);
+  border: 1px solid var(--infra-border);
+  border-radius: 6px;
+  color: var(--infra);
+  text-align: center;
+}
+.chain-entity-wide {
+  text-align: left;
+  font-size: 0.72rem;
+  padding: 8px 12px;
+  color: var(--text-dim);
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  line-height: 1.45;
+}
+.chain-step-arrow {
+  text-align: center;
+  color: var(--macro);
+  font-size: 0.9rem;
+  padding: 2px 0;
+}
+.chain-arrow {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 0 6px;
+}
+.chain-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.chain-meta-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.chain-meta-label.winners { color: #27ae60; }
+.chain-meta-label.losers { color: #e74c3c; }
+.chain-meta-label.affected { color: var(--macro); }
+.chain-ticker-tag {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chain-ticker-tag.winner {
+  background: rgba(39,174,96,0.1);
+  color: #27ae60;
+  border: 1px solid rgba(39,174,96,0.25);
+}
+.chain-ticker-tag.loser {
+  background: rgba(231,76,60,0.1);
+  color: #e74c3c;
+  border: 1px solid rgba(231,76,60,0.25);
+}
+.chain-ticker-tag.affected {
+  background: var(--macro-bg);
+  color: var(--macro);
+  border: 1px solid var(--macro-border);
+}
+.chain-ticker-tag:hover { opacity: 0.8; transform: translateY(-1px); }
+.chain-timeframe {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 2px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.chain-metrics {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.chain-metric-tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+/* ─── GLOSSARY ─── */
+.glossary-section { margin-bottom: 48px; }
+.glossary-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px;
+}
+.glossary-section .glossary-subtitle {
+  font-size: 0.78rem; color: var(--text-muted); margin-bottom: 16px;
+}
+.glossary-search {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  color: var(--text); padding: 8px 14px; border-radius: 6px;
+  font-size: 0.78rem; font-family: var(--font); outline: none;
+  width: 100%; max-width: 400px; margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.glossary-search:focus { border-color: var(--infra); }
+.glossary-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.glossary-card {
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 16px; background: var(--bg-card);
+  cursor: pointer; transition: all 0.2s;
+}
+.glossary-card:hover { border-color: var(--border-light); }
+.glossary-card.open { border-color: var(--infra-border); }
+.glossary-term {
+  font-size: 0.8rem; font-weight: 600; color: var(--text);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.glossary-term .toggle-icon {
+  color: var(--text-muted); transition: transform 0.2s; font-size: 1rem;
+}
+.glossary-card.open .toggle-icon { transform: rotate(90deg); }
+.glossary-def {
+  font-size: 0.76rem; color: var(--text-dim); line-height: 1.55;
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin 0.3s ease;
+  margin-top: 0;
+}
+.glossary-card.open .glossary-def { max-height: 500px; margin-top: 8px; }
+/* ─── SLIDE-OUT BRIEF PANEL ─── */
+.brief-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.brief-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+.brief-panel {
+  position: fixed;
+  top: 0; right: 0;
+  width: 560px;
+  height: 100vh;
+  background: #0c0c14;
+  border-left: 1px solid var(--border-light);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 1001;
+  overflow-y: auto;
+  padding: 32px;
+}
+.brief-overlay.open .brief-panel {
+  transform: translateX(0);
+}
+.brief-close {
+  position: absolute;
+  top: 16px; right: 20px;
+  background: none;
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.brief-close:hover { border-color: var(--text); color: var(--text); }
+.brief-body h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  margin-right: 40px;
+}
+.brief-body .brief-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 24px;
+}
+.brief-section-title {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 24px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.brief-overview {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  white-space: pre-line;
+}
+/* Consensus & variant */
+.consensus-text {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--text-muted);
+  background: rgba(255,255,255,0.02);
+  border-radius: 0 6px 6px 0;
+}
+.variant-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 14px;
+  background: rgba(255,255,255,0.015);
+}
+.variant-q {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.variant-case {
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.variant-bull { border-left: 3px solid #27ae60; background: rgba(39,174,96,0.04); }
+.variant-bear { border-left: 3px solid #e74c3c; background: rgba(231,76,60,0.04); }
+.variant-signal { border-left: 3px solid #3498db; background: rgba(52,152,219,0.04); }
+.variant-label {
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.variant-bull .variant-label { color: #27ae60; }
+.variant-bear .variant-label { color: #e74c3c; }
+.variant-signal .variant-label { color: #3498db; }
+/* Key dynamics */
+.dynamics-list { list-style: none; padding: 0; }
+.dynamics-list li {
+  font-size: 0.78rem; color: var(--text-dim); line-height: 1.55;
+  padding: 6px 0 6px 16px; border-bottom: 1px solid var(--border); position: relative;
+}
+.dynamics-list li:last-child { border-bottom: none; }
+.dynamics-list li::before { content: '\203A'; position: absolute; left: 0; color: var(--text-muted); font-weight: 700; }
+/* Revenue breakdown table */
+.rev-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin-top: 4px; }
+.rev-table thead th {
+  text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border-light);
+  color: var(--text-muted); font-size: 0.65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.rev-table tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text-dim); vertical-align: top; }
+.rev-table tbody td:first-child { font-family: var(--mono); font-weight: 600; color: var(--infra); }
+.rev-table .growth-pos { color: #27ae60; }
+.rev-table .growth-neg { color: #e74c3c; }
+.rev-table .rev-note { font-size: 0.7rem; color: var(--text-muted); max-width: 260px; }
+/* Anchor tickers */
+.anchor-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.anchor-tag {
+  font-family: var(--mono); font-weight: 600; font-size: 0.75rem;
+  color: var(--infra); padding: 4px 12px; border: 1px solid var(--infra-border);
+  border-radius: 6px; background: var(--infra-bg); cursor: pointer;
+  transition: all 0.2s;
+}
+.anchor-tag:hover { background: rgba(184,115,51,0.15); transform: translateY(-1px); }
+/* Key metrics & watchlist */
+.metrics-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.metric-tag {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.watchlist-item {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.watchlist-item:last-child { border-bottom: none; }
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  body { padding: 12px; padding-top: 64px; }
+  .tier-cards { grid-template-columns: 1fr; }
+  .macro-cards { grid-template-columns: repeat(2, 1fr); }
+  .grid-filters { flex-direction: column; }
+  .grid-filters input, .grid-filters select { width: 100%; }
+  .filter-meta { margin-left: 0; width: 100%; justify-content: space-between; }
+  .expanded-content { grid-template-columns: 1fr; }
+  .brief-panel { width: 100%; }
+  .glossary-grid { grid-template-columns: 1fr; }
+  .sub-industry-grid { flex-direction: column; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ═══ STICKY NAV ═══ -->
+<nav class="sticky-nav">
+  <a href="index.html">&larr; Atlas</a>
+  <a href="#heroSection">Hero</a>
+  <a href="#escalatorSection">Escalator</a>
+  <a href="#spectrumSection">Spectrum</a>
+  <a href="#gridSection">Grid</a>
+  <a href="#chainsSection">Signals</a>
+  <a href="#glossarySection">Glossary</a>
+</nav>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header" id="heroSection">
+  <h1>Materials Sector Visual Atlas</h1>
+  <p class="subtitle">From Tons to Formulations &mdash; The Specification Moat</p>
+  <p class="tagline">The moat in Materials is the degree to which a product is specified into customer processes &mdash; from commodity tons traded on price to formulations locked in by switching costs and qualification cycles</p>
+  <div class="stats-bar">
+    <span class="stat-item"><strong>86</strong> companies</span>
+    <span class="stat-item"><strong>15</strong> sub-industries</span>
+    <span class="stat-item"><strong>8</strong> signal chains</span>
+    <span class="stat-item"><strong>35</strong> glossary terms</span>
+  </div>
+  <div class="legend">
+    <span class="legend-item" style="--lc: var(--infra)">Extract: By the Ton</span>
+    <span class="legend-item" style="--lc: var(--balance)">Process: By the Grade</span>
+    <span class="legend-item" style="--lc: var(--capital)">Formulate: By the Specification</span>
+    <span class="legend-item" style="--lc: var(--macro)">Macro Drivers</span>
+  </div>
+</header>
+
+<!-- ═══ SPECIFICATION MOAT OVERVIEW ═══ -->
+<div class="spec-moat-card">
+  <h3>The Specification Moat &mdash; Investment Lens</h3>
+  The Materials sector spans from undifferentiated commodities sold by the ton to highly specified formulations locked into customer processes. The unifying investment lens is the <strong style="color:var(--capital)">Specification Moat</strong>: the degree to which a material or chemical is qualified, approved, and embedded into a customer's product specification, manufacturing process, or regulatory filing. At the commodity end (Tier 1 &mdash; Extract), pricing is set by global supply/demand and cost curve position. At the processing stage (Tier 2 &mdash; Process), scale and efficiency drive margins. At the specification end (Tier 3 &mdash; Formulate), pricing is based on performance value and switching costs are measured in years of requalification.
+</div>
+
+<!-- ═══ SVG 1: THE SPECIFICATION ESCALATOR ═══ -->
+<section class="escalator-section" id="escalatorSection">
+  <h2>The Specification Escalator</h2>
+  <svg viewBox="0 0 900 780" xmlns="http://www.w3.org/2000/svg" style="cursor:pointer;">
+    <defs>
+      <marker id="escArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#DAA520" opacity="0.7"/></marker>
+    </defs>
+    <!-- Earth's Crust -->
+    <rect x="40" y="10" width="820" height="52" rx="12" fill="rgba(10,10,15,0.9)" stroke="#DAA520" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <text x="450" y="32" text-anchor="middle" fill="#DAA520" font-family="'DM Sans',sans-serif" font-size="13" font-weight="700">EARTH'S CRUST</text>
+    <text x="450" y="50" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="10">Ores &#183; Minerals &#183; Hydrocarbons &#183; Biomass</text>
+    <!-- Arrow down -->
+    <line x1="450" y1="62" x2="450" y2="88" stroke="#DAA520" stroke-width="1.5" marker-end="url(#escArrow)"/>
+    <!-- TIER 1 EXTRACT -->
+    <rect x="40" y="92" width="820" height="145" rx="12" fill="rgba(184,115,51,0.06)" stroke="#B87333" stroke-width="1.5"/>
+    <text x="60" y="118" fill="#B87333" font-family="'DM Sans',sans-serif" font-size="14" font-weight="700">TIER 1 &#8212; EXTRACT: By the Ton</text>
+    <text x="60" y="140" fill="#888" font-family="'DM Sans',sans-serif" font-size="11">Sub-industries: Gold &#183; Copper &#183; Diversified Mining &#183; Aluminum &#183; Silver &amp; Precious Metals</text>
+    <text x="60" y="160" fill="#B87333" font-family="'JetBrains Mono',monospace" font-size="10">NEM &#183; FCX &#183; BHP &#183; AA &#183; HL &#183; RIO &#183; VALE &#183; SCCO &#183; AEM &#183; WPM</text>
+    <text x="60" y="182" fill="#666" font-family="'DM Sans',sans-serif" font-size="10">Margin driver: Cost curve &#183; Reserve quality &#183; By-product credits</text>
+    <text x="60" y="200" fill="#666" font-family="'JetBrains Mono',monospace" font-size="10">Typical EBITDA: 25&#8211;45% (cycle peak)</text>
+    <text x="830" y="220" text-anchor="end" fill="#B87333" font-family="'DM Sans',sans-serif" font-size="9" opacity="0.6">&#9654; Click to filter grid</text>
+    <rect x="40" y="92" width="820" height="145" rx="12" fill="transparent" stroke="transparent" style="cursor:pointer;" onclick="filterByTier(1)"/>
+    <!-- Arrow down with label -->
+    <line x1="450" y1="237" x2="450" y2="268" stroke="#DAA520" stroke-width="1.5" marker-end="url(#escArrow)"/>
+    <text x="560" y="258" fill="#DAA520" font-family="'JetBrains Mono',monospace" font-size="9" opacity="0.7">Ore / Concentrate / Ingot</text>
+    <!-- TIER 2 PROCESS -->
+    <rect x="40" y="272" width="820" height="145" rx="12" fill="rgba(112,128,144,0.06)" stroke="#708090" stroke-width="1.5"/>
+    <text x="60" y="298" fill="#708090" font-family="'DM Sans',sans-serif" font-size="14" font-weight="700">TIER 2 &#8212; PROCESS: By the Grade</text>
+    <text x="60" y="320" fill="#888" font-family="'DM Sans',sans-serif" font-size="11">Sub-industries: Steel &#183; Chemicals &#183; Fertilizers &#183; Construction Materials &#183; Packaging &#183; Paper</text>
+    <text x="60" y="340" fill="#708090" font-family="'JetBrains Mono',monospace" font-size="10">NUE &#183; DOW &#183; CF &#183; CRH &#183; PKG &#183; IP &#183; STLD &#183; LYB &#183; MLM &#183; VMC &#183; BALL</text>
+    <text x="60" y="362" fill="#666" font-family="'DM Sans',sans-serif" font-size="10">Margin driver: Scale &#183; Efficiency &#183; Product mix &#183; Feedstock cost advantage</text>
+    <text x="60" y="380" fill="#666" font-family="'JetBrains Mono',monospace" font-size="10">Typical EBITDA: 12&#8211;22%</text>
+    <text x="830" y="400" text-anchor="end" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" opacity="0.6">&#9654; Click to filter grid</text>
+    <rect x="40" y="272" width="820" height="145" rx="12" fill="transparent" stroke="transparent" style="cursor:pointer;" onclick="filterByTier(2)"/>
+    <!-- Arrow down with label -->
+    <line x1="450" y1="417" x2="450" y2="448" stroke="#DAA520" stroke-width="1.5" marker-end="url(#escArrow)"/>
+    <text x="560" y="438" fill="#DAA520" font-family="'JetBrains Mono',monospace" font-size="9" opacity="0.7">Processed Grade / Alloy / Compound</text>
+    <!-- TIER 3 FORMULATE -->
+    <rect x="40" y="452" width="820" height="145" rx="12" fill="rgba(46,196,182,0.06)" stroke="#2EC4B6" stroke-width="1.5"/>
+    <text x="60" y="478" fill="#2EC4B6" font-family="'DM Sans',sans-serif" font-size="14" font-weight="700">TIER 3 &#8212; FORMULATE: By the Specification</text>
+    <text x="60" y="500" fill="#888" font-family="'DM Sans',sans-serif" font-size="11">Sub-industries: Industrial Gases &#183; Specialty Chemicals &amp; Coatings &#183; Flavors, Fragrances &amp; Functional</text>
+    <text x="60" y="520" fill="#2EC4B6" font-family="'JetBrains Mono',monospace" font-size="10">LIN &#183; SHW &#183; ECL &#183; IFF &#183; APD &#183; PPG &#183; DD &#183; RPM &#183; ALB</text>
+    <text x="60" y="542" fill="#666" font-family="'DM Sans',sans-serif" font-size="10">Margin driver: Switching costs &#183; Spec-in &#183; IP &#183; Qualification cycles</text>
+    <text x="60" y="560" fill="#666" font-family="'JetBrains Mono',monospace" font-size="10">Typical EBITDA: 22&#8211;35%+</text>
+    <text x="830" y="580" text-anchor="end" fill="#2EC4B6" font-family="'DM Sans',sans-serif" font-size="9" opacity="0.6">&#9654; Click to filter grid</text>
+    <rect x="40" y="452" width="820" height="145" rx="12" fill="transparent" stroke="transparent" style="cursor:pointer;" onclick="filterByTier(3)"/>
+    <!-- Arrow down with label -->
+    <line x1="450" y1="597" x2="450" y2="628" stroke="#DAA520" stroke-width="1.5" marker-end="url(#escArrow)"/>
+    <text x="560" y="618" fill="#DAA520" font-family="'JetBrains Mono',monospace" font-size="9" opacity="0.7">Spec'd Formulation / Custom Blend</text>
+    <!-- End Markets -->
+    <rect x="40" y="632" width="820" height="52" rx="12" fill="rgba(10,10,15,0.9)" stroke="#DAA520" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <text x="450" y="652" text-anchor="middle" fill="#DAA520" font-family="'DM Sans',sans-serif" font-size="13" font-weight="700">END MARKETS</text>
+    <text x="450" y="672" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="10">Construction | Auto | Electronics | Ag | Consumer | Energy | Defense</text>
+    <!-- Right side ascending arrow -->
+    <line x1="880" y1="660" x2="880" y2="40" stroke="#DAA520" stroke-width="1" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#escArrow)"/>
+    <text x="875" y="380" text-anchor="middle" fill="#DAA520" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600" transform="rotate(-90,875,380)" opacity="0.6">INCREASING SPECIFICATION LOCK-IN &#8594;</text>
+  </svg>
+</section>
+
+<!-- ═══ SVG 2: FORMULATION MOAT SPECTRUM ═══ -->
+<section class="spectrum-section" id="spectrumSection">
+  <h2>The Formulation Moat Spectrum</h2>
+  <svg viewBox="0 0 1100 480" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="specGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#B87333"/>
+        <stop offset="50%" stop-color="#708090"/>
+        <stop offset="100%" stop-color="#2EC4B6"/>
+      </linearGradient>
+    </defs>
+    <!-- Gradient bar -->
+    <rect x="50" y="390" width="1000" height="12" rx="6" fill="url(#specGrad)" opacity="0.8"/>
+    <text x="50" y="425" fill="#B87333" font-family="'DM Sans',sans-serif" font-size="11" font-weight="700">PURE COMMODITY</text>
+    <text x="50" y="440" fill="#888" font-family="'JetBrains Mono',monospace" font-size="9">Price Taker</text>
+    <text x="1050" y="425" text-anchor="end" fill="#2EC4B6" font-family="'DM Sans',sans-serif" font-size="11" font-weight="700">FULLY SPEC'D IN</text>
+    <text x="1050" y="440" text-anchor="end" fill="#888" font-family="'JetBrains Mono',monospace" font-size="9">Price Maker</text>
+
+    <!-- Row 1: y=60 -->
+    <!-- Aluminum -->
+    <rect x="40" y="55" width="100" height="65" rx="6" fill="rgba(184,115,51,0.08)" stroke="#B87333" stroke-width="1"/>
+    <text x="90" y="75" text-anchor="middle" fill="#B87333" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Aluminum</text>
+    <text x="90" y="90" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">AA &#183; CENX</text>
+    <text x="90" y="105" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 1</text>
+    <line x1="90" y1="120" x2="90" y2="390" stroke="#B87333" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Steel -->
+    <rect x="340" y="55" width="100" height="65" rx="6" fill="rgba(112,128,144,0.08)" stroke="#708090" stroke-width="1"/>
+    <text x="390" y="75" text-anchor="middle" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Steel</text>
+    <text x="390" y="90" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">NUE &#183; STLD &#183; CLF</text>
+    <text x="390" y="105" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 2</text>
+    <line x1="390" y1="120" x2="390" y2="390" stroke="#708090" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Copper Mining -->
+    <rect x="560" y="55" width="100" height="65" rx="6" fill="rgba(184,115,51,0.08)" stroke="#B87333" stroke-width="1"/>
+    <text x="610" y="75" text-anchor="middle" fill="#B87333" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Copper Mining</text>
+    <text x="610" y="90" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">FCX &#183; SCCO</text>
+    <text x="610" y="105" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 1</text>
+    <line x1="610" y1="120" x2="610" y2="390" stroke="#B87333" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Specialty Chemicals -->
+    <rect x="820" y="55" width="110" height="65" rx="6" fill="rgba(46,196,182,0.08)" stroke="#2EC4B6" stroke-width="1"/>
+    <text x="875" y="72" text-anchor="middle" fill="#2EC4B6" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Specialty Chemicals</text>
+    <text x="875" y="87" text-anchor="middle" fill="#2EC4B6" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">&amp; Coatings</text>
+    <text x="875" y="102" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">SHW &#183; ECL &#183; PPG</text>
+    <text x="875" y="115" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 3</text>
+    <line x1="875" y1="120" x2="875" y2="390" stroke="#2EC4B6" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Row 2: y=155 -->
+    <!-- Diversified Metals -->
+    <rect x="140" y="155" width="110" height="65" rx="6" fill="rgba(184,115,51,0.08)" stroke="#B87333" stroke-width="1"/>
+    <text x="195" y="172" text-anchor="middle" fill="#B87333" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Diversified Metals</text>
+    <text x="195" y="187" text-anchor="middle" fill="#B87333" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">&amp; Mining</text>
+    <text x="195" y="202" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">BHP &#183; RIO &#183; VALE</text>
+    <text x="195" y="215" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 1</text>
+    <line x1="195" y1="220" x2="195" y2="390" stroke="#B87333" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Commodity Chemicals -->
+    <rect x="270" y="155" width="110" height="65" rx="6" fill="rgba(112,128,144,0.08)" stroke="#708090" stroke-width="1"/>
+    <text x="325" y="172" text-anchor="middle" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Commodity &amp;</text>
+    <text x="325" y="187" text-anchor="middle" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Diversified Chemicals</text>
+    <text x="325" y="202" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">DOW &#183; LYB</text>
+    <text x="325" y="215" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 2</text>
+    <line x1="325" y1="220" x2="325" y2="390" stroke="#708090" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Fertilizers -->
+    <rect x="480" y="155" width="110" height="65" rx="6" fill="rgba(112,128,144,0.08)" stroke="#708090" stroke-width="1"/>
+    <text x="535" y="172" text-anchor="middle" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Fertilizers &amp;</text>
+    <text x="535" y="187" text-anchor="middle" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Ag Chemicals</text>
+    <text x="535" y="202" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">CF &#183; CTVA</text>
+    <text x="535" y="215" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 2</text>
+    <line x1="535" y1="220" x2="535" y2="390" stroke="#708090" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Containers & Packaging -->
+    <rect x="690" y="155" width="110" height="65" rx="6" fill="rgba(112,128,144,0.08)" stroke="#708090" stroke-width="1"/>
+    <text x="745" y="172" text-anchor="middle" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Containers &amp;</text>
+    <text x="745" y="187" text-anchor="middle" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Packaging</text>
+    <text x="745" y="202" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">BALL &#183; PKG &#183; AVY</text>
+    <text x="745" y="215" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 2</text>
+    <line x1="745" y1="220" x2="745" y2="390" stroke="#708090" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Industrial Gases -->
+    <rect x="960" y="155" width="100" height="65" rx="6" fill="rgba(46,196,182,0.08)" stroke="#2EC4B6" stroke-width="1"/>
+    <text x="1010" y="175" text-anchor="middle" fill="#2EC4B6" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Industrial Gases</text>
+    <text x="1010" y="192" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">LIN &#183; APD</text>
+    <text x="1010" y="207" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 3</text>
+    <line x1="1010" y1="220" x2="1010" y2="390" stroke="#2EC4B6" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Row 3: y=260 -->
+    <!-- Gold Mining -->
+    <rect x="60" y="260" width="100" height="65" rx="6" fill="rgba(184,115,51,0.08)" stroke="#B87333" stroke-width="1"/>
+    <text x="110" y="280" text-anchor="middle" fill="#B87333" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Gold Mining</text>
+    <text x="110" y="295" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">NEM &#183; AEM &#183; WPM</text>
+    <text x="110" y="310" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 1</text>
+    <line x1="110" y1="325" x2="110" y2="390" stroke="#B87333" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Paper & Forest -->
+    <rect x="410" y="260" width="110" height="65" rx="6" fill="rgba(112,128,144,0.08)" stroke="#708090" stroke-width="1"/>
+    <text x="465" y="280" text-anchor="middle" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Paper &amp; Forest</text>
+    <text x="465" y="295" text-anchor="middle" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Products</text>
+    <text x="465" y="310" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">IP</text>
+    <text x="465" y="322" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 2</text>
+    <line x1="465" y1="325" x2="465" y2="390" stroke="#708090" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Construction Materials -->
+    <rect x="630" y="260" width="110" height="65" rx="6" fill="rgba(112,128,144,0.08)" stroke="#708090" stroke-width="1"/>
+    <text x="685" y="280" text-anchor="middle" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Construction</text>
+    <text x="685" y="295" text-anchor="middle" fill="#708090" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Materials</text>
+    <text x="685" y="310" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">CRH &#183; MLM &#183; VMC</text>
+    <text x="685" y="322" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 2</text>
+    <line x1="685" y1="325" x2="685" y2="390" stroke="#708090" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Silver & Precious -->
+    <rect x="210" y="260" width="110" height="65" rx="6" fill="rgba(184,115,51,0.08)" stroke="#B87333" stroke-width="1"/>
+    <text x="265" y="280" text-anchor="middle" fill="#B87333" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Silver &amp; Precious</text>
+    <text x="265" y="295" text-anchor="middle" fill="#B87333" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Metals</text>
+    <text x="265" y="310" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">HL &#183; PAAS</text>
+    <text x="265" y="322" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 1</text>
+    <line x1="265" y1="325" x2="265" y2="390" stroke="#B87333" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+
+    <!-- Flavors & Fragrances -->
+    <rect x="940" y="260" width="110" height="65" rx="6" fill="rgba(46,196,182,0.08)" stroke="#2EC4B6" stroke-width="1"/>
+    <text x="995" y="280" text-anchor="middle" fill="#2EC4B6" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">Flavors, Fragrances</text>
+    <text x="995" y="295" text-anchor="middle" fill="#2EC4B6" font-family="'DM Sans',sans-serif" font-size="9" font-weight="600">&amp; Functional</text>
+    <text x="995" y="310" text-anchor="middle" fill="#888" font-family="'JetBrains Mono',monospace" font-size="8">IFF</text>
+    <text x="995" y="322" text-anchor="middle" fill="#666" font-family="'DM Sans',sans-serif" font-size="7">Tier 3</text>
+    <line x1="995" y1="325" x2="995" y2="390" stroke="#2EC4B6" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+  </svg>
+</section>
+
+<!-- ═══ TIER SUMMARY CARDS ═══ -->
+<section class="summary-section">
+  <div class="tier-cards">
+    <div class="summary-card card-infra">
+      <h3>Extract: By the Ton</h3>
+      <p>Mining companies that extract raw materials from the earth &mdash; gold, copper, iron ore, aluminum, silver, and diversified metals. These are commodity businesses where the cost curve position, reserve quality, and by-product credits determine through-cycle profitability. Pricing is set by global supply/demand on exchanges (LME, COMEX). The streaming/royalty model (WPM, RGLD, FNV) is the exception: a Tollbridge on extraction with zero operating risk.</p>
+    </div>
+    <div class="summary-card card-balance">
+      <h3>Process: By the Grade</h3>
+      <p>Processors that transform raw materials into usable industrial inputs &mdash; steel, chemicals, fertilizers, cement, packaging, and paper. Scale, feedstock cost advantage (US shale gas for chemicals, US South wood basket for paper), and operational efficiency drive margins. Products are graded but largely interchangeable. Section 232 tariffs and local monopoly dynamics (aggregates) create pockets of structural protection.</p>
+    </div>
+    <div class="summary-card card-capital">
+      <h3>Formulate: By the Specification</h3>
+      <p>Formulators that create custom materials embedded into customer processes &mdash; industrial gases with take-or-pay pipeline contracts, specialty chemicals and coatings qualified into OEM specifications, and flavors/fragrances co-created with consumer brands. Once spec'd in, switching costs are measured in years of requalification. Pricing is value-based, not cost-plus. This is where the Specification Moat is deepest.</p>
+    </div>
+  </div>
+  <div class="macro-cards">
+    <div class="macro-card">
+      <h4>China Demand</h4>
+      <p>Chinese property, infrastructure, and industrial activity drive ~50% of global demand for iron ore, copper, aluminum, and steel. Chinese crude steel production and property starts are the single most important demand variables for Tier 1 extractors and global commodity pricing.</p>
+    </div>
+    <div class="macro-card">
+      <h4>Input Costs</h4>
+      <p>Natural gas (nitrogen fertilizer, chlor-alkali, ethylene), electricity (aluminum smelting), scrap metal (EAF steel), and feedstocks (TiO2, resins) are the primary cost variables. US Henry Hub advantage vs. European TTF creates structural margin benefit for domestic producers.</p>
+    </div>
+    <div class="macro-card">
+      <h4>Specification Lock-In</h4>
+      <p>The qualification cycle from initial testing to full production spec-in takes 6 months to 5+ years depending on industry. Regulatory filings (pharma, food), OEM qualification (auto, aero), and process integration (industrial gases) create escalating switching costs up the Specification Escalator.</p>
+    </div>
+    <div class="macro-card">
+      <h4>Trade Policy</h4>
+      <p>Section 232 tariffs (25% steel, 10-25% aluminum), anti-dumping duties, and reshoring incentives create a domestic pricing premium for US metals producers. Tariff permanence or removal is the single largest binary policy risk for steel (NUE, STLD, CLF) and aluminum (AA, CENX).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SUB-INDUSTRY BROWSER ═══ -->
+<section class="sub-industry-browser" id="briefsSection">
+  <h2>Industry Briefs</h2>
+  <p class="grid-subtitle">Click any sub-industry for the full analytical brief</p>
+  <h4 style="color:var(--capital);margin:16px 0 10px;font-size:0.82rem;letter-spacing:1px;">Tier 3 &mdash; Formulate</h4>
+  <div class="sub-industry-grid">
+    <div class="sub-industry-card tier-capital-card" data-brief="Industrial Gases" onclick="openBrief(this)">Industrial Gases<span class="sub-card-tickers">LIN &#183; APD</span></div>
+    <div class="sub-industry-card tier-capital-card" data-brief="Specialty Chemicals &amp; Coatings" onclick="openBrief(this)">Specialty Chemicals &amp; Coatings<span class="sub-card-tickers">SHW &#183; ECL &#183; PPG &#183; DD</span></div>
+    <div class="sub-industry-card tier-capital-card" data-brief="Flavors, Fragrances &amp; Functional Ingredients" onclick="openBrief(this)">Flavors, Fragrances &amp; Functional<span class="sub-card-tickers">IFF</span></div>
+  </div>
+  <h4 style="color:var(--balance);margin:16px 0 10px;font-size:0.82rem;letter-spacing:1px;">Tier 2 &mdash; Process</h4>
+  <div class="sub-industry-grid">
+    <div class="sub-industry-card tier-balance-card" data-brief="Steel" onclick="openBrief(this)">Steel<span class="sub-card-tickers">NUE &#183; STLD &#183; RS &#183; CLF</span></div>
+    <div class="sub-industry-card tier-balance-card" data-brief="Commodity &amp; Diversified Chemicals" onclick="openBrief(this)">Commodity &amp; Diversified Chemicals<span class="sub-card-tickers">DOW &#183; LYB &#183; WLK &#183; OLN</span></div>
+    <div class="sub-industry-card tier-balance-card" data-brief="Fertilizers &amp; Agricultural Chemicals" onclick="openBrief(this)">Fertilizers &amp; Agricultural Chemicals<span class="sub-card-tickers">CTVA &#183; CF &#183; NTR &#183; MOS</span></div>
+    <div class="sub-industry-card tier-balance-card" data-brief="Construction Materials" onclick="openBrief(this)">Construction Materials<span class="sub-card-tickers">CRH &#183; MLM &#183; VMC &#183; EXP</span></div>
+    <div class="sub-industry-card tier-balance-card" data-brief="Containers &amp; Packaging" onclick="openBrief(this)">Containers &amp; Packaging<span class="sub-card-tickers">AMCR &#183; PKG &#183; AVY &#183; BALL</span></div>
+    <div class="sub-industry-card tier-balance-card" data-brief="Paper &amp; Forest Products" onclick="openBrief(this)">Paper &amp; Forest Products<span class="sub-card-tickers">IP</span></div>
+  </div>
+  <h4 style="color:var(--infra);margin:16px 0 10px;font-size:0.82rem;letter-spacing:1px;">Tier 1 &mdash; Extract</h4>
+  <div class="sub-industry-grid">
+    <div class="sub-industry-card tier-infra-card" data-brief="Gold Mining" onclick="openBrief(this)">Gold Mining<span class="sub-card-tickers">NEM &#183; AEM &#183; GOLD &#183; WPM</span></div>
+    <div class="sub-industry-card tier-infra-card" data-brief="Copper Mining" onclick="openBrief(this)">Copper Mining<span class="sub-card-tickers">FCX &#183; SCCO &#183; TECK</span></div>
+    <div class="sub-industry-card tier-infra-card" data-brief="Diversified Metals &amp; Mining" onclick="openBrief(this)">Diversified Metals &amp; Mining<span class="sub-card-tickers">BHP &#183; RIO &#183; VALE</span></div>
+    <div class="sub-industry-card tier-infra-card" data-brief="Aluminum" onclick="openBrief(this)">Aluminum<span class="sub-card-tickers">AA &#183; CENX</span></div>
+    <div class="sub-industry-card tier-infra-card" data-brief="Silver &amp; Precious Metals" onclick="openBrief(this)">Silver &amp; Precious Metals<span class="sub-card-tickers">HL &#183; PAAS &#183; CDE</span></div>
+  </div>
+</section>
+
+<!-- ═══ DISCOVERY GRID ═══ -->
+<section class="grid-section" id="gridSection">
+  <h2>Discovery Grid &mdash; Materials Company Registry</h2>
+  <p class="grid-subtitle">Filterable, searchable registry of 86 materials companies across the full specification escalator</p>
+
+  <div class="grid-filters">
+    <input type="text" id="searchInput" placeholder="Search ticker or company...">
+    <select id="tierFilter"><option value="">All Tiers</option></select>
+    <select id="subIndustryFilter"><option value="">All Sub-Industries</option></select>
+    <select id="archetypeFilter"><option value="">All Archetypes</option></select>
+    <select id="capFilter"><option value="">All Market Caps</option></select>
+    <div class="filter-meta">
+      <span id="resultCount">86 companies</span>
+      <button id="clearBtn">Clear Filters</button>
+    </div>
+  </div>
+
+  <div class="factor-toggles">
+    <button class="factor-toggle" data-factor="momentum">Momentum</button>
+    <button class="factor-toggle" data-factor="value">Value</button>
+    <button class="factor-toggle" data-factor="quality">Quality</button>
+    <button class="factor-toggle" data-factor="volatility">Volatility</button>
+    <button class="factor-toggle" data-factor="cyclicality">Cyclicality</button>
+    <button class="factor-toggle" data-factor="yield">Yield</button>
+  </div>
+
+  <div class="grid-table-wrapper">
+    <table class="grid-table">
+      <thead>
+        <tr>
+          <th data-col="ticker">Ticker <span class="sort-arrow"></span></th>
+          <th data-col="name">Company <span class="sort-arrow"></span></th>
+          <th data-col="subIndustry">Industry <span class="sort-arrow"></span></th>
+          <th data-col="tier">Tier <span class="sort-arrow"></span></th>
+          <th data-col="archetype">Archetype <span class="sort-arrow"></span></th>
+          <th data-col="marketCap">Mkt Cap <span class="sort-arrow"></span></th>
+          <th data-col="cyclePosition">Cycle <span class="sort-arrow"></span></th>
+        </tr>
+      </thead>
+      <tbody id="gridBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ SIGNAL CHAINS ═══ -->
+<section class="chains-section" id="chainsSection">
+  <h2>Signal Chains &mdash; Causal Logic Flows</h2>
+  <p class="chains-subtitle">8 interconnected chains showing how macro drivers propagate through the materials value chain</p>
+  <div id="chainsContainer"></div>
+</section>
+
+<!-- ═══ GLOSSARY ═══ -->
+<section class="glossary-section" id="glossarySection">
+  <h2>Glossary &mdash; Key Terms &amp; Definitions</h2>
+  <p class="glossary-subtitle">35 sector-specific terms used throughout this atlas</p>
+  <input type="text" class="glossary-search" id="glossarySearch" placeholder="Search glossary terms...">
+  <div class="glossary-grid" id="glossaryGrid"></div>
+</section>
+
+<!-- ═══ SLIDE-OUT BRIEF PANEL ═══ -->
+<div id="briefOverlay" class="brief-overlay" onclick="handleOverlayClick(event)">
+  <div id="briefPanel" class="brief-panel">
+    <button class="brief-close" onclick="closeBrief()">&#x2715;</button>
+    <div id="briefContent" class="brief-body"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// INLINE DATA
+// ═══════════════════════════════════════════════════════════
+
+const materialsSectorData = [
+// ═══════════════════════════════════════════════════════════════
+// TIER 3 — FORMULATE: "By the Specification"
+// ═══════════════════════════════════════════════════════════════
+
+// ── Industrial Gases ──
+{ticker:"LIN",name:"Linde plc",tier:3,subIndustry:"Industrial Gases",marketCap:"Large",archetype:"Tollbridge",cyclePosition:"Through-Cycle",factorExposures:{momentum:1,value:-1,quality:2,volatility:-1,cyclicality:-1,yield:1},description:"World's largest industrial gas company. On-site pipeline model with 15-20yr take-or-pay contracts creates spec'd-in infrastructure moat. ~$65B revenue. Leading positions in atmospheric gases (O2, N2, Ar), process gases (H2, CO2, He), and engineering services. Investing heavily in clean hydrogen and carbon capture. Merger of Linde AG and Praxair (2018) created unmatched global scale."},
+{ticker:"APD",name:"Air Products & Chemicals",tier:3,subIndustry:"Industrial Gases",marketCap:"Large",archetype:"Tollbridge",cyclePosition:"Through-Cycle",factorExposures:{momentum:0,value:0,quality:2,volatility:-1,cyclicality:-1,yield:1},description:"Second-largest US industrial gas producer. World's largest hydrogen supplier — critical positioning for energy transition. On-site supply model with long-term contracts. Gasification technology converts coal/heavy liquids to syngas. NEOM green hydrogen megaproject in Saudi Arabia. 40+ consecutive years of dividend increases. ~$12B revenue."},
+
+// ── Specialty Chemicals & Coatings ──
+{ticker:"SHW",name:"The Sherwin-Williams Company",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Large",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:1,value:-1,quality:2,volatility:0,cyclicality:0,yield:0},description:"World's largest paint and coatings company by revenue. 5,000+ company-operated stores create vertical distribution moat. Paint Stores Group (~60% rev) serves professional contractors with spec'd-in color systems. Consumer Brands (Valspar, Krylon, Minwax) and Performance Coatings (auto, industrial, packaging). Acquisition of Valspar (2017) for $11B added global industrial coatings scale."},
+{ticker:"ECL",name:"Ecolab Inc.",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Large",archetype:"Tollbridge",cyclePosition:"Through-Cycle",factorExposures:{momentum:1,value:-1,quality:2,volatility:-1,cyclicality:-1,yield:0},description:"Global leader in water treatment, hygiene, and infection prevention solutions. 3M+ customer locations served by 26,000 field reps — service model creates deep switching costs. Industrial segment serves F&B, power, and downstream petrochemicals. Institutional segment dominates hospitality and healthcare sanitation. ~$16B revenue. Acquired Purolite (2022) for chromatography resins. Razor-and-blade model: dispense systems + recurring chemistry."},
+{ticker:"PPG",name:"PPG Industries",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Large",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:0,yield:1},description:"Global coatings and specialty materials leader. #1 or #2 in every coatings segment served: automotive OEM, automotive refinish, aerospace, architectural, industrial, packaging. OEM automotive coatings spec'd into assembly line processes — switching requires full requalification. ~$18B revenue across 70+ countries. Serial acquirer with 50+ acquisitions since 2015."},
+{ticker:"DD",name:"DuPont de Nemours",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Large",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:0,yield:1},description:"Diversified specialty materials company post-2019 trifurcation of DowDuPont. Electronics & Industrial segment: semiconductor fabrication materials, interconnect solutions, Kapton film. Water & Protection: Tyvek, Kevlar, water purification membranes. Spun off N&B (merged with IFF, 2021). Further separation into Electronics and Water/industrial companies announced. High-margin, spec'd-in materials for advanced manufacturing."},
+{ticker:"RPM",name:"RPM International",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Mid",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:0,yield:1},description:"Specialty coatings, sealants, and building materials with portfolio of 100+ brands (Rust-Oleum, DAP, Zinsser, Tremco, Carboline). M&A-driven compounder: 15+ acquisitions per cycle. Construction Products Group (roofing, waterproofing) and Performance Coatings Group (corrosion control, flooring) serve maintenance/repair/operations (MRO) niches. MAP 2025 restructuring driving margin expansion. ~$7.5B revenue."},
+{ticker:"ALB",name:"Albemarle Corporation",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Mid",archetype:"Rule of 40",cyclePosition:"Downturn",factorExposures:{momentum:-2,value:2,quality:0,volatility:2,cyclicality:2,yield:1},description:"World's largest lithium producer with operations in Chile (Salar de Atacama brine), Australia (Greenbushes/Wodgina hard-rock), and China conversion plants. Also produces bromine specialties and catalysts. Lithium segment ~70% revenue. Extreme cyclicality: lithium carbonate prices collapsed 80%+ from 2022 peak. Long-term demand thesis tied to EV adoption curve. Significant capex commitments for capacity expansion."},
+{ticker:"AXTA",name:"Axalta Coating Systems",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Mid",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:0,yield:0},description:"Global coatings company focused on two segments: Performance Coatings (auto refinish, industrial) and Mobility Coatings (automotive OEM, commercial vehicle). Auto refinish is spec'd-in at body shop level — color matching systems create switching costs. Former DuPont Performance Coatings division, taken private by Carlyle (2013), IPO'd 2014. ~$5.2B revenue across 130+ countries."},
+{ticker:"CE",name:"Celanese Corporation",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Mid",archetype:"Turnaround",cyclePosition:"Downturn",factorExposures:{momentum:-2,value:2,quality:0,volatility:1,cyclicality:1,yield:2},description:"Global chemical and specialty materials company. Engineered Materials segment (~45% rev) produces engineering thermoplastics (nylon, POM, PBT, LCP) spec'd into auto, electronics, industrial applications. Acetyl Chain (~55%) is integrated acetic acid, VAM, emulsions platform. $11B acquisition of DuPont's M&M business (2022) loaded balance sheet at cycle peak. Now deleveraging through divestitures and cost cuts."},
+{ticker:"ESI",name:"Element Solutions",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Mid",archetype:"Rule of 40",cyclePosition:"Mid-Cycle",factorExposures:{momentum:1,value:0,quality:1,volatility:0,cyclicality:0,yield:0},description:"Specialty chemicals for electronics and industrial surface finishing. Electronics segment: semiconductor packaging chemicals, circuitboard plating, assembly materials — spec'd into customer manufacturing processes. Industrial segment: decorative and functional surface finishing. >80% of revenue from products where ESI is specified by customer. High switching costs from qualification requirements. ~$2.6B revenue."},
+{ticker:"AVNT",name:"Avient Corporation",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Mid",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:0,yield:1},description:"Specialty polymer materials, services, and sustainable solutions. Formerly PolyOne. Color Additives & Inks: masterbatch, liquid colorants, special effects. Specialty Engineered Materials: long glass/carbon fiber composites, TPEs, barrier technologies. Transformation from commodity distributor to formulation-focused specialty compounder. Acquired Dyneema (ultra-high molecular weight PE fiber) from DSM. ~$3.4B revenue."},
+{ticker:"MTX",name:"Minerals Technologies",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Small",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:0,cyclicality:0,yield:1},description:"Specialty minerals and chemicals company. Consumer & Specialties: household, personal care, and specialty additives. Engineered Solutions: high-temperature minerals for steel, foundry, and construction. Satellite PCC plants co-located at paper mills with long-term take-or-pay contracts — classic tollbridge within specialty minerals. ~$2.2B revenue."},
+{ticker:"CBT",name:"Cabot Corporation",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:0,cyclicality:1,yield:1},description:"Global specialty chemicals and performance materials. Reinforcement Materials: carbon black for tire and rubber industries (#2 global). Performance Chemicals: specialty carbons, fumed silica, inkjet colorants, aerogel insulation. Battery materials division positioned for EV growth (conductive carbon additives for Li-ion). ~$3.8B revenue. Carbon black is semi-spec'd: tire OEMs qualify specific grades."},
+{ticker:"FUL",name:"H.B. Fuller Company",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Mid",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:0,yield:1},description:"Global adhesives manufacturer — #3 worldwide behind Henkel and H.B. Fuller post-Royal acquisition. Hygiene/Health/Consumable, Engineering, and Construction adhesives segments. Adhesives are spec'd into manufacturing lines: switching requires requalification. Acquisition of Royal Adhesives (2017) shifted mix toward higher-margin engineering applications. ~$3.6B revenue."},
+{ticker:"ASH",name:"Ashland Inc.",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Small",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:0,cyclicality:0,yield:1},description:"Global specialty additives and ingredients company. Pharmaceutical (HPC/HPMC excipients), Personal Care (rheology modifiers, film formers), Coatings (cellulosics, vinyl pyrrolidone polymers), and Construction specialties. Products are spec'd into formulations: pharma excipients require full regulatory requalification to switch. Transformed from diversified conglomerate to pure-play specialty chemicals."},
+{ticker:"CC",name:"The Chemours Company",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Small",archetype:"Deep Value",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:2,quality:-1,volatility:2,cyclicality:1,yield:2},description:"Titanium Technologies (TiO2 pigment), Thermal & Specialized Solutions (Opteon refrigerants, Nafion membranes), and Advanced Performance Materials (Teflon, Viton fluoropolymers). Spun off from DuPont (2015). TiO2 is commodity-exposed; fluoroproducts are high-specification. PFAS environmental liabilities overhang valuation. Opteon (low-GWP refrigerants) is secular growth story as HFC phase-down accelerates."},
+{ticker:"HUN",name:"Huntsman Corporation",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Small",archetype:"Deep Value",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:2,quality:0,volatility:1,cyclicality:1,yield:2},description:"Differentiated and specialty chemicals. Polyurethanes (~60% rev): MDI-based insulation, adhesives, coatings, elastomers. Performance Products: amines, maleic anhydride, surfactants. Advanced Materials: aerospace-grade epoxy and structural adhesive systems. Textile Effects divested. SPF insulation market leader in North America. Polyurethanes are semi-commodity but downstream applications add specification value."},
+{ticker:"EMN",name:"Eastman Chemical",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Mid",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:0,cyclicality:0,yield:1},description:"Diversified specialty materials company. Additives & Functional Products: coatings additives, care chemicals, crop protection. Advanced Materials: specialty plastics (Tritan copolyester), interlayers (Saflex PVB), performance films. Chemical Intermediates and Fibers. Molecular recycling (Kingsport methanolysis plant) positions for circular economy. Mix shift from commodity intermediates toward higher-specification materials. ~$9.5B revenue."},
+{ticker:"KWR",name:"Quaker Houghton",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Small",archetype:"Tollbridge",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:0,yield:1},description:"Process fluids and chemical management for steel, aluminum, automotive, aerospace, and industrial manufacturing. Metalworking fluids, hydraulic fluids, greases, specialty coatings. Products are spec'd into customer metalworking processes — switching risks production quality. Merger of Quaker Chemical + Houghton International (2019) created global leader. Chemical management services model adds recurring revenue layer. ~$2B revenue."},
+{ticker:"WDFC",name:"WD-40 Company",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Small",archetype:"Compounder",cyclePosition:"Through-Cycle",factorExposures:{momentum:0,value:-1,quality:2,volatility:-1,cyclicality:-1,yield:1},description:"Iconic maintenance products brand. WD-40 Multi-Use Product is sold in 176 countries with 85%+ aided brand awareness globally. 3-IN-ONE, GT85 specialist brands. Must-Win Battles strategy driving premiumization (WD-40 Specialist, WD-40 BIKE). Asset-light model: outsourced manufacturing, brand + distribution moat. ~$590M revenue but premium valuation reflects exceptional capital efficiency and brand durability."},
+{ticker:"NGVT",name:"Ingevity Corporation",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Small",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:0,cyclicality:0,yield:0},description:"Specialty chemicals and activated carbon materials derived from pine-based feedstocks. Performance Chemicals: tall oil-based paving and oilfield technologies, pavement marking resins. Performance Materials: activated carbon for gasoline vapor emission control canisters (mandated by EPA regulations). Regulatory mandate creates spec'd-in demand floor. Advanced Polymer Technologies: caprolactone-based specialty polymers."},
+{ticker:"BCPC",name:"Balchem Corporation",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Small",archetype:"Rule of 40",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:-1,quality:2,volatility:-1,cyclicality:-1,yield:0},description:"Specialty ingredients and encapsulation technologies. Human Nutrition & Health: microencapsulated minerals, nutrients, fortification premixes for food/pharma. Animal Nutrition & Health: chelated minerals, encapsulated feed additives. Specialty Products: ethylene oxide sterilization (medical devices), propylene oxide. Encapsulation technology is IP-protected and spec'd into customer formulations. Niche leader with premium margins."},
+{ticker:"TROX",name:"Tronox Holdings",tier:3,subIndustry:"Specialty Chemicals & Coatings",marketCap:"Small",archetype:"Speculative Growth",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:2,quality:-1,volatility:2,cyclicality:2,yield:1},description:"World's largest vertically integrated TiO2 producer with integrated mining (mineral sands: titanium feedstock, zircon). Operations in Australia, South Africa, Brazil, US, UK, Saudi Arabia. Vertical integration from mine to pigment differentiates from non-integrated TiO2 peers. Highly cyclical: TiO2 pricing tied to construction, coatings, plastics demand. Elevated leverage. ~$2.8B revenue."},
+
+// ── Flavors, Fragrances & Functional Ingredients ──
+{ticker:"IFF",name:"International Flavors & Fragrances",tier:3,subIndustry:"Flavors, Fragrances & Functional",marketCap:"Large",archetype:"Compounder",cyclePosition:"Recovery",factorExposures:{momentum:0,value:1,quality:0,volatility:0,cyclicality:-1,yield:1},description:"Global leader in taste, scent, nutrition, and biosciences. Nourish (food ingredients), Scent (fragrances, cosmetic actives), Health & Biosciences (enzymes, cultures, probiotics), Pharma Solutions (excipients). Merger with DuPont N&B (2021) tripled scale to ~$12B revenue but loaded balance sheet. Formulations are deeply spec'd into customer products. Portfolio rationalization and deleveraging underway."},
+
+// ═══════════════════════════════════════════════════════════════
+// TIER 2 — PROCESS: "By the Grade"
+// ═══════════════════════════════════════════════════════════════
+
+// ── Steel ──
+{ticker:"NUE",name:"Nucor Corporation",tier:2,subIndustry:"Steel",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:1,cyclicality:2,yield:1},description:"Largest US steel producer and largest scrap-based (EAF) steelmaker globally. Vertically integrated: scrap collection (DJJ) → EAF mills → downstream fabrication (rebar, joists, decking, buildings). Mini-mill pioneer with industry-leading cost culture. Sheet, plate, bar, structural, and tubular products. Downstream steel products segment (35%+ of rev) adds value and reduces cyclicality. ~$35B peak revenue."},
+{ticker:"STLD",name:"Steel Dynamics",tier:2,subIndustry:"Steel",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:1,cyclicality:2,yield:1},description:"EAF steel producer and metals recycler. Steel Operations: flat-rolled, structural, rail, engineered bar. Metals Recycling (OmniSource): one of largest ferrous/nonferrous scrap processors in North America. Steel Fabrication: joists, deck, pre-engineered metal buildings. Sinton, TX flat-rolled mill ($2.2B investment) added 3M tons capacity. Cost structure advantage from EAF + captive scrap. ~$18B revenue."},
+{ticker:"X",name:"United States Steel",tier:2,subIndustry:"Steel",marketCap:"Mid",archetype:"Deep Value",cyclePosition:"Late-Cycle",factorExposures:{momentum:-1,value:2,quality:-1,volatility:2,cyclicality:2,yield:1},description:"Integrated (blast furnace) and EAF steel producer. Flat-Rolled: automotive, appliance, container sheet. Mini Mill: Big River Steel (acquired 2021) is state-of-the-art EAF facility. Tubular: OCTG for oil & gas. European operations (USSK in Slovakia). Nippon Steel acquisition blocked by Biden administration on national security grounds (2024). Legacy cost structure burden from integrated mills. Transitioning toward EAF."},
+{ticker:"RS",name:"Reliance Inc.",tier:2,subIndustry:"Steel",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Through-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:1,yield:1},description:"Largest metals service center company in North America. Processes and distributes 100K+ metal products across carbon steel, stainless, aluminum, alloy, copper, brass, titanium. 315+ locations. First-stage value-add processing (cutting, shaping, forming) reduces customer waste. Through-cycle inventory management model: buy smart, sell steady. Acquisition-driven consolidation of fragmented service center industry. ~$14B revenue."},
+{ticker:"CLF",name:"Cleveland-Cliffs",tier:2,subIndustry:"Steel",marketCap:"Mid",archetype:"Deep Value",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:2,quality:-1,volatility:2,cyclicality:2,yield:0},description:"Vertically integrated flat-rolled steel producer. Largest supplier of steel to North American automotive industry. Integrated from iron ore mining (Minnesota, Michigan) → pellet production → blast furnace steelmaking → stamping/tooling. Acquisitions of AK Steel (2020) and ArcelorMittal USA (2020) created integrated model. Bid for U.S. Steel (2023) rejected. Labor-intensive operations with UAW workforce. High operating leverage."},
+{ticker:"CMC",name:"Commercial Metals Company",tier:2,subIndustry:"Steel",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:0,cyclicality:1,yield:1},description:"EAF steel producer focused on long products (rebar, merchant bar, structural) and downstream fabrication. Vertically integrated: scrap → EAF → mill → fabrication. Largest rebar producer and fabricator in North America. Third micro-mill in Mesa, AZ uses innovative continuous production technology. Europe operations (Poland). Infrastructure spending (IIJA) tailwind for rebar demand. ~$8B revenue."},
+{ticker:"ATI",name:"ATI Inc.",tier:2,subIndustry:"Steel",marketCap:"Mid",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:1,value:0,quality:1,volatility:1,cyclicality:1,yield:0},description:"Specialty materials producer: nickel-based alloys, titanium, specialty stainless, precision forgings, and castings. High-Performance Materials & Components: aerospace-grade alloys and forgings for jet engines and airframes. Advanced Alloys & Solutions: specialty flat-rolled products. Secular aerospace recovery and defense spending drive multi-year backlog. Exited commodity stainless to focus on high-specification alloys."},
+{ticker:"TX",name:"Ternium S.A.",tier:2,subIndustry:"Steel",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:2,quality:0,volatility:1,cyclicality:2,yield:2},description:"Latin America's largest flat steel producer. Operations in Mexico, Brazil, Argentina, Colombia, Central America. Vertically integrated: iron ore mining (Brazil) → steelmaking → downstream processing. Mexico nearshoring thesis: automotive and industrial growth driving steel demand. Pesquería, Mexico mill investment adds 4.8M ton capacity. Family-controlled (Techint Group). ~$16B revenue."},
+
+// ── Commodity & Diversified Chemicals ──
+{ticker:"DOW",name:"Dow Inc.",tier:2,subIndustry:"Commodity & Diversified Chemicals",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:2,quality:0,volatility:1,cyclicality:2,yield:2},description:"One of world's largest chemical companies. Packaging & Specialty Plastics: polyethylene (PE), ethylene-vinyl acetate. Industrial Intermediates & Infrastructure: polyurethanes, propylene oxide, caustic soda, chlorine. Performance Materials & Coatings: silicones, acrylics, cellulosics. Gulf Coast-advantaged ethane cracker economics. Post-DowDuPont split (2019) retained commodity-weighted portfolio. ~$43B revenue. High free cash flow yield."},
+{ticker:"LYB",name:"LyondellBasell Industries",tier:2,subIndustry:"Commodity & Diversified Chemicals",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:2,quality:0,volatility:1,cyclicality:2,yield:2},description:"One of world's largest plastics, chemicals, and refining companies. Olefins & Polyolefins (Americas + EAI): PE, PP production. Intermediates & Derivatives: propylene oxide, oxyfuels, acetyls. Advanced Polymer Solutions: compounding, composites. Refining segment (Houston refinery) scheduled for closure. MoReTec advanced recycling technology. Announced potential strategic alternatives review. ~$41B revenue."},
+{ticker:"WLK",name:"Westlake Corporation",tier:2,subIndustry:"Commodity & Diversified Chemicals",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:1,cyclicality:1,yield:1},description:"Vertically integrated chemical and building products company. Performance & Essential Materials: chlor-alkali, vinyl (PVC/VCM), PE, styrene. Housing & Infrastructure Products: PVC pipe, fittings, siding, trim, roofing, stone — acquired Boral's North American building products. Unique integration from chlorine/ethylene feedstock through finished building products. Family-controlled (Chao family). ~$13B revenue."},
+{ticker:"OLN",name:"Olin Corporation",tier:2,subIndustry:"Commodity & Diversified Chemicals",marketCap:"Small",archetype:"Deep Value",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:2,quality:0,volatility:2,cyclicality:2,yield:1},description:"Chlor-alkali/vinyls chemicals and Winchester ammunition. Chlor Alkali Products & Vinyls: chlorine, caustic soda, VCM, methyl chloride, bleach. Epoxy: EPIKOTE/EPON resins and curing agents. Winchester: small-caliber ammunition — unique diversification for a chemical company. Chlor-alkali operates as managed supply model to support pricing. Acquired Dow's chlorine assets (2015). ~$7B revenue."},
+
+// ── Fertilizers & Agricultural Chemicals ──
+{ticker:"CTVA",name:"Corteva Agriscience",tier:2,subIndustry:"Fertilizers & Ag Chemicals",marketCap:"Large",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:1,yield:1},description:"Pure-play agriculture company from DowDuPont trifurcation. Seed segment: Pioneer brand corn, soybeans, sunflower, canola, rice, wheat — #1 or #2 globally. Crop Protection: insecticides, herbicides, fungicides, biologicals. Seed IP creates multi-year specification moat via trait licensing and germplasm. Biologicals portfolio growing rapidly. ~$17B revenue."},
+{ticker:"CF",name:"CF Industries Holdings",tier:2,subIndustry:"Fertilizers & Ag Chemicals",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:1,cyclicality:2,yield:1},description:"Largest nitrogen fertilizer producer in North America. Products: ammonia, granular urea, UAN, AN. Seven US and Canadian manufacturing complexes with advantaged Henry Hub natural gas feedstock (vs. European peers on TTF gas). Clean energy pivot: blue/green ammonia for fuel and hydrogen carrier. Donaldsonville, LA is world's largest ammonia production complex. ~$6B revenue."},
+{ticker:"MOS",name:"The Mosaic Company",tier:2,subIndustry:"Fertilizers & Ag Chemicals",marketCap:"Mid",archetype:"Deep Value",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:2,quality:0,volatility:1,cyclicality:2,yield:1},description:"Largest US producer of potash and phosphate fertilizers. Potash operations in Saskatchewan and New Mexico. Phosphate mining and processing in Florida and Louisiana. Mosaic Fertilizantes (Brazil — acquired Vale's fertilizer assets). Highly cyclical: fertilizer prices driven by crop economics, nat gas costs, and geopolitical supply disruptions. ~$12B revenue."},
+{ticker:"NTR",name:"Nutrien Ltd.",tier:2,subIndustry:"Fertilizers & Ag Chemicals",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:1,cyclicality:2,yield:2},description:"World's largest provider of crop inputs and services. Potash: largest global producer (Saskatchewan mines). Nitrogen: North American operations. Phosphate: integrated phosphate rock mining and processing. Retail: 2,000+ farm centers across North America, Australia, South America distributing seed, crop protection, fertilizer, and digital agronomy tools. Vertically integrated from mine to farm gate. ~$27B revenue."},
+{ticker:"FMC",name:"FMC Corporation",tier:2,subIndustry:"Fertilizers & Ag Chemicals",marketCap:"Mid",archetype:"Turnaround",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:1,quality:0,volatility:1,cyclicality:1,yield:1},description:"Pure-play crop protection chemicals company. Insecticides: diamides (Rynaxypyr/Cyazypyr — blockbuster molecules), natural pyrethrins. Herbicides and Fungicides. Biologicals platform (plant health, bioinsecticides) expanding rapidly. Global presence with strength in Latin America, India, and Asia. Destocking cycle in 2023-24 pressured results. ~$4.4B revenue. Exploring strategic alternatives for parts of portfolio."},
+{ticker:"SMG",name:"The Scotts Miracle-Gro Company",tier:2,subIndustry:"Fertilizers & Ag Chemicals",marketCap:"Small",archetype:"Turnaround",cyclePosition:"Recovery",factorExposures:{momentum:0,value:1,quality:0,volatility:1,cyclicality:1,yield:1},description:"Consumer lawn and garden products leader: Scotts Turf Builder, Miracle-Gro, Ortho, Roundup (exclusive consumer marketing rights from Bayer). Hawthorne Gardening (indoor/hydroponic) segment dramatically overexpanded during cannabis/COVID boom, now restructured. Heavy debt load from Hawthorne buildout being addressed through asset sales and cost cuts. ~$3.6B revenue."},
+
+// ── Construction Materials ──
+{ticker:"CRH",name:"CRH plc",tier:2,subIndustry:"Construction Materials",marketCap:"Large",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:1,value:0,quality:1,volatility:0,cyclicality:1,yield:1},description:"World's largest building materials company. Americas Materials: aggregates, asphalt, cement, ready-mix with local monopoly dynamics. Americas Building Products: exterior products, precast, fencing. International: cement and building solutions in Europe. Aggregates create natural monopoly — 300M+ ton reserves with 50-mile economic radius. Serial acquirer: 100+ bolt-ons per decade. Moved primary listing to NYSE (2023). ~$35B revenue."},
+{ticker:"MLM",name:"Martin Marietta Materials",tier:2,subIndustry:"Construction Materials",marketCap:"Large",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:1,value:0,quality:1,volatility:0,cyclicality:1,yield:0},description:"US aggregates leader with 300+ quarries across 28 states and Canada. Building Materials: crushed stone, sand, gravel (~75% rev), cement, ready-mix, asphalt. Magnesia Specialties: high-purity MgO and dolomitic lime. Aggregates are effectively local monopolies — permitting barriers make new quarries nearly impossible. Pricing power: aggregates prices have never declined year-over-year since 1991. ~$6.5B revenue."},
+{ticker:"VMC",name:"Vulcan Materials Company",tier:2,subIndustry:"Construction Materials",marketCap:"Large",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:1,value:0,quality:1,volatility:0,cyclicality:1,yield:1},description:"Largest US producer of construction aggregates (crushed stone, sand, gravel). Also produces asphalt and ready-mixed concrete. 400+ active aggregates facilities in 22 states plus DC, Mexico, Bahamas. Sunbelt-weighted footprint captures population growth and infrastructure spending. Like MLM, permitting barriers create irreplaceable asset base. Record of consistent price increases through cycles. ~$7.5B revenue."},
+{ticker:"EXP",name:"Eagle Materials",tier:2,subIndustry:"Construction Materials",marketCap:"Mid",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:1,yield:0},description:"US heavy-side and light-side building materials. Heavy Materials: cement, concrete, aggregates (Texas, Oklahoma, Missouri, Wyoming). Light Materials: gypsum wallboard and paperboard. Dual exposure to construction cycle through complementary product lines. Wallboard pricing has demonstrated oligopolistic pricing discipline. Small enough for acquisition premium optionality. ~$2.3B revenue."},
+{ticker:"SUM",name:"Summit Materials",tier:2,subIndustry:"Construction Materials",marketCap:"Mid",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:0,volatility:0,cyclicality:1,yield:0},description:"Vertically integrated aggregates-based construction materials company. Aggregates, cement, ready-mix concrete, asphalt, and paving services. Merged with Cementos Argos' US operations (2024) creating significant cement and aggregates platform in South/Southeast US, Midwest, and Mountain West. Infrastructure spending (IIJA) provides multi-year demand visibility. ~$4B revenue post-merger."},
+{ticker:"USLM",name:"U.S. Lime & Minerals",tier:2,subIndustry:"Construction Materials",marketCap:"Small",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:1,value:-1,quality:2,volatility:0,cyclicality:1,yield:0},description:"Lime and limestone products manufacturer for construction, environmental, metals, oil & gas, food/agriculture. Lime is heavy, low-value-per-ton product with tight shipping radius — natural local monopoly. Texas, Oklahoma, Arkansas, Colorado, Missouri operations. Essential input for steel production (fluxing), water/wastewater treatment, and FGD scrubbing. Very high ROIC, minimal debt, premium valuation."},
+{ticker:"CX",name:"CEMEX S.A.B. de C.V.",tier:2,subIndustry:"Construction Materials",marketCap:"Mid",archetype:"Turnaround",cyclePosition:"Recovery",factorExposures:{momentum:0,value:1,quality:0,volatility:1,cyclicality:1,yield:0},description:"Global building materials company. Cement, ready-mix concrete, aggregates, urbanization solutions. Operations across Americas, EMEA, and Asia. Mexico (~35% EBITDA) is core profit engine. Multi-year turnaround: deleveraging from near-distressed levels (ND/EBITDA peaked >6x, now ~2x), returning to investment-grade credit. CEMEX Go digital platform. Vertua carbon-neutral concrete line. ~$15B revenue."},
+
+// ── Containers & Packaging ──
+{ticker:"AMCR",name:"Amcor plc",tier:2,subIndustry:"Containers & Packaging",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Through-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:-1,cyclicality:-1,yield:2},description:"Global leader in flexible and rigid plastic packaging. Flexibles: pouches, films, laminates, bags for food, medical, pet care, personal care. Rigid Packaging: PET bottles, containers, closures for beverages and personal care. 220+ sites across 40+ countries. Acquired Bemis (2019) for flexible packaging scale. Berry Global merger announced (2024) to create packaging mega-company. ~$14B revenue."},
+{ticker:"PKG",name:"Packaging Corp of America",tier:2,subIndustry:"Containers & Packaging",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:1,yield:1},description:"Third-largest US containerboard and corrugated products company. Vertically integrated: produces containerboard at 6 mills, converts to corrugated packaging at 90+ converting plants. Focus on smaller/mid-size customers with higher-touch service vs. commodity box competitors. No exposure to consumer packaging or tissue — pure industrial corrugated focus. ~$8B revenue. Industry-leading ROIC."},
+{ticker:"AVY",name:"Avery Dennison",tier:2,subIndustry:"Containers & Packaging",marketCap:"Mid",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:1,value:0,quality:1,volatility:0,cyclicality:0,yield:1},description:"Global materials science company focused on pressure-sensitive adhesive materials and intelligent labels (RFID). Materials Group: self-adhesive label materials, graphics, tapes. Solutions Group: RFID inlays/tags, apparel branding (Paxar). Intelligent labels (RFID) is secular growth driver — item-level tagging for retail, food, logistics. Higher-specification than traditional packaging. ~$8.8B revenue."},
+{ticker:"BALL",name:"Ball Corporation",tier:2,subIndustry:"Containers & Packaging",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:0,cyclicality:0,yield:1},description:"World's largest manufacturer of recyclable aluminum beverage containers. Beverage Packaging segments: North America, EMEA, South America. Divested aerospace business to BAE Systems (2024) for $5.6B to become pure-play packaging. Aluminum cans benefit from sustainability secular trend (infinitely recyclable, highest recycling rate of any packaging substrate). ~$12B revenue post-aerospace."},
+{ticker:"SW",name:"Smurfit Westrock",tier:2,subIndustry:"Containers & Packaging",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:0,cyclicality:1,yield:1},description:"World's largest listed integrated corrugated packaging company. Formed from Smurfit Kappa + WestRock merger (2024). Containerboard, corrugated containers, consumer packaging, bag-in-box. 500+ converting operations in 40+ countries. European and Americas presence gives geographic diversification. Integration synergies targeted at $400M+. Combined ~$34B revenue."},
+{ticker:"SEE",name:"Sealed Air Corporation",tier:2,subIndustry:"Containers & Packaging",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:0,cyclicality:0,yield:1},description:"Protective and food packaging solutions. Food segment: Cryovac vacuum-seal packaging for protein, fluids, processed foods — spec'd into meat processing lines. Protective segment: Bubble Wrap, Autobag, Instapak — protective packaging for e-commerce and industrial fulfillment. Installed equipment base creates consumables razor-and-blade model. ~$5.5B revenue."},
+{ticker:"SON",name:"Sonoco Products",tier:2,subIndustry:"Containers & Packaging",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:0,cyclicality:0,yield:2},description:"Diversified packaging company. Consumer Packaging: thermoformed plastics, flexibles, metal closures. Industrial Packaging: tubes, cores, reels, molded plugs, pallets. All Other: temperature-assured packaging, display and packaging services. Acquired Eviosys (2024) for European metal packaging. Long-tenured customer relationships in niche packaging formats. ~$7B revenue."},
+{ticker:"GPK",name:"Graphic Packaging Holding",tier:2,subIndustry:"Containers & Packaging",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:0,cyclicality:0,yield:1},description:"Leading provider of fiber-based consumer packaging. Folding cartons (cereal boxes, beverage multipacks, food service), paperboard, and packaging machinery. Integrated model: virgin and recycled paperboard mills → converting plants. Largest US folding carton producer. Fiber-based packaging benefits from sustainability shift away from plastics. CRB and SBS board grades. ~$9B revenue."},
+{ticker:"CCK",name:"Crown Holdings",tier:2,subIndustry:"Containers & Packaging",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:0,cyclicality:0,yield:1},description:"Global metal packaging manufacturer. Beverage cans (aluminum — Americas, EMEA, Asia Pacific) account for ~75% revenue. Food cans, aerosol cans, specialty packaging. Transit Packaging segment (protective, automation, equipment) being divested. Second-largest global beverage can producer behind Ball. Long-term contracts with CPG customers. ~$12B revenue."},
+{ticker:"SLGN",name:"Silgan Holdings",tier:2,subIndustry:"Containers & Packaging",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Through-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:-1,cyclicality:-1,yield:1},description:"Leading supplier of rigid packaging for consumer goods. Dispensing & Specialty Closures: pumps, sprayers, closures for personal care, beauty, home, food. Metal Containers: food cans, custom & specialty metal containers. Custom Containers: plastic containers for food, personal care, healthcare. Defensive end-markets (staples-heavy). ~$6B revenue."},
+{ticker:"ATR",name:"Aptargroup Inc.",tier:2,subIndustry:"Containers & Packaging",marketCap:"Mid",archetype:"Compounder",cyclePosition:"Through-Cycle",factorExposures:{momentum:0,value:-1,quality:2,volatility:-1,cyclicality:-1,yield:1},description:"Global leader in dispensing solutions: pumps, closures, aerosol valves for beauty, pharma, food, and beverage markets. Pharma segment (nasal sprays, inhalers, injectables) has highest spec-in dynamics — devices require regulatory approval tied to specific dispenser. Beauty & Home (prestige fragrance pumps) and Food & Beverage closures. Higher-margin, higher-specification than typical packaging. ~$3.6B revenue."},
+{ticker:"BERY",name:"Berry Global Group",tier:2,subIndustry:"Containers & Packaging",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:0,cyclicality:0,yield:1},description:"Global manufacturer of plastic packaging products. Consumer Packaging (drink cups, closures, bottles, overcaps), Engineered Materials (tapes, adhesives, nonwovens, films), Health/Hygiene/Specialties (surgical drapes, hygiene materials). Merger with Amcor announced (2024). Serial acquirer of commodity plastic packaging businesses. 290+ manufacturing facilities across 40+ countries. ~$12B revenue."},
+{ticker:"OI",name:"O-I Glass",tier:2,subIndustry:"Containers & Packaging",marketCap:"Small",archetype:"Turnaround",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:2,quality:-1,volatility:2,cyclicality:0,yield:0},description:"World's largest glass container manufacturer. Produces glass bottles and jars for beer, wine, spirits, food, non-alcoholic beverages, pharma. Operations across Americas, Europe, Asia Pacific. MAGMA technology (modular, asset-light glass manufacturing) promises to revolutionize production economics. Elevated leverage post-restructuring. Glass is 100% recyclable but heavy, limiting shipping radius — local dynamics. ~$6.5B revenue."},
+
+// ── Paper & Forest Products ──
+{ticker:"IP",name:"International Paper",tier:2,subIndustry:"Paper & Forest Products",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:0,cyclicality:1,yield:2},description:"Largest global producer of containerboard and corrugated packaging. Industrial Packaging segment: containerboard, corrugated boxes, recycling. Global Cellulose Fibers: fluff pulp, market pulp. Acquired DS Smith (2024) for European corrugated scale — transformational deal creating global packaging leader. 200+ converting plants across 30+ countries. ~$20B combined revenue. IIJA infrastructure spending supports box demand."},
+{ticker:"RYAM",name:"Rayonier Advanced Materials",tier:2,subIndustry:"Paper & Forest Products",marketCap:"Small",archetype:"Speculative Growth",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:2,quality:-1,volatility:2,cyclicality:1,yield:0},description:"Specialty cellulose and biorefinery company. High Purity Cellulose: dissolving pulp for acetate textiles, tire cord, food additives, pharma. Biorefinery: cellulosic sugar, lignosulfonates. Commodity segment: paperboard. Niche position in high-purity cellulose but challenged by Chinese competition and commodity paper weakness. Jesup, GA and Fernandina Beach, FL mills. Elevated leverage. ~$1.7B revenue."},
+{ticker:"MATV",name:"Mativ Holdings",tier:2,subIndustry:"Paper & Forest Products",marketCap:"Small",archetype:"Turnaround",cyclePosition:"Downturn",factorExposures:{momentum:-1,value:2,quality:-1,volatility:1,cyclicality:1,yield:1},description:"Formerly SWM International. Specialty materials: Advanced Technical Materials (filtration, release liners, tapes, protective solutions) and Fiber-Based Solutions (engineered papers, tobacco papers, reconstituted tobacco). Merger with Neenah (2022) expanded into filtration and specialty engineered papers. Integration challenges and leverage overhang. ~$2B revenue."},
+
+// ═══════════════════════════════════════════════════════════════
+// TIER 1 — EXTRACT: "By the Ton"
+// ═══════════════════════════════════════════════════════════════
+
+// ── Gold Mining ──
+{ticker:"NEM",name:"Newmont Corporation",tier:1,subIndustry:"Gold Mining",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:1,value:1,quality:0,volatility:1,cyclicality:1,yield:1},description:"World's largest gold mining company. Also produces copper, silver, zinc, lead. Operations in North America (Nevada Gold Mines JV with Barrick), South America, Africa (Ahafo, Akyem), Australia (Boddington, Tanami), Papua New Guinea. Acquired Newcrest Mining (2023) for ~$17B — transformational for Australian/Pacific assets. ~6M oz gold production. S&P 500 member. AISC ~$1,400/oz."},
+{ticker:"AEM",name:"Agnico Eagle Mines",tier:1,subIndustry:"Gold Mining",marketCap:"Large",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:1,value:0,quality:1,volatility:1,cyclicality:1,yield:1},description:"Canada's largest gold mining company and world's #2 producer. Operations across Canada (Kirkland Lake, Detour Lake, Meadowbank, LaRonde), Australia (Fosterville), Finland (Kittila), Mexico (Pinos Altos). ~3.5M oz gold + 2.5M oz silver production (2024). Known for lower geopolitical risk profile — no assets in high-risk jurisdictions. AISC ~$1,200/oz. Merger with Kirkland Lake Gold (2022) added premium assets."},
+{ticker:"GOLD",name:"Barrick Gold",tier:1,subIndustry:"Gold Mining",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:1,cyclicality:1,yield:1},description:"Major global gold and copper producer. Tier One gold assets: Nevada Gold Mines (61.5% JV with Newmont), Pueblo Viejo (Dominican Republic), Loulo-Gounkoto (Mali), Kibali (DRC), Veladero (Argentina). Growing copper exposure: Lumwana (Zambia) Super Pit expansion, Reko Diq (Pakistan) development. ~4.1M oz gold production. CEO Mark Bristow driving portfolio optimization. AISC ~$1,350/oz."},
+{ticker:"KGC",name:"Kinross Gold",tier:1,subIndustry:"Gold Mining",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:1,cyclicality:1,yield:1},description:"Senior gold producer with operations in Americas, West Africa, and Russia (divested). Key mines: Fort Knox (Alaska), Round Mountain (Nevada), Tasiast (Mauritania — transformational expansion), Paracatu (Brazil), La Coipa (Chile). Great Bear project (Ontario) is major development pipeline asset. ~2.2M oz gold production. Clean balance sheet post-Russia exit."},
+{ticker:"GFI",name:"Gold Fields",tier:1,subIndustry:"Gold Mining",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:1,cyclicality:1,yield:1},description:"South African-headquartered global gold producer. Operations in South Africa (South Deep — world's largest gold orebody by endowment), Australia (Gruyere, St Ives, Agnew), Ghana (Damang, Tarkwa), Peru (Cerro Corona), and Chile (Salares Norte — new mine). ~2.3M oz gold-equivalent production. Higher operational risk profile from South African legacy assets and emerging market jurisdictions."},
+{ticker:"AU",name:"AngloGold Ashanti",tier:1,subIndustry:"Gold Mining",marketCap:"Mid",archetype:"Deep Value",cyclePosition:"Recovery",factorExposures:{momentum:0,value:1,quality:0,volatility:2,cyclicality:1,yield:1},description:"Global gold producer headquartered in Colorado (moved from South Africa). Operations across Africa (Tanzania, Ghana, Guinea, DRC), Americas (Argentina, Brazil, Colombia, Nevada), and Australia. ~2.7M oz gold production. Acquired Corvus Gold for Nevada expansion. Portfolio includes both mature cash-generating assets and higher-risk exploration/development projects. Operational complexity from pan-African footprint."},
+{ticker:"WPM",name:"Wheaton Precious Metals",tier:1,subIndustry:"Gold Mining",marketCap:"Large",archetype:"Tollbridge",cyclePosition:"Through-Cycle",factorExposures:{momentum:1,value:-1,quality:2,volatility:1,cyclicality:1,yield:1},description:"World's largest precious metals streaming company. Pays upfront for the right to purchase future gold, silver, palladium, and cobalt production at fixed low prices. 20+ streaming agreements with mines globally. Asset-light model: no operating risk, no capex, no exploration cost — pure price leverage to precious metals with downside protection. ~$1.3B revenue. Premium valuation reflects superior business model."},
+{ticker:"RGLD",name:"Royal Gold",tier:1,subIndustry:"Gold Mining",marketCap:"Mid",archetype:"Tollbridge",cyclePosition:"Through-Cycle",factorExposures:{momentum:1,value:-1,quality:2,volatility:1,cyclicality:1,yield:1},description:"Precious metals royalty and streaming company. Acquires royalties and stream interests to fund mine development. 175+ properties across 18 countries. Key assets: Mount Milligan (gold/copper stream), Pueblo Viejo (royalty), Cortez (royalty). Revenue driven by production volumes × commodity prices minus fixed purchase cost. Zero operating costs, zero exploration risk. ~$700M revenue."},
+{ticker:"FNV",name:"Franco-Nevada",tier:1,subIndustry:"Gold Mining",marketCap:"Large",archetype:"Tollbridge",cyclePosition:"Through-Cycle",factorExposures:{momentum:1,value:-1,quality:2,volatility:1,cyclicality:0,yield:1},description:"Largest royalty/streaming company by market cap. Diversified portfolio: gold (~60%), silver, PGMs, base metals, oil & gas, iron ore royalties across 400+ assets. Cobre Panama (First Quantum) royalty was key revenue driver until mine shutdown. Zero employees in mining operations, zero debt, zero capex requirements. Business model compounds with production growth across entire portfolio. ~$1.3B revenue."},
+
+// ── Copper Mining ──
+{ticker:"FCX",name:"Freeport-McMoRan",tier:1,subIndustry:"Copper Mining",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:2,cyclicality:2,yield:1},description:"World's largest publicly traded copper producer. Grasberg (Indonesia) — world's largest copper/gold mine by reserves. Morenci (Arizona) — largest copper mine in North America. Cerro Verde (Peru). Also significant gold and molybdenum production. Copper is critical for electrification and energy transition. ~4.2B lbs copper, ~1.8M oz gold production. AISC ~$1.70/lb copper net of by-product credits."},
+{ticker:"SCCO",name:"Southern Copper",tier:1,subIndustry:"Copper Mining",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:0,quality:1,volatility:1,cyclicality:2,yield:2},description:"World's largest copper reserves holder. Operations in Peru (Toquepala, Cuajone, Ilo smelter) and Mexico (Buenavista del Cobre, La Caridad). Also produces molybdenum, zinc, silver. Controlled by Grupo Mexico (88% ownership). Tia Maria mine development in Peru resumed despite opposition. Lowest-cost copper producer globally. Historically high dividend payouts. ~$11B revenue."},
+{ticker:"TECK",name:"Teck Resources",tier:1,subIndustry:"Copper Mining",marketCap:"Large",archetype:"Compounder",cyclePosition:"Mid-Cycle",factorExposures:{momentum:1,value:0,quality:0,volatility:1,cyclicality:2,yield:1},description:"Canadian diversified miner transforming into pure-play copper company. Copper: Highland Valley (BC), Antamina (Peru JV), Quebrada Blanca QB2 (Chile — new mine ramping). Sold steelmaking coal business to Glencore (2024). Zinc: Trail smelter (one of world's largest). Copper pivot captures electrification megatrend. QB2 adds ~300K tonnes annual copper capacity at full ramp. ~$12B revenue."},
+
+// ── Diversified Metals & Mining ──
+{ticker:"BHP",name:"BHP Group",tier:1,subIndustry:"Diversified Metals & Mining",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:1,cyclicality:2,yield:2},description:"World's largest mining company by market cap. Iron ore (Western Australia), copper (Escondida — Chile, Olympic Dam — Australia, Resolution — Arizona development), metallurgical coal, nickel (exiting), potash (Jansen — Saskatchewan, under construction). BHP divested petroleum (merged into Woodside). Bid for Anglo American (2024) rejected. Disciplined capital allocation framework. Progressive dividend policy."},
+{ticker:"RIO",name:"Rio Tinto Group",tier:1,subIndustry:"Diversified Metals & Mining",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:1,volatility:1,cyclicality:2,yield:2},description:"Second-largest diversified miner globally. Iron Ore (Pilbara — Australia, world's lowest-cost iron ore). Aluminum (bauxite mining, alumina refining, smelting — vertically integrated). Copper & Diamonds (Kennecott, Oyu Tolgoi — Mongolia ramp-up, Diavik). Minerals (TiO2 feedstock, borates, lithium development). Acquired Arcadium Lithium (2025) for lithium exposure. ~$54B revenue."},
+{ticker:"VALE",name:"Vale S.A.",tier:1,subIndustry:"Diversified Metals & Mining",marketCap:"Large",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:2,quality:0,volatility:1,cyclicality:2,yield:2},description:"World's largest iron ore producer and major nickel producer. Iron Ore: Carajás (highest-grade iron ore globally, 65%+ Fe), Southern/Southeastern systems. Base Metals: nickel (Sudbury, Voisey's Bay, Indonesia, New Caledonia), copper. Brumadinho dam disaster (2019) legacy liabilities and ESG overhang. S11D expansion in Carajás. ~$41B revenue. Brazilian real-denominated cost base vs. USD revenue."},
+
+// ── Aluminum ──
+{ticker:"AA",name:"Alcoa Corporation",tier:1,subIndustry:"Aluminum",marketCap:"Mid",archetype:"Deep Value",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:2,quality:0,volatility:2,cyclicality:2,yield:0},description:"Vertically integrated aluminum producer: bauxite mining (Australia, Brazil, Guinea) → alumina refining → aluminum smelting. Pure-play aluminum exposure post-separation from Arconic (2016). San Ciprián (Spain) smelter restart. Ma'aden JV in Saudi Arabia (low-cost smelting). ELYSIS joint venture (with Rio Tinto, Apple) developing carbon-free aluminum smelting. High operating leverage to aluminum prices. ~$11B revenue."},
+{ticker:"CENX",name:"Century Aluminum",tier:1,subIndustry:"Aluminum",marketCap:"Small",archetype:"Speculative Growth",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:-1,volatility:2,cyclicality:2,yield:0},description:"US aluminum smelting company. Primary aluminum production at Hawesville (KY), Mt. Holly (SC), Sebree (KY), and Grundartangi (Iceland — hydroelectric power). Significant beneficiary of Section 232 aluminum tariffs (25%) protecting US smelters. Announced plans for new $2B+ greenfield smelter in Mississippi with DOE loan support — would be first new US smelter in 45 years. Small, high-leverage play on aluminum prices and reshoring. ~$2.5B revenue."},
+
+// ── Silver & Precious Metals ──
+{ticker:"HL",name:"Hecla Mining",tier:1,subIndustry:"Silver & Precious Metals",marketCap:"Mid",archetype:"Speculative Growth",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:2,cyclicality:2,yield:0},description:"Largest US silver producer. Also produces gold, zinc, lead. Key mines: Greens Creek (Alaska — silver/gold/zinc), Lucky Friday (Idaho — silver/lead/zinc), Casa Berardi (Quebec — gold), Keno Hill (Yukon — silver/lead/zinc, acquired via Alexco takeover). Pure-play precious metals with silver emphasis. Silver dual-use (monetary + industrial/solar) demand thesis. ~$900M revenue."},
+{ticker:"PAAS",name:"Pan American Silver",tier:1,subIndustry:"Silver & Precious Metals",marketCap:"Mid",archetype:"Cash Engine",cyclePosition:"Mid-Cycle",factorExposures:{momentum:0,value:1,quality:0,volatility:1,cyclicality:1,yield:1},description:"World's second-largest primary silver producer. Also produces gold, zinc, lead, copper. Operations across Latin America: Mexico, Peru, Bolivia, Argentina, Guatemala, and Canada. Acquired Yamana Gold (2023) — added significant gold production. Transitioning from silver-dominant to balanced precious metals portfolio. ~20M oz silver + ~900K oz gold production. ~$2.8B revenue."},
+{ticker:"CDE",name:"Coeur Mining",tier:1,subIndustry:"Silver & Precious Metals",marketCap:"Small",archetype:"Speculative Growth",cyclePosition:"Recovery",factorExposures:{momentum:0,value:1,quality:-1,volatility:2,cyclicality:2,yield:0},description:"US-based precious metals producer. Rochester (Nevada) — large silver/gold heap leach mine undergoing major expansion. Kensington (Alaska) — underground gold mine. Wharf (South Dakota) — open-pit gold. Palmarejo (Mexico) — silver/gold. Rochester expansion capex overrun was significant headwind; now ramping toward target throughput. Torque to silver prices with large reserve base. ~$1B revenue."}
+];
+
+const materialsIndustryBriefs = [
+// ═══════════════════════════════════════════════════════════════
+// TIER 3 — FORMULATE
+// ═══════════════════════════════════════════════════════════════
+{
+  title:"Industrial Gases",
+  tier:3,
+  overview:"Two-player global oligopoly (Linde, Air Products + Air Liquide, Nippon Sanso) supplying atmospheric gases (O2, N2, Ar), process gases (H2, CO2, He), and engineering services. The business model is the moat: on-site plants are pipeline-connected to customer facilities on 15-20yr take-or-pay contracts with cost pass-through clauses, creating annuity-like revenue with near-zero churn. Merchant and packaged gas distribution adds density economics. Capital-intensive upfront but generates exceptional returns once installed base matures.",
+  keyDynamics:["On-site pipeline model creates decades-long switching costs","Take-or-pay contracts with inflation/energy pass-throughs insulate margins","Clean hydrogen and carbon capture are multi-decade growth vectors","Oligopolistic industry structure supports rational pricing","Healthcare gases (medical O2, anesthesia) add defensive revenue floor","Capital allocation discipline: 10-12% ROIC hurdles for new projects"],
+  variantPerception:{
+    consensus:"Steady compounders with inflation-protected earnings; hydrogen transition adds growth optionality",
+    bull:"Clean hydrogen economy could be $500B+ TAM by 2050; industrial gases become critical energy infrastructure — current multiples understate the secular re-rating potential",
+    bear:"Hydrogen hype cycle underestimates technical challenges (storage, transport, green premium); mega-projects (NEOM) carry execution risk; base industrial gas demand is mature GDP-linked growth",
+    resolutionSignal:"Green hydrogen project FIDs, electrolyzer cost curves, government subsidy clarity (IRA hydrogen tax credits), customer conversion rates from grey to blue/green hydrogen"
+  },
+  revenueBreakdown:{onSite:"~30-35%",merchant:"~25-30%",packaged:"~15-20%",engineering:"~10-15%",healthcare:"~5-10%"},
+  anchorTickers:["LIN","APD"],
+  keyMetrics:["On-site backlog ($B)","Sale-of-gas revenue growth","EBITDA margin","ROIC","Hydrogen project pipeline ($B)","Contract renewal rate"],
+  watchlist:["Green hydrogen project milestones (NEOM, first US hub)","Natural gas prices (feedstock for blue H2)","IRA Section 45V hydrogen tax credit guidance","Industrial production index trends","Carbon capture policy developments"]
+},
+{
+  title:"Specialty Chemicals & Coatings",
+  tier:3,
+  overview:"The specification moat in its purest form. Specialty chemicals are formulated to customer-specific requirements and once qualified into a manufacturing process, regulatory approval, or product specification, switching costs become prohibitively high. Sub-segments include coatings (architectural, automotive OEM, industrial, protective), adhesives/sealants, electronic materials, specialty polymers, water treatment, activated carbons, and performance additives. This is the largest sub-industry in Materials by company count, reflecting the sector's fragmented nature at the high-specification end of the value chain. Margins (20-35% EBITDA) are structurally higher than commodity chemicals because pricing is based on performance value rather than raw material input cost.",
+  keyDynamics:["Spec-in dynamics: OEM qualification, regulatory approval, and formulation lock-in create 5-10yr customer retention","M&A is primary growth lever — sector is highly fragmented with thousands of niche players","Pricing is value-based, not cost-plus — less commodity exposure than diversified chemicals","Raw material costs (TiO2, resins, solvents, epoxies) are the primary margin variable","Coatings volume is tied to housing starts, auto production, and industrial maintenance cycles","Electronic materials and EV/battery chemicals are secular growth sub-niches","PFAS regulatory overhang creates both liability risk and reformulation opportunity"],
+  variantPerception:{
+    consensus:"Premium-multiple defensible businesses with M&A compounding; moderate cyclicality offset by spec-in switching costs",
+    bull:"AI/data center buildout drives unprecedented demand for electronic-grade chemicals and thermal management materials; reshoring wave expands domestic manufacturing base; PFAS reformulation creates decade-long replacement cycle worth billions",
+    bear:"Auto OEM weakness (EV transition disruption), housing starts below trend, and Chinese specialty chemical capacity additions compress margins and volumes; PFAS liabilities (Chemours, 3M precedent) are materially underpriced across the group",
+    resolutionSignal:"Housing starts trajectory, auto OEM build rates, PFAS regulatory rulings and settlement precedents, Chinese specialty chemical export volumes, electronic materials qualification wins at leading-edge fabs"
+  },
+  revenueBreakdown:{architecturalCoatings:"~25%",industrialCoatings:"~20%",autoAndAeroCoatings:"~15%",adhesivesAndSealants:"~10%",electronicMaterials:"~10%",performanceAdditives:"~10%",waterTreatment:"~10%"},
+  anchorTickers:["SHW","ECL","PPG","DD","RPM","ALB"],
+  keyMetrics:["Organic revenue growth","Gross margin %","EBITDA margin","R&D as % of sales","Customer retention rate","M&A pipeline / deal multiples","Price/mix vs volume contribution"],
+  watchlist:["US housing starts and existing home sales (repaint cycle)","Auto production schedules (OEM coatings)","PFAS regulatory developments (EPA, state-level)","Lithium carbonate prices (ALB)","Semiconductor fab construction timelines","Raw material cost indices (TiO2, propylene, epoxy)"]
+},
+{
+  title:"Flavors, Fragrances & Functional Ingredients",
+  tier:3,
+  overview:"Highly specialized formulation businesses where custom-designed flavor, fragrance, and functional ingredient systems become deeply embedded in customer products. Once a flavor profile or fragrance compound is specified into a consumer product (soft drink, perfume, detergent), reformulation risk makes switching extremely rare. The global industry is concentrated among four houses (Givaudan, IFF, dsm-firmenich, Symrise) plus specialty players. IFF is the primary US-listed representative post-DuPont N&B merger. Revenue is recurring, customer relationships span decades, and win rates on new briefs are the key growth driver.",
+  keyDynamics:["Customer co-creation model: 12-18 month development cycles create deep integration","Win rate on creative briefs is primary organic growth driver","Fragrance and flavor formulas are proprietary trade secrets — not patented","Natural and clean-label ingredient demand shifting product portfolios","DuPont N&B merger gave IFF enzymes, cultures, and probiotics — expanded TAM but added complexity","Portfolio simplification and deleveraging are current strategic priorities for IFF"],
+  variantPerception:{
+    consensus:"Defensive, high-switching-cost business with steady organic growth; IFF specifically is underearning due to N&B integration complexity and leverage",
+    bull:"IFF's portfolio rationalization unlocks sum-of-parts value; natural/clean-label and probiotics megatrends drive premium growth; streamlined IFF can re-rate to peer multiples (Givaudan trades at 30x+ EBITDA)",
+    bear:"IFF's integration challenges persist, divestitures destroy value; commodity functional ingredients face emerging market competition; consumer trade-down in beauty/personal care compresses fragrance volumes",
+    resolutionSignal:"IFF organic growth inflection, divestiture proceeds vs. expectations, net debt / EBITDA trajectory below 3x, functional ingredients margin stabilization"
+  },
+  revenueBreakdown:{flavors:"~25%",fragrances:"~25%",healthAndBiosciences:"~25%",pharmaSolutions:"~10%",nourish:"~15%"},
+  anchorTickers:["IFF"],
+  keyMetrics:["Organic revenue growth","Win rate on creative briefs","EBITDA margin","Net debt / EBITDA","Free cash flow conversion","Portfolio simplification milestones"],
+  watchlist:["Consumer staples volume growth (key end-market)","Natural/clean-label ingredient trends","IFF divestiture announcements","Probiotics and enzyme market growth","Currency headwinds (60%+ international revenue)"]
+},
+
+// ═══════════════════════════════════════════════════════════════
+// TIER 2 — PROCESS
+// ═══════════════════════════════════════════════════════════════
+{
+  title:"Steel",
+  tier:2,
+  overview:"North American steel industry has bifurcated: EAF (electric arc furnace) mini-mills using recycled scrap (Nucor, STLD, CMC) vs. integrated blast furnace producers using iron ore (CLF, X). EAF producers have structurally lower costs, greater flexibility, and higher through-cycle returns. US steel is protected by Section 232 tariffs (25%) creating a domestic pricing premium. End-markets: construction (~45%), automotive (~25%), energy (~10%), appliances, machinery. Metals service centers (RS) add processing and distribution value between mills and end-users.",
+  keyDynamics:["EAF vs. integrated cost structure is the defining competitive divide","Section 232 tariffs (25%) maintain domestic pricing premium over imports","Scrap prices (busheling, HMS) are key input cost for EAF producers","Automotive lightweighting (aluminum substitution) is structural headwind for flat-rolled","Infrastructure spending (IIJA) provides multi-year demand for rebar, structural, plate","Downstream fabrication (joists, decking, buildings) adds margin stability and value","Specialty alloys (ATI) serve aerospace/defense with much higher specification and margin"],
+  variantPerception:{
+    consensus:"US EAF producers are structurally advantaged with tariff protection and lowest-cost scrap feedstock; integrated producers face structural headwinds",
+    bull:"Reshoring + infrastructure supercycle drives sustained above-trend demand; EAF capacity additions are disciplined; tariff permanence institutionalizes domestic pricing premium; specialty alloys benefit from defense/aerospace spending surge",
+    bear:"Tariff removal or reduction under future administration collapses domestic premium; China export dumping overwhelms global markets; auto EV transition reduces steel content per vehicle; new EAF capacity (STLD Sinton, NUE expansions) overshoots demand",
+    resolutionSignal:"Monthly steel capacity utilization rates, HRC spot prices vs. import parity, Section 232 policy signals, auto build rates (SAAR), IIJA project lettings pace, scrap price trends"
+  },
+  revenueBreakdown:{construction:"~45%",automotive:"~25%",energyAndTubular:"~10%",appliancesAndMachinery:"~10%",serviceCenter:"~10%"},
+  anchorTickers:["NUE","STLD","RS","CLF"],
+  keyMetrics:["HRC price ($/ton)","Capacity utilization %","EBITDA/ton","Scrap spread (HRC minus scrap)","Shipment volumes (tons)","Net debt / EBITDA","CapEx intensity"],
+  watchlist:["US HRC spot price and futures curve","Section 232 tariff policy developments","Monthly steel capacity utilization (AISI data)","Scrap prices (AMM busheling, HMS)","Auto SAAR and production schedules","IIJA project lettings and infrastructure spending pace"]
+},
+{
+  title:"Commodity & Diversified Chemicals",
+  tier:2,
+  overview:"Large-scale producers of bulk petrochemicals, plastics, and chlor-alkali products. Revenue and margins driven by feedstock costs (ethane, propane, naphtha), capacity utilization, and global supply/demand balances. US producers benefit from shale gas advantage: Gulf Coast ethane crackers have the world's lowest feedstock costs, creating a structural margin advantage over European (naphtha-based) and Asian peers. Products include polyethylene, polypropylene, ethylene oxide, propylene oxide, PVC, chlorine, and caustic soda. These are the classic cyclical chemicals businesses where buying at trough multiples and selling at peak multiples is the core investment approach.",
+  keyDynamics:["US shale gas advantage: ethane feedstock costs 60-70% below naphtha equivalent","Polyethylene and polypropylene are ~50% of commodity chemical revenue","Chlor-alkali operates as a joint product: chlorine and caustic soda prices move inversely","Chinese capacity additions in PE, PP, and PVC are the primary structural overhang","Trough-to-peak EBITDA swings of 3-5x are normal for commodity chemicals","Capital allocation discipline (buybacks at trough, capex restraint) defines long-term shareholder returns"],
+  variantPerception:{
+    consensus:"Structurally advantaged US cost position but mid-cycle earnings depressed by Chinese oversupply and weak European demand; trading at trough valuations",
+    bull:"Global destocking complete, restocking cycle drives volume recovery; Chinese capacity rationalization begins; reshoring adds incremental US demand; buyback yields at trough compress share counts dramatically",
+    bear:"Chinese overcapacity is structural (state-directed investment), not cyclical; US shale gas advantage narrows as ethane exports rise; plastics regulation and circular economy reduce virgin resin demand; European operations are permanently uncompetitive",
+    resolutionSignal:"Global PE/PP operating rates, ethane-naphtha spread, Chinese chemical export volumes, US chemical inventories, housing and auto end-market demand recovery"
+  },
+  revenueBreakdown:{polyethylene:"~30%",polypropylene:"~15%",chlorAlkaliAndVinyls:"~20%",intermediates:"~15%",silicones:"~10%",other:"~10%"},
+  anchorTickers:["DOW","LYB","WLK","OLN"],
+  keyMetrics:["PE/PP spread (price minus feedstock)","Capacity utilization %","EBITDA margin","FCF yield","Ethane/naphtha price","Global operating rate","Net debt / EBITDA"],
+  watchlist:["Global PE/PP operating rates and new capacity startups","Ethane and natural gas prices","Chinese chemical production and export data","US housing starts (PVC/vinyl demand)","Chlor-alkali ECU netback pricing","Plastics regulation and recycling mandates"]
+},
+{
+  title:"Fertilizers & Agricultural Chemicals",
+  tier:2,
+  overview:"Producers of crop nutrients (nitrogen, phosphate, potash) and crop protection chemicals (herbicides, insecticides, fungicides). Fertilizer demand is relatively inelastic — farmers must apply nutrients to maintain yields — but pricing is highly volatile, driven by natural gas costs (nitrogen), mining economics (potash/phosphate), and geopolitical supply shocks (Russia/Belarus sanctions disrupted ~40% of global potash trade). Crop protection is more specification-driven, with patented active ingredients and trait-based seed technology (Corteva) creating longer-duration competitive advantages. The fertilizer cycle amplifies the ag commodity cycle: when grain prices are high, farmers maximize input application.",
+  keyDynamics:["Natural gas is ~70-80% of nitrogen fertilizer production cost — Henry Hub advantage for US producers","Potash supply concentrated: Canada (Nutrien), Belarus, Russia — geopolitical disruptions are recurring","Seed trait IP (Corteva) creates multi-year specification moat via germplasm and trait licensing","Biologicals (bioinsecticides, biostimulants) are fastest-growing sub-segment","Channel destocking cycles (2023-24) can depress volumes for 12-18 months independent of farmer demand","Brazil is the swing demand market — Southern Hemisphere planting season offsets Northern Hemisphere"],
+  variantPerception:{
+    consensus:"Fertilizer prices normalized post-2022 spike; Corteva seed premium sustains, but ag cycle is mid-to-late; nitrogen producers benefit from US gas cost advantage",
+    bull:"Global population growth + declining arable land per capita is structural demand driver; potash supply constraints persist (Belarus sanctions, Jansen delay); biologicals and precision ag create premium growth layer; food security concerns elevate fertilizer to strategic commodity",
+    bear:"Farmer affordability limits (grain prices below breakeven), Chinese fertilizer export resumption floods market, new potash capacity (Jansen, Laos) overshoots demand, crop protection generics erode Corteva margins",
+    resolutionSignal:"Corn and soybean futures prices, global potash and urea FOB prices, North American planted acreage intentions, Brazilian fertilizer import data, Corteva seed pricing realization, biologicals revenue growth"
+  },
+  revenueBreakdown:{nitrogen:"~30%",potash:"~15%",phosphate:"~15%",seedAndTraits:"~25%",cropProtection:"~15%"},
+  anchorTickers:["CTVA","CF","NTR","MOS"],
+  keyMetrics:["Urea (NOLA) price","Potash (Vancouver) price","DAP/MAP price","Corn/soybean futures","Natural gas price (Henry Hub)","Planted acreage","Seed pricing realization %"],
+  watchlist:["USDA planted acreage and crop production reports","Corn, soybean, wheat futures","Henry Hub natural gas prices","Belarus/Russia potash export sanctions status","Brazilian fertilizer imports","Corteva seed trait adoption rates","BHP Jansen potash project timeline"]
+},
+{
+  title:"Construction Materials",
+  tier:2,
+  overview:"Producers of aggregates (crushed stone, sand, gravel), cement, ready-mixed concrete, asphalt, and lime. The defining characteristic is the local monopoly: aggregates and cement are heavy, low-value-per-ton products with tight shipping radii (50 miles for aggregates, 150-200 miles for cement), meaning the nearest quarry or plant wins. New quarry permits are virtually impossible to obtain due to NIMBY opposition and environmental review, making existing reserves irreplaceable assets. Pricing has never declined year-over-year for aggregates since 1991 — one of the most remarkable pricing records in any commodity. Infrastructure spending (IIJA's $550B) provides a multi-year demand floor.",
+  keyDynamics:["Local monopoly dynamics: heavy product + tight shipping radius + no new permits = irreplaceable assets","Aggregates pricing power is unmatched: never a YoY decline since 1991","IIJA ($550B infrastructure) provides 5-7yr demand visibility for highway, bridge, airport projects","Residential construction (housing starts) and non-residential (commercial, industrial) are key demand drivers","Vertical integration from quarry → cement → ready-mix → asphalt → paving creates margin stacking","CRH's M&A model: 100+ bolt-on acquisitions per decade consolidating local markets","Lime is a related product with similar local dynamics — essential for steel, water treatment, FGD"],
+  variantPerception:{
+    consensus:"Premium compounders with irreplaceable assets and unmatched pricing power; IIJA provides demand floor through late-2020s; current valuations reflect premium quality",
+    bull:"IIJA spending is just beginning to accelerate; highway funding reauthorization adds another decade of demand; reshoring wave drives non-residential construction boom; aggregates pricing accelerates to 10%+ annually as operators push price over volume",
+    bear:"Housing starts remain below trend (affordability crisis), commercial real estate weakness offsets infrastructure gains, state/local budget constraints delay IIJA-funded projects, premium valuations leave no margin of safety",
+    resolutionSignal:"Monthly highway contract awards (FHWA data), housing starts and permits, aggregates and cement pricing reports (PCA, USGS), state DOT letting schedules, non-residential construction put-in-place"
+  },
+  revenueBreakdown:{aggregates:"~35%",cement:"~20%",readyMixConcrete:"~20%",asphalt:"~10%",buildingProducts:"~10%",lime:"~5%"},
+  anchorTickers:["CRH","MLM","VMC","EXP"],
+  keyMetrics:["Aggregates ASP ($/ton)","Cement price ($/ton)","Volume (tons shipped)","Gross profit/ton","EBITDA margin","IIJA project lettings ($B)","Housing starts"],
+  watchlist:["FHWA monthly highway contract awards","Census Bureau housing starts and building permits","Portland Cement Association (PCA) shipment data","IIJA funding disbursement pace by state","State DOT construction letting schedules","Ready-mix concrete pricing","Non-residential construction put-in-place data"]
+},
+{
+  title:"Containers & Packaging",
+  tier:2,
+  overview:"Producers of metal containers (aluminum cans, food cans, aerosols), glass bottles, paper-based packaging (corrugated boxes, folding cartons, containerboard), plastic containers/films/flexible packaging, and dispensing systems (closures, pumps, valves). Packaging is a massive, essential industry tied to GDP and consumer spending. Most segments are cost-plus with contractual raw material pass-throughs, providing margin stability. Sustainability is the dominant secular theme: aluminum (infinitely recyclable), fiber-based (renewable), and recycled content drive substrate substitution away from virgin plastic. M&A consolidation is reshaping the industry (IP+DS Smith, Amcor+Berry, Smurfit+WestRock).",
+  keyDynamics:["Cost-plus/pass-through contracts in most segments provide margin stability","Aluminum can sustainability advantage drives substrate shift from plastic and glass","Containerboard/corrugated is the workhorse of global commerce — e-commerce is structural tailwind","Mega-mergers reshaping industry: IP+DS Smith, Amcor+Berry, Smurfit+WestRock","Dispensing/closures (ATR, SLGN) have higher spec-in dynamics than commodity containers","OCC (old corrugated containers) prices are key input for recycled containerboard","RFID/intelligent labels (AVY) are secular growth niche within the broader packaging space"],
+  variantPerception:{
+    consensus:"Defensive GDP-linked businesses with stable margins; mega-mergers create synergies but integration risk; sustainability trends favor aluminum and fiber over plastic",
+    bull:"E-commerce structural growth drives corrugated demand above GDP; sustainability regulation forces accelerated plastic-to-fiber/aluminum substitution; consolidation wave drives rational pricing and synergies; dispensing systems (ATR) re-rate as pharma/beauty spec-in value recognized",
+    bear:"Consumer goods volume stagnation in developed markets limits organic growth; plastic packaging regulation overstates actual substitution pace; mega-merger integration destroys value; containerboard overcapacity from new mill investments",
+    resolutionSignal:"Monthly corrugated box shipment data (FBA), aluminum can shipment trends, OCC prices, beverage mix shift (cans vs. plastic), merger integration synergy achievement, e-commerce parcel volumes"
+  },
+  revenueBreakdown:{corrugatedAndContainerboard:"~35%",flexiblePlastic:"~20%",metalContainers:"~20%",rigidPlastic:"~10%",dispensingAndClosures:"~10%",glass:"~5%"},
+  anchorTickers:["AMCR","PKG","AVY","BALL","SW","CCK"],
+  keyMetrics:["Corrugated box shipments (BSF)","Containerboard operating rate","Aluminum can shipments","OCC price ($/ton)","Organic revenue growth","EBITDA margin","FCF conversion","Synergy realization (for merging entities)"],
+  watchlist:["FBA corrugated box shipment reports","Aluminum can shipment data (CMI)","OCC and containerboard prices","E-commerce parcel volume growth","Sustainability regulation (extended producer responsibility, plastic bans)","Merger integration milestones (IP+DS Smith, Amcor+Berry)","RFID adoption rates in retail/logistics"]
+},
+{
+  title:"Paper & Forest Products",
+  tier:2,
+  overview:"Producers of containerboard, kraft paper, pulp (fluff, dissolving, market), paperboard, and wood products. The segment has consolidated dramatically as commodity paper demand (printing/writing) structurally declined. Remaining players are focused on packaging-grade fiber (containerboard, kraftliner) or specialty cellulose. International Paper's acquisition of DS Smith (2024) made it the dominant global containerboard producer. The US South is the world's lowest-cost wood basket for fiber production. Specialty cellulose (Rayonier AM) serves niche applications like acetate textiles and pharma excipients but faces competitive pressure.",
+  keyDynamics:["Structural decline in printing/writing paper — survivors pivoted to packaging-grade fiber","US South wood basket provides lowest-cost virgin fiber globally","Containerboard demand tied to corrugated box demand (GDP + e-commerce)","IP + DS Smith merger creates dominant global containerboard platform","Specialty cellulose (dissolving pulp) serves niche textile and pharma markets","Recycled fiber (OCC) vs. virgin fiber economics drive mill investment decisions"],
+  variantPerception:{
+    consensus:"Commodity-grade paper is secularly challenged but containerboard benefits from e-commerce and packaging demand; IP is now the dominant consolidator",
+    bull:"IP's DS Smith integration creates global pricing power in containerboard; fiber-based packaging gains share from plastic; US virgin fiber cost advantage widens as global wood costs rise",
+    bear:"Containerboard overcapacity from new mill investments depresses pricing; digital substitution continues eroding remaining paper demand; specialty cellulose faces Chinese viscose competition",
+    resolutionSignal:"Containerboard pricing and operating rates, corrugated box demand growth, IP integration milestones, printing/writing paper demand trends, dissolving pulp pricing"
+  },
+  revenueBreakdown:{containerboard:"~60%",kraftAndIndustrialPaper:"~15%",pulp:"~10%",specialtyCellulose:"~10%",other:"~5%"},
+  anchorTickers:["IP"],
+  keyMetrics:["Containerboard price ($/ton)","Operating rate","Corrugated box demand","Pulp prices (NBSK, fluff)","EBITDA margin","FCF conversion"],
+  watchlist:["RISI/Fastmarkets containerboard and linerboard pricing","FBA box shipment data","Printing/writing paper demand trends","OCC and fiber costs","IP + DS Smith integration progress","Global dissolving pulp pricing"]
+},
+
+// ═══════════════════════════════════════════════════════════════
+// TIER 1 — EXTRACT
+// ═══════════════════════════════════════════════════════════════
+{
+  title:"Gold Mining",
+  tier:1,
+  overview:"Producers of gold through open-pit and underground mining, plus streaming/royalty companies that finance production in exchange for below-market purchase rights. Gold is unique among mined commodities: demand is primarily monetary/investment (~50%) and jewelry (~35%), with limited industrial use. This makes gold miners leveraged bets on real interest rates, central bank buying, and geopolitical uncertainty rather than industrial demand cycles. The streaming/royalty model (WPM, RGLD, FNV) is a fundamentally different business: zero operating risk, zero capex, pure price leverage with downside floors — effectively a tollbridge on extraction. Senior producers (NEM, AEM, GOLD) face mine depletion and must constantly reinvest in exploration and development. All-in sustaining costs (AISC) determine which producers are profitable at a given gold price.",
+  keyDynamics:["Gold price driven by real interest rates (inverse), USD strength (inverse), central bank buying, geopolitical risk","AISC ($1,100-1,500/oz for major producers) determines profitability — cost curve position is key","Mine depletion requires constant exploration/development spend to maintain production","Streaming/royalty companies (WPM, RGLD, FNV) have structurally superior business models — Tollbridge on mining","Central bank gold buying (China, EM central banks) has been at record levels since 2022","Geopolitical risk premium: mines in Africa, Latin America face political/regulatory risk","Gold miners historically underperform gold itself due to cost inflation, dilution, and capex overruns"],
+  variantPerception:{
+    consensus:"Gold at all-time highs supported by central bank buying and geopolitical hedging; miners are finally generating strong FCF after years of discipline",
+    bull:"De-dollarization and central bank diversification is structural, not cyclical; rate cuts reduce opportunity cost of holding gold; mine supply growth is negligible (major discoveries declining); gold could reach $3,000+ in a stagflationary scenario",
+    bear:"Gold is overextended above $2,400/oz; rate cuts already priced in; central bank buying could reverse; miners will repeat historical pattern of destroying value through M&A at cycle peaks (NEM paid $17B for Newcrest near top)",
+    resolutionSignal:"Real interest rate trajectory (TIPS yields), Fed rate path, central bank gold reserves data (WGC quarterly), gold ETF flows, AISC inflation trends, mine supply growth/decline rates, senior producer M&A discipline"
+  },
+  revenueBreakdown:{seniorProducers:"~60%",midTierProducers:"~20%",streamingAndRoyalty:"~15%",juniorAndDevelopment:"~5%"},
+  anchorTickers:["NEM","AEM","GOLD","WPM","FNV"],
+  keyMetrics:["Gold price ($/oz)","AISC ($/oz)","Production (oz)","Reserve life (years)","FCF yield","Net debt / EBITDA","NAV premium/discount","GEO (gold-equivalent oz) for streamers"],
+  watchlist:["Gold spot price and futures curve","US real interest rates (10yr TIPS)","Central bank gold buying (WGC data)","Gold ETF flows (GLD, IAU)","Fed funds rate path","AISC cost inflation trends","Major mine development project milestones","M&A activity and deal multiples"]
+},
+{
+  title:"Copper Mining",
+  tier:1,
+  overview:"Copper producers are positioned at the intersection of the industrial commodity cycle and the energy transition megatrend. Copper is essential for electrification: EVs use 3-4x more copper than ICE vehicles, renewable energy systems require 4-5x more copper per MW than fossil fuel, and data center/AI infrastructure is copper-intensive. Supply growth is severely constrained: declining ore grades, 10-15 year permitting timelines, and community opposition make new large-scale mines extremely difficult to develop. This supply-demand imbalance thesis is the consensus bull case for the metal. Key producers are FCX (Grasberg, Morenci), SCCO (Peru/Mexico, world's largest reserves), and TECK (QB2 ramp, copper pivot).",
+  keyDynamics:["Electrification megatrend: EVs, renewables, grid buildout, data centers all copper-intensive","Supply constraints: declining ore grades, 10-15yr permitting timelines, community opposition","Copper price drives ~80% of equity returns for pure-play miners","Chile and Peru account for ~40% of global mine supply — political/water risk","By-product credits (gold, molybdenum, silver) significantly affect unit costs","Concentrate treatment charges (TC/RCs) affect smelter economics but not mine profitability directly"],
+  variantPerception:{
+    consensus:"Structural supply deficit emerging mid-decade as electrification demand outpaces constrained supply growth; copper is 'the new oil' for energy transition",
+    bull:"Supply deficit could reach 5-10Mt by 2030; $12,000+/t copper needed to incentivize new supply; FCX Grasberg underground ramp is world-class asset; reshoring and AI/data center buildout add demand layers not yet in consensus models",
+    bear:"Chinese property downturn suppresses ~30% of global demand; copper recycling and substitution (aluminum) erode demand growth; new supply from DRC (Kamoa-Kakula) and greenfield projects exceeds expectations; global recession destroys the demand thesis",
+    resolutionSignal:"LME copper price and warehouse stocks, Chinese copper imports and PMI data, global copper mine supply growth, EV sales penetration rates, grid infrastructure spending, permitting timelines for major projects"
+  },
+  revenueBreakdown:{copperConcentrate:"~70%",goldByProduct:"~15%",molybdenumByProduct:"~5%",otherMetals:"~5%",smelterAndRefining:"~5%"},
+  anchorTickers:["FCX","SCCO","TECK"],
+  keyMetrics:["Copper price ($/lb or $/t)","C1 cash cost ($/lb)","AISC ($/lb net of by-products)","Production (lbs or tonnes)","Reserve grade (% Cu)","Capex intensity","FCF yield"],
+  watchlist:["LME copper price and inventory levels","Chinese copper imports and apparent demand","EV sales and penetration rates globally","Grid infrastructure spending plans","Major project permitting and development timelines","Chile/Peru political and water risk developments","Concentrate TC/RC benchmark negotiations"]
+},
+{
+  title:"Diversified Metals & Mining",
+  tier:1,
+  overview:"Global mining majors (BHP, RIO, VALE) that extract multiple commodities — primarily iron ore, copper, aluminum, nickel, and potash — across dozens of countries. These are the world's largest mining companies by market cap and production volume. Iron ore (steel's primary input) is the dominant revenue driver for BHP and RIO (Pilbara operations have the world's lowest production costs) and VALE (Carajás has the world's highest ore grades). All three are pivoting toward 'future-facing' commodities: copper, lithium, nickel, and potash for the energy transition. Capital allocation, dividend policy, and ESG/environmental liabilities (Vale's Brumadinho, Rio Tinto's Juukan Gorge) are key governance considerations.",
+  keyDynamics:["Iron ore (62% Fe CFR China) is the primary earnings driver — Chinese steel demand sets the price","Pilbara (BHP, RIO) and Carajás (VALE) are the world's lowest-cost, highest-quality iron ore provinces","Chinese steel demand (~55% of global seaborne iron ore) is the dominant demand variable","Pivot to 'future-facing' commodities: copper (BHP Resolution, RIO Oyu Tolgoi), lithium (RIO Arcadium), potash (BHP Jansen)","Progressive dividend policies return 50-70% of FCF to shareholders at mid-cycle","ESG and social license risk: dam failures, indigenous heritage destruction, community opposition shape operating model"],
+  variantPerception:{
+    consensus:"Iron ore supports high dividends at current prices; long-term growth comes from copper/lithium pivot; Chinese property downturn is the key risk",
+    bull:"India infrastructure buildout becomes the next structural iron ore demand driver; copper supply deficit validates pivot investments; majors are best-positioned to develop large-scale critical mineral supply; dividends provide 5-7% floor yield",
+    bear:"Chinese property collapse drives iron ore below $80/t, destroying free cash flow; copper/lithium pivots destroy capital (BHP spent $6.4B on Oz Minerals, RIO $6.7B on Arcadium at cycle peak); ESG liabilities are materially underreserved",
+    resolutionSignal:"Iron ore 62% Fe CFR China price, Chinese crude steel production and property starts, BHP/RIO copper production growth, Jansen potash project commissioning, Indian infrastructure spending, dividend/buyback announcements"
+  },
+  revenueBreakdown:{ironOre:"~50%",copper:"~20%",aluminum:"~10%",nickel:"~5%",potash:"~5%",otherMinerals:"~10%"},
+  anchorTickers:["BHP","RIO","VALE"],
+  keyMetrics:["Iron ore price (62% Fe CFR)","Copper production growth","C1 cash cost by commodity","FCF yield","Dividend yield","Net debt / EBITDA","ROIC","Reserve life"],
+  watchlist:["Iron ore 62% Fe CFR China price","Chinese crude steel production and PMI","Chinese property starts and completions","India infrastructure spending and steel demand","BHP Jansen potash project milestones","RIO Oyu Tolgoi underground ramp","VALE Brumadinho liability resolution","Global copper supply/demand balance"]
+},
+{
+  title:"Aluminum",
+  tier:1,
+  overview:"Primary aluminum producers that smelt bauxite-derived alumina into aluminum metal using electrolysis. The most energy-intensive materials process: smelting consumes ~15,000 kWh per tonne of aluminum, making electricity cost the primary competitive variable. Low-cost smelters are located near cheap hydroelectric (Iceland, Quebec, Norway) or stranded gas/coal (Middle East, China). US smelters have been uncompetitive for decades due to high power costs — Section 232 tariffs (25%) are the lifeline. Century Aluminum's proposed Mississippi greenfield (first new US smelter in 45 years) reflects reshoring and national security themes. Alcoa is the only vertically integrated Western aluminum major (bauxite → alumina → metal).",
+  keyDynamics:["Electricity cost is ~35-40% of aluminum production cost — the defining competitive variable","Section 232 tariffs (25%) essential for US smelter survival","Chinese production (~60% of global supply) sets marginal cost and price","Aluminum is infinitely recyclable — recycled aluminum uses 95% less energy than primary","ELYSIS carbon-free smelting technology (Alcoa + RIO + Apple JV) could transform industry ESG profile","EV and lightweighting trends drive structural demand growth for aluminum in automotive and packaging"],
+  variantPerception:{
+    consensus:"Aluminum benefits from lightweighting and sustainability trends but Chinese overcapacity caps upside; US smelters depend on tariff protection",
+    bull:"Reshoring and national security elevate aluminum to strategic material; tariff permanence + DOE loans enable new US capacity; Chinese export tax or power curtailments tighten supply; green aluminum commands growing premium",
+    bear:"Chinese production continues to grow despite announced caps; Section 232 tariffs removed or reduced; power costs for Western smelters remain uncompetitive; aluminum substitution by carbon fiber in premium applications",
+    resolutionSignal:"LME aluminum price, Chinese production growth and export volumes, Section 232 policy, US smelter capacity utilization, electricity cost trends, green premium for low-carbon aluminum"
+  },
+  revenueBreakdown:{primaryAluminum:"~50%",alumina:"~25%",bauxite:"~10%",valueAddProducts:"~15%"},
+  anchorTickers:["AA","CENX"],
+  keyMetrics:["LME aluminum price","Midwest premium","Electricity cost ($/MWh)","C1 cash cost ($/t)","Production (tonnes)","Capacity utilization","Section 232 premium"],
+  watchlist:["LME aluminum price and inventory","Chinese aluminum production and export data","US Section 232 tariff policy","Electricity prices at key smelter locations","Century Aluminum Mississippi greenfield progress","ELYSIS technology milestones","Automotive aluminum sheet demand","Aluminum can shipments"]
+},
+{
+  title:"Silver & Precious Metals",
+  tier:1,
+  overview:"Primary silver miners and diversified precious metals producers extracting silver, often with gold, zinc, and lead by-products. Silver occupies a unique dual identity: it's both a monetary/investment metal (like gold) and a critical industrial metal used in electronics, solar panels, brazing, and medical applications. Industrial demand (~55% of total) distinguishes silver from gold and creates leverage to both monetary policy cycles and manufacturing/clean energy trends. Solar photovoltaics alone consume ~15% of annual silver supply and growing. Primary silver miners are rare — most silver is produced as a by-product of gold, copper, lead, and zinc mining. This makes the silver supply relatively inelastic to silver prices.",
+  keyDynamics:["Dual monetary + industrial demand profile creates unique factor exposure","Solar PV silver consumption growing ~10% annually — secular structural demand driver","~75% of silver supply comes as by-product from other metals mining — inelastic to silver price","Silver/gold ratio (~80-85x currently) is key relative value indicator — long-term average ~60x","Primary silver miners (HL, PAAS, CDE) are scarce — premium optionality on silver price","Mine supply has been flat-to-declining for a decade while industrial demand grows"],
+  variantPerception:{
+    consensus:"Silver benefits from both monetary (like gold) and industrial (solar, electronics) demand; structurally undervalued relative to gold at current ratio",
+    bull:"Solar-driven industrial demand creates structural deficit; silver/gold ratio reverts to historical mean (60x) implying 30%+ upside; monetary demand increases alongside gold as real rates fall; mine supply cannot respond due to by-product dynamics",
+    bear:"Industrial recession crushes industrial demand; silver is more volatile and less of a safe haven than gold; solar thrifting reduces silver per panel; above-ground stockpiles are large enough to fill any deficit",
+    resolutionSignal:"Silver/gold ratio trend, solar panel installation data, silver ETF flows, COMEX positioning, mine supply growth/decline, industrial silver demand growth, India silver imports"
+  },
+  revenueBreakdown:{silverSales:"~45%",goldSales:"~30%",zincLeadByProducts:"~15%",copperByProducts:"~10%"},
+  anchorTickers:["HL","PAAS","CDE"],
+  keyMetrics:["Silver price ($/oz)","Gold price ($/oz)","Silver/gold ratio","AISC ($/oz Ag-eq)","Production (Moz)","Reserve life","FCF yield"],
+  watchlist:["Silver spot price and futures curve","Silver/gold ratio","Solar PV installation forecasts (IEA, BloombergNEF)","Silver ETF flows (SLV)","India silver imports","COMEX managed money positioning","Primary silver mine production data","Rochester mine ramp-up (CDE)"]
+}
+];
+
+const materialsGlossary = [
+  {term:"AISC",definition:"All-In Sustaining Cost. Total cost to produce one ounce of gold (or equivalent), including mining, processing, G&A, sustaining capex, reclamation, and royalties. The industry-standard profitability metric for precious metals miners, reported per WGC guidelines. A mine with AISC of $1,200/oz is profitable when gold trades above $1,200."},
+  {term:"Aggregates",definition:"Crushed stone, sand, and gravel used as base materials in construction. The most consumed natural resource after water. Heavy and low-value-per-ton, aggregates have a ~50-mile economic shipping radius, creating natural local monopolies for quarry operators. Permitting barriers make existing reserves virtually irreplaceable."},
+  {term:"Busheling",definition:"A grade of ferrous scrap metal (clean steel clippings from stamping/fabrication operations) used as primary feedstock in EAF steelmaking. Busheling prices are a key input cost for mini-mill steel producers like Nucor and STLD. Tracked by AMM (American Metal Market)."},
+  {term:"C1 Cash Cost",definition:"Direct operating cost per unit of production for a mine, excluding sustaining capex, royalties, and corporate overhead. Used primarily in base metals (copper, aluminum) to determine cost curve position. A copper mine with C1 of $1.50/lb is in the lower quartile of the global cost curve."},
+  {term:"Chlor-Alkali",definition:"The joint production of chlorine and caustic soda (sodium hydroxide) via electrolysis of salt brine. A fundamental chemical process where both products must be co-produced in fixed ratios. When chlorine demand is strong, caustic soda becomes oversupplied (and vice versa), creating an inherent pricing seesaw. ECU (electrochemical unit) measures combined value."},
+  {term:"Containerboard",definition:"The raw paperboard material used to manufacture corrugated boxes. Includes linerboard (flat outer faces) and corrugating medium (fluted inner layer). Graded by weight (26lb, 42lb) and material (virgin kraft, recycled). Operating rate and pricing are key industry health indicators."},
+  {term:"Cost Curve",definition:"A ranking of all global producers of a commodity from lowest to highest production cost. Position on the cost curve determines which producers are profitable at a given commodity price and which are marginal/loss-making. Being in the first or second quartile provides through-cycle resilience."},
+  {term:"Dissolving Pulp",definition:"High-purity cellulose pulp used to produce regenerated cellulose fibers (viscose, lyocell, modal) for textiles, as well as specialty applications in pharma, food, and acetate products. Distinct from commodity paper-grade pulp due to higher alpha-cellulose content requirements."},
+  {term:"EAF (Electric Arc Furnace)",definition:"Steelmaking technology that melts scrap metal using electric arcs rather than iron ore in blast furnaces. EAF mini-mills (Nucor, STLD, CMC) have lower capital intensity, faster startup, greater flexibility, and lower carbon emissions than integrated blast furnace operations. Now produces ~70% of US steel."},
+  {term:"ECU (Electrochemical Unit)",definition:"One ton of chlorine plus 1.1 tons of caustic soda — the co-products of the chlor-alkali electrolysis process. ECU netback (combined revenue minus production cost) is the key profitability metric for chlor-alkali producers like OLN and WLK."},
+  {term:"Ethane Cracker",definition:"A petrochemical facility that thermally 'cracks' ethane (a natural gas liquid) into ethylene, the foundational building block of plastics (PE, PVC, PET). US Gulf Coast crackers benefit from shale gas-derived ethane that costs 60-70% less than European naphtha-based feedstock."},
+  {term:"Fluff Pulp",definition:"Specialty grade of softwood pulp used as the absorbent core in diapers, feminine hygiene products, and adult incontinence products. IP is the world's largest fluff pulp producer. Demand is stable and tied to demographics rather than economic cycles."},
+  {term:"FOB (Fertilizer Pricing)",definition:"Free On Board — the standard pricing basis for fertilizer trade. Key benchmarks include Urea FOB Middle East, Potash FOB Vancouver, and DAP FOB Tampa. Freight costs from production source to farm gate significantly affect delivered economics."},
+  {term:"Formulation Moat",definition:"The competitive advantage created when a specialty chemical, coating, or material is specified into a customer's product formulation, manufacturing process, or regulatory approval. Once spec'd in, switching requires costly requalification, creating durable pricing power and customer retention. The unifying investment lens for the Materials sector atlas."},
+  {term:"Gold-Equivalent Ounces (GEO)",definition:"A standardized metric for precious metals streaming/royalty companies that converts all metal streams (silver, copper, cobalt, palladium) into gold-equivalent ounces using prevailing price ratios. Allows apples-to-apples comparison of diversified streaming portfolios."},
+  {term:"Green Premium",definition:"The price premium that customers pay for materials produced with lower carbon intensity — e.g., green aluminum smelted with hydroelectric power, green hydrogen produced via electrolysis, or recycled-content packaging. The magnitude of the green premium determines the economic viability of sustainable production methods."},
+  {term:"HRC (Hot-Rolled Coil)",definition:"The benchmark flat-rolled steel product used in construction, automotive, appliances, and pipe/tube manufacturing. HRC spot price ($/short ton, Midwest basis) is the primary indicator of US steel market health. CRU, Platts, and AMM publish daily HRC assessments."},
+  {term:"Henry Hub Advantage",definition:"The competitive benefit for US chemical and fertilizer producers from low-cost natural gas (benchmarked at Henry Hub, Louisiana). US nat gas at $2-4/MMBtu vs. European TTF at $8-12+/MMBtu gives US nitrogen fertilizer and ethane-based chemical producers a structural feedstock cost advantage."},
+  {term:"Integrated vs. Mini-Mill",definition:"The two steel production models. Integrated mills (CLF, X) use blast furnaces to reduce iron ore with coke, producing virgin steel — high capex, higher cost, but can make the highest-quality flat-rolled. Mini-mills (NUE, STLD) use EAFs to melt scrap — lower cost, more flexible, growing into flat-rolled quality."},
+  {term:"LME (London Metal Exchange)",definition:"The world's primary exchange for trading base metals futures and options. Key contracts: copper, aluminum, zinc, nickel, lead, tin. LME warehouse inventory levels are a closely watched indicator of physical supply/demand tightness."},
+  {term:"NBSK (Northern Bleached Softwood Kraft)",definition:"The benchmark grade of market pulp, produced from softwood (spruce, pine) in Scandinavia and Canada. NBSK pricing ($/tonne) is the key reference price for the global pulp market and a significant input cost for paper and packaging producers."},
+  {term:"OCC (Old Corrugated Containers)",definition:"Recycled corrugated cardboard boxes collected from retailers, manufacturers, and consumers. OCC is the primary raw material for recycled containerboard mills. OCC pricing ($/ton) significantly affects margins for producers using recycled fiber (vs. virgin kraft producers)."},
+  {term:"On-Site/Pipeline Model",definition:"The industrial gas supply model where gas production plants are built adjacent to or piped directly into customer facilities on 15-20 year take-or-pay contracts. Creates tollbridge economics: the infrastructure is literally embedded in the customer's production process, making switching effectively impossible without shutting down the plant."},
+  {term:"Ore Grade",definition:"The concentration of valuable metal in mined rock, typically expressed as a percentage (copper) or grams per tonne (gold). Global average ore grades have been declining for decades as the highest-grade deposits are depleted, requiring more rock to be processed per unit of metal — a structural driver of cost inflation."},
+  {term:"Potash",definition:"Potassium-bearing minerals (primarily KCl) used as fertilizer to promote plant growth, disease resistance, and water retention. Mined from underground deposits (Saskatchewan, Belarus, Russia) or extracted from brine (Dead Sea). Supply is geopolitically concentrated: sanctions on Belarus/Russia disrupted ~40% of global trade."},
+  {term:"Reserve Life",definition:"The number of years a mine can continue producing at current rates based on proven and probable mineral reserves. Longer reserve life reduces depletion risk and reinvestment urgency. Gold miners typically target 10-15 year reserve life; aggregates producers may have 50+ year reserve lives."},
+  {term:"ROIC (Return on Invested Capital)",definition:"Net operating profit after tax divided by invested capital (equity + net debt). The fundamental measure of capital efficiency in Materials — separates companies that earn above their cost of capital (value creators) from those that destroy value through the cycle. Industrial gases and specialty chemicals typically earn 15-25% ROIC; commodity chemicals 5-12%."},
+  {term:"Section 232 Tariffs",definition:"US tariffs imposed under Section 232 of the Trade Expansion Act of 1962, which allows the president to restrict imports on national security grounds. 25% tariffs on steel (2018) and 10-25% on aluminum create a domestic pricing premium for US producers. Tariff permanence/removal is a key policy risk for domestic metals."},
+  {term:"Spec-In / Qualification",definition:"The process by which a specialty chemical, coating, or material is tested, approved, and formally specified into a customer's product or manufacturing process. Once spec'd in, the material becomes part of the customer's quality control system, regulatory filings, or product certification — creating high switching costs. The foundation of the Formulation Moat."},
+  {term:"Streaming/Royalty Model",definition:"An alternative to direct mining: streaming companies (WPM) pay upfront to buy future metal production at fixed below-market prices; royalty companies (RGLD, FNV) receive a percentage of mine revenue or production. Both models have zero operating costs, zero exploration risk, and pure commodity price leverage — the Tollbridge archetype applied to extraction."},
+  {term:"Take-or-Pay Contract",definition:"A contractual provision requiring the customer to pay for a minimum quantity of product whether or not they actually take delivery. Standard in industrial gas on-site supply and some chemical distribution agreements. Creates annuity-like revenue visibility and downside protection for the supplier."},
+  {term:"TiO2 (Titanium Dioxide)",definition:"The world's most widely used white pigment, added to paints, coatings, plastics, and paper to provide opacity and brightness. Produced from ilmenite or rutile mineral sands via chloride or sulfate processes. Cyclical pricing tied to construction and coatings demand. Key producers: Chemours (CC), Tronox (TROX), Kronos, Venator."},
+  {term:"Tollbridge",definition:"An archetype for businesses with infrastructure-embedded, non-discretionary revenue streams and high switching costs. In Materials, the purest tollbridges are industrial gas on-site supply (LIN, APD), water/process treatment (ECL), and precious metals streaming/royalty (WPM, RGLD, FNV). Characterized by through-cycle stability and premium multiples."},
+  {term:"Value-Add Processing",definition:"Intermediate manufacturing steps (cutting, slitting, forming, coating, fabrication) performed by metals service centers (RS) or downstream steel fabricators (NUE, STLD fabrication segments) that transform raw mill products into customer-ready shapes and sizes. Reduces customer waste and inventory requirements, earning a margin premium above raw material cost."},
+  {term:"Yield Premium",definition:"In metals and mining, the dividend yield premium commanded by diversified majors (BHP, RIO, VALE) and commodity chemical companies (DOW, LYB) at cyclical troughs. These stocks attract income investors during downturns when yields spike to 5-8%+, creating a valuation floor. The yield premium compresses during upcycles as capital appreciation dominates."}
+];
+
+const materialsSignalChains = [
+{
+  id:"SC-MAT-01",
+  title:"The Housing-to-Coatings Chain",
+  trigger:"US housing starts inflect upward (>1.5M SAAR)",
+  chain:[
+    "Housing starts rise → new construction drives aggregates/cement demand (CRH, MLM, VMC)",
+    "New homes require initial paint application → SHW Paint Stores Group volume accelerates (professional contractor channel)",
+    "12-18 months later: appliance and furnishing pull-through lifts steel (NUE flat-rolled) and plastics (DOW PE packaging)",
+    "3-5 years later: existing home sales rise → repaint cycle begins (SHW, PPG architectural coatings)",
+    "PVC pipe and siding demand rises → WLK Housing & Infrastructure Products segment benefits",
+    "Adhesives demand for flooring, cabinetry, countertops → FUL construction segment"
+  ],
+  affectedTickers:["SHW","PPG","MLM","VMC","CRH","NUE","DOW","WLK","FUL"],
+  signalSources:["Census Bureau housing starts/permits","Existing home sales (NAR)","Mortgage rates","Home builder sentiment (NAHB)","SHW same-store sales reports"]
+},
+{
+  id:"SC-MAT-02",
+  title:"The Electrification Supercycle Chain",
+  trigger:"EV penetration exceeds 25% of new vehicle sales in major markets",
+  chain:[
+    "EV production acceleration → copper demand surges (3-4x per vehicle vs. ICE) → FCX, SCCO, TECK benefit",
+    "Battery production scale-up → lithium demand growth (ALB) + specialty carbon additives for anodes (CBT)",
+    "Grid infrastructure buildout to support EV charging → aluminum conductor demand (AA, CENX) + industrial gases for cable manufacturing (LIN)",
+    "Renewable energy capacity additions (solar, wind) → silver demand for PV cells (HL, PAAS) + copper for turbine wiring (FCX)",
+    "Data center buildout for AI/EV software → electronic-grade chemicals (ESI, DD) + copper bus bars + cooling system specialty fluids (KWR)",
+    "Light-weighting pressure on remaining ICE fleet → aluminum sheet substitution for steel body panels"
+  ],
+  affectedTickers:["FCX","SCCO","TECK","ALB","CBT","AA","CENX","HL","PAAS","ESI","DD","LIN"],
+  signalSources:["Global EV sales data (EV-Volumes, IEA)","LME copper inventory and price","Lithium carbonate spot prices","Solar PV installation forecasts (BloombergNEF)","Grid infrastructure capex announcements","Data center construction starts"]
+},
+{
+  id:"SC-MAT-03",
+  title:"The China Property-to-Iron Ore Chain",
+  trigger:"Chinese property starts decline >20% YoY",
+  chain:[
+    "Property construction slowdown → Chinese crude steel demand contracts → iron ore prices fall",
+    "Iron ore below $90/t pressures VALE, BHP, RIO margins → dividend cuts follow within 2 quarters",
+    "Lower Chinese steel output → reduced coking coal demand → met coal miners affected",
+    "Weaker Chinese industrial activity → base metals demand softens → copper (FCX), aluminum (AA) prices decline",
+    "Chinese steel overcapacity diverted to exports → global steel prices compressed → US HRC falls toward import parity despite Section 232",
+    "If IIJA infrastructure spending offsets: US aggregates/cement demand holds (MLM, VMC, CRH) even as metals weaken — domestic vs. global cycle divergence"
+  ],
+  affectedTickers:["BHP","RIO","VALE","FCX","AA","NUE","STLD","CLF","MLM","VMC"],
+  signalSources:["China NBS property starts and sales data","Iron ore 62% Fe CFR China price","Chinese crude steel production (monthly)","Chinese steel exports","US HRC price vs. import parity","PMI manufacturing indices (China, US, Europe)"]
+},
+{
+  id:"SC-MAT-04",
+  title:"The Natural Gas-to-Farm Gate Chain",
+  trigger:"Henry Hub natural gas price rises above $5/MMBtu (or spikes to $8+)",
+  chain:[
+    "Natural gas spike → nitrogen fertilizer production costs surge (gas is 70-80% of ammonia cost) → CF, NTR margins compress if prices can't pass through immediately",
+    "Higher nitrogen prices → farmers reduce application rates or defer purchases → MOS/NTR retail segment sees demand pull-back",
+    "European nat gas (TTF) spikes even harder → European ammonia plants curtail production → US nitrogen producers (CF) gain export competitiveness",
+    "Higher nat gas → ethane prices rise (ethane tracks gas at ~0.6-0.8 ratio) → ethylene margins compress for DOW, LYB Gulf Coast crackers",
+    "Simultaneously: chlor-alkali electricity costs rise → OLN, WLK ECU margins squeezed",
+    "Industrial gas energy pass-throughs protect LIN, APD margins (take-or-pay contracts with cost escalators) — demonstrating Tier 3 specification moat resilience"
+  ],
+  affectedTickers:["CF","NTR","MOS","DOW","LYB","WLK","OLN","LIN","APD"],
+  signalSources:["Henry Hub natural gas futures","TTF European gas price","Ethane spot prices (Mt. Belvieu)","NOLA urea barge prices","Ammonia plant operating rates","European ammonia curtailment announcements"]
+},
+{
+  id:"SC-MAT-05",
+  title:"The Gold Price Transmission Chain",
+  trigger:"Gold breaks above $2,800/oz on central bank buying + rate cut cycle",
+  chain:[
+    "Gold price surge → senior producers (NEM, AEM, GOLD) generate record FCF as AISC ($1,200-1,500) stays stable → dividends and buybacks increase",
+    "Streaming/royalty companies (WPM, RGLD, FNV) see amplified margin expansion — fixed purchase costs mean incremental gold revenue is nearly 100% margin",
+    "Gold ETF inflows accelerate (GLD, IAU) → positive feedback loop sustaining price momentum",
+    "Silver follows gold with leverage (silver/gold ratio compresses from 85x toward 65x) → HL, PAAS, CDE outperform gold miners",
+    "Miners flush with cash begin M&A cycle → junior miners and development-stage projects bid up → watch for capital discipline breakdown",
+    "If rate cuts deepen: real rates go negative → gold becomes more attractive vs. bonds → further price support"
+  ],
+  affectedTickers:["NEM","AEM","GOLD","WPM","RGLD","FNV","HL","PAAS","CDE","KGC","GFI","AU"],
+  signalSources:["Gold spot price","10-year TIPS yield (real rates)","Central bank gold purchases (WGC quarterly)","Gold ETF flows","Silver/gold ratio","Fed funds rate and forward guidance","Senior producer M&A announcements"]
+},
+{
+  id:"SC-MAT-06",
+  title:"The Tariff Shock Transmission Chain",
+  trigger:"Section 232 tariffs on steel (25%) and aluminum (10-25%) are modified, expanded, or removed",
+  chain:[
+    "Tariff expansion/permanence → US steel (NUE, STLD, CLF) and aluminum (AA, CENX) prices maintain domestic premium → margins supported",
+    "OR: Tariff reduction/removal → import flood compresses HRC prices toward global levels → US integrated mills (X, CLF) most exposed, EAF mini-mills (NUE, STLD) relatively resilient due to lower cost structure",
+    "Domestic steel pricing changes cascade to construction materials costs → CRH, MLM, VMC see input cost shifts for rebar, structural steel",
+    "Packaging companies (BALL, CCK) face aluminum input cost changes → pass-through clauses in beverage contracts provide 3-6 month lag protection",
+    "CENX Mississippi greenfield smelter economics depend on tariff permanence — DOE loan predicated on domestic supply security rationale",
+    "Retaliatory tariffs from trading partners could affect US chemical exports (DOW, LYB polyethylene to China/Europe)"
+  ],
+  affectedTickers:["NUE","STLD","X","CLF","AA","CENX","BALL","CCK","DOW","LYB","CRH"],
+  signalSources:["White House and USTR tariff announcements","Commerce Department Section 232 reviews","Steel and aluminum import volumes (Census Bureau)","HRC domestic vs. import price spread","Congressional trade policy legislation","WTO dispute rulings"]
+},
+{
+  id:"SC-MAT-07",
+  title:"The Packaging Substrate Substitution Chain",
+  trigger:"ESG regulation mandates recycled content minimums or bans single-use plastic packaging",
+  chain:[
+    "Extended Producer Responsibility (EPR) laws raise cost of virgin plastic packaging → flexible plastic producers (AMCR, BERY, SEE) face margin headwinds",
+    "Beverage brands accelerate shift from PET plastic to aluminum cans → BALL, CCK volume growth accelerates",
+    "Fiber-based packaging gains share from plastic → containerboard demand rises → IP, PKG, SW, GPK benefit",
+    "Glass container demand stabilizes/grows in premium spirits and wine → OI benefits from sustainability narrative",
+    "Dispensing systems (ATR) and intelligent labels (AVY RFID) are substrate-agnostic → benefit regardless of which packaging material wins",
+    "Recycled content mandates drive OCC prices higher (demand for recycled fiber increases) → virgin kraft producers see relative cost advantage"
+  ],
+  affectedTickers:["BALL","CCK","IP","PKG","SW","GPK","AMCR","BERY","SEE","OI","ATR","AVY"],
+  signalSources:["EPR legislation (state and EU level)","Brand sustainability commitments and reports","Aluminum can vs. PET bottle volume trends","OCC recycled fiber prices","Recycled content mandate timelines","Substrate cost comparisons (aluminum vs. PET vs. glass vs. fiber)"]
+},
+{
+  id:"SC-MAT-08",
+  title:"The PFAS Liability Cascade",
+  trigger:"EPA finalizes PFAS drinking water limits or major court ruling expands manufacturer liability",
+  chain:[
+    "Regulatory ruling → Chemours (CC), 3M (already settled), and other fluorochemical producers face remediation and litigation liabilities",
+    "PFAS-containing product reformulation creates decade-long demand for PFAS-free specialty chemical alternatives → R&D-driven specialty chemical companies (SHW, RPM, ECL) develop substitutes",
+    "Water treatment demand surges → ECL, activated carbon producers (NGVT, CBT) see increased demand for PFAS removal technologies",
+    "Construction and building material companies using PFAS-based waterproofing/stain-resistance must reformulate → short-term disruption, long-term opportunity for innovation",
+    "Insurance industry exposure to PFAS claims creates secondary financial sector impacts → potential write-downs at chemical companies holding legacy liabilities",
+    "CC Opteon refrigerant business (non-PFAS, low-GWP) paradoxically benefits as HFC phase-down accelerates independently of PFAS liability narrative"
+  ],
+  affectedTickers:["CC","ECL","NGVT","CBT","SHW","RPM","DD","HUN"],
+  signalSources:["EPA PFAS regulatory rulings and MCL (maximum contaminant level) decisions","State-level PFAS legislation","Court rulings in PFAS litigation (aqueous film-forming foam, drinking water)","Corporate PFAS remediation reserve disclosures","PFAS-free product development announcements","Water utility PFAS treatment investment plans"]
+}
+];
+
+// ═══════════════════════════════════════════════════════════
+// APPLICATION LOGIC
+// ═══════════════════════════════════════════════════════════
+
+// ─── Normalize data fields ───
+const sectorData = materialsSectorData;
+sectorData.forEach(d => {
+  d.marketCap = d.marketCap === 'Mega' ? 'Mega-Cap' : d.marketCap === 'Large' ? 'Large-Cap' : d.marketCap === 'Mid' ? 'Mid-Cap' : d.marketCap === 'Small' ? 'Small-Cap' : d.marketCap;
+  d.company = d.name;
+  d.industry = d.subIndustry;
+  if (d.tier === 1) d.node = 'Extract';
+  else if (d.tier === 2) d.node = 'Process';
+  else d.node = 'Formulate';
+  d.cyclePosition = d.cyclePosition.toLowerCase();
+});
+
+// Convert briefs array to keyed object
+const industryBriefs = {};
+materialsIndustryBriefs.forEach(b => { industryBriefs[b.title] = b; });
+
+// Archetype definitions
+const archetypeDefinitions = {
+  'Tollbridge': "Infrastructure-embedded revenue with take-or-pay contracts. Industrial gas on-site supply, streaming/royalty on mining. Through-cycle stability and premium multiples.",
+  'Cash Engine': "Mature, high-FCF business returning capital via dividends and buybacks. Scale-advantaged commodity producers managing for shareholder returns through the cycle.",
+  'Compounder': "Growth-oriented operator reinvesting at high ROIC. M&A + organic growth in fragmented niches — construction materials, specialty chemicals, packaging.",
+  'Deep Value': "Trading below intrinsic value due to cyclical trough, commodity oversupply, or temporary headwinds. Catalyst-dependent recovery thesis.",
+  'Turnaround': "Restructuring, deleveraging, or strategic pivot in progress. Higher risk but asymmetric upside if execution succeeds.",
+  'Speculative Growth': "Pre-profit or early-stage growth with high uncertainty. Junior miners, development-stage projects, or supercycle leverage plays.",
+  'Rule of 40': "Revenue growth rate plus profit margin exceeds 40%. Rare in materials — select high-growth specialty chemicals balancing growth and profitability."
+};
+const definedTerms = {};
+Object.entries(archetypeDefinitions).forEach(([k,v]) => { definedTerms[k] = { short: v }; });
+
+// ─── State ───
+let sortCol = 'ticker';
+let sortAsc = true;
+let expandedTicker = null;
+let activeFactors = new Set();
+
+// ─── DOM refs ───
+const searchInput = document.getElementById('searchInput');
+const tierFilter = document.getElementById('tierFilter');
+const subIndustryFilter = document.getElementById('subIndustryFilter');
+const archetypeFilter = document.getElementById('archetypeFilter');
+const capFilter = document.getElementById('capFilter');
+const resultCount = document.getElementById('resultCount');
+const gridBody = document.getElementById('gridBody');
+const briefOverlay = document.getElementById('briefOverlay');
+const briefContent = document.getElementById('briefContent');
+
+// ─── Sort orders ───
+const capOrder = { 'Mega-Cap': 0, 'Large-Cap': 1, 'Mid-Cap': 2, 'Small-Cap': 3 };
+const cycleOrder = { 'through-cycle': 0, 'secular': 0, 'early-cycle': 1, 'early': 1, 'recovery': 1, 'mid-cycle': 2, 'mid': 2, 'late-cycle': 3, 'late': 3, 'downturn': 4 };
+const tierNames = { 1: 'Tier 1 — Extract', 2: 'Tier 2 — Process', 3: 'Tier 3 — Formulate' };
+
+// ─── Factor labels (6 factors) ───
+const factorLabels = {
+  momentum: 'Momentum', value: 'Value', quality: 'Quality',
+  volatility: 'Volatility', cyclicality: 'Cyclicality', yield: 'Yield'
+};
+
+// ─── Populate Filters ───
+function populateFilters() {
+  const tierOrder = [3, 2, 1];
+  tierOrder.forEach(v => tierFilter.add(new Option(tierNames[v], v)));
+
+  // Sub-industries grouped by tier, Tier 3 first
+  const subsByTier = {};
+  sectorData.forEach(d => {
+    if (!subsByTier[d.tier]) subsByTier[d.tier] = new Set();
+    subsByTier[d.tier].add(d.subIndustry);
+  });
+  tierOrder.forEach(tier => {
+    const group = document.createElement('optgroup');
+    group.label = tierNames[tier];
+    [...(subsByTier[tier] || [])].sort().forEach(v => {
+      group.appendChild(new Option(v, v));
+    });
+    subIndustryFilter.appendChild(group);
+  });
+
+  const archetypes = [...new Set(sectorData.map(d => d.archetype))].sort();
+  const caps = ['Mega-Cap', 'Large-Cap', 'Mid-Cap', 'Small-Cap'];
+  archetypes.forEach(v => archetypeFilter.add(new Option(v, v)));
+  caps.forEach(v => capFilter.add(new Option(v, v)));
+}
+
+// ─── Get Filtered Data ───
+function getFiltered() {
+  const q = searchInput.value.toLowerCase().trim();
+  const tf = tierFilter.value;
+  const sif = subIndustryFilter.value;
+  const af = archetypeFilter.value;
+  const cf = capFilter.value;
+
+  return sectorData.filter(d => {
+    if (tf && d.tier !== Number(tf)) return false;
+    if (sif && d.subIndustry !== sif) return false;
+    if (af && d.archetype !== af) return false;
+    if (cf && d.marketCap !== cf) return false;
+    if (q) {
+      const haystack = (d.ticker + ' ' + d.name + ' ' + d.subIndustry + ' ' + d.description).toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+// ─── Sort Data ───
+function sortData(data) {
+  return [...data].sort((a, b) => {
+    let va = a[sortCol] || '';
+    let vb = b[sortCol] || '';
+    if (sortCol === 'marketCap') {
+      va = capOrder[va] ?? 99;
+      vb = capOrder[vb] ?? 99;
+    } else if (sortCol === 'cyclePosition') {
+      va = cycleOrder[va] ?? 99;
+      vb = cycleOrder[vb] ?? 99;
+    } else if (sortCol === 'tier') {
+      va = a.tier;
+      vb = b.tier;
+    } else {
+      va = String(va).toLowerCase();
+      vb = String(vb).toLowerCase();
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+}
+
+// ─── Node badge class ───
+function getNodeClass(tier) {
+  if (tier === 1) return 'node-infra';
+  if (tier === 2) return 'node-balance';
+  if (tier === 3) return 'node-capital';
+  return '';
+}
+
+// ─── Node badge label ───
+function getNodeLabel(tier) {
+  if (tier === 1) return 'Extract';
+  if (tier === 2) return 'Process';
+  if (tier === 3) return 'Formulate';
+  return '';
+}
+
+// ─── Archetype badge class ───
+function getArchClass(a) {
+  const map = {
+    'Tollbridge': 'arch-tollbridge',
+    'Cash Engine': 'arch-cashengine',
+    'Compounder': 'arch-compounder',
+    'Rule of 40': 'arch-ruleof40',
+    'Deep Value': 'arch-deepvalue',
+    'Speculative Growth': 'arch-specgrowth',
+    'Turnaround': 'arch-turnaround'
+  };
+  return map[a] || '';
+}
+
+// ─── Factor tint for row ───
+function getFactorTint(d) {
+  if (activeFactors.size === 0) return '';
+  let totalExposure = 0;
+  let count = 0;
+  activeFactors.forEach(f => {
+    if (d.factorExposures && d.factorExposures[f] !== undefined) {
+      totalExposure += d.factorExposures[f];
+      count++;
+    }
+  });
+  if (count === 0) return '';
+  if (totalExposure >= 2) return 'background: rgba(39,174,96,0.12);';
+  if (totalExposure > 0) return 'background: rgba(39,174,96,0.06);';
+  if (totalExposure <= -2) return 'background: rgba(231,76,60,0.12);';
+  if (totalExposure < 0) return 'background: rgba(231,76,60,0.06);';
+  return '';
+}
+
+// ─── Factor dot class ───
+function getFactorDotClass(val) {
+  if (val >= 2) return 'dot-strong-positive';
+  if (val > 0) return 'dot-positive';
+  if (val <= -2) return 'dot-strong-negative';
+  if (val < 0) return 'dot-negative';
+  return 'dot-neutral';
+}
+
+// ─── Render Grid ───
+function render() {
+  const filtered = getFiltered();
+  const sorted = sortData(filtered);
+  resultCount.textContent = sorted.length + ' compan' + (sorted.length === 1 ? 'y' : 'ies');
+  gridBody.innerHTML = '';
+
+  if (sorted.length === 0) {
+    gridBody.innerHTML = '<tr><td colspan="7" class="empty-state">No companies match the current filters. Try broadening your search.</td></tr>';
+    return;
+  }
+
+  sorted.forEach(d => {
+    const tint = getFactorTint(d);
+    const tr = document.createElement('tr');
+    tr.style.cssText = tint;
+
+    const tooltipText = definedTerms[d.archetype] ? definedTerms[d.archetype].short : '';
+
+    tr.innerHTML =
+      '<td class="td-ticker">' + d.ticker + '</td>' +
+      '<td class="td-company">' + d.name + '</td>' +
+      '<td class="td-industry">' + d.subIndustry + '</td>' +
+      '<td><span class="node-badge ' + getNodeClass(d.tier) + '">' + getNodeLabel(d.tier) + '</span></td>' +
+      '<td><span class="arch-badge ' + getArchClass(d.archetype) + '">' + d.archetype + (tooltipText ? '<span class="tooltip">' + tooltipText + '</span>' : '') + '</span></td>' +
+      '<td class="td-cap">' + d.marketCap + '</td>' +
+      '<td><span class="cycle-badge">' + d.cyclePosition + '</span></td>';
+    tr.addEventListener('click', function() { toggleExpand(d.ticker); });
+    gridBody.appendChild(tr);
+
+    if (expandedTicker === d.ticker) {
+      const expTr = document.createElement('tr');
+      expTr.className = 'expanded-row';
+
+      let factorHtml = '';
+      if (d.factorExposures) {
+        Object.entries(d.factorExposures).forEach(function([k, v]) {
+          const label = factorLabels[k] || k;
+          const dotClass = getFactorDotClass(v);
+          const valStr = v > 0 ? '+' + v : String(v);
+          factorHtml += '<div class="factor-dot"><span class="dot ' + dotClass + '"></span>' + label + ': ' + valStr + '</div>';
+        });
+      }
+
+      expTr.innerHTML = '<td colspan="7"><div class="expanded-content">' +
+        '<div class="exp-block" style="grid-column:1/-1"><h5>Description</h5><p>' + (d.description || '') + '</p></div>' +
+        '<div class="exp-factors"><h5>Factor Exposures</h5><div class="factor-dots">' + factorHtml + '</div></div>' +
+        '</div></td>';
+      gridBody.appendChild(expTr);
+    }
+  });
+
+  // Update sort header styling
+  document.querySelectorAll('.grid-table thead th').forEach(th => {
+    const col = th.dataset.col;
+    th.classList.toggle('sorted', col === sortCol);
+    const arrow = th.querySelector('.sort-arrow');
+    if (arrow) arrow.textContent = col === sortCol ? (sortAsc ? '\u25B2' : '\u25BC') : '';
+  });
+}
+
+// ─── Toggle row expansion ───
+function toggleExpand(ticker) {
+  expandedTicker = expandedTicker === ticker ? null : ticker;
+  render();
+}
+
+// ─── Brief Panel ───
+function openBrief(el) {
+  const key = el.dataset.brief || el.getAttribute('data-brief');
+  if (!key || !industryBriefs[key]) return;
+  renderBrief(key);
+  briefOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBrief() {
+  briefOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === briefOverlay) closeBrief();
+}
+
+function renderBrief(subIndustry) {
+  var b = industryBriefs[subIndustry];
+  if (!b) return;
+  var html = '';
+  html += '<h2>' + subIndustry + '</h2>';
+  html += '<p class="brief-subtitle">' + (b.title || subIndustry) + '</p>';
+
+  // 1. Overview
+  html += '<div class="brief-section-title">Overview</div>';
+  html += '<div class="brief-overview">' + (b.overview || '') + '</div>';
+
+  // 2. Key Dynamics
+  if (b.keyDynamics) {
+    html += '<div class="brief-section-title">Key Dynamics</div>';
+    if (Array.isArray(b.keyDynamics)) {
+      html += '<ul class="dynamics-list">';
+      b.keyDynamics.forEach(function(d) { html += '<li>' + d + '</li>'; });
+      html += '</ul>';
+    } else {
+      html += '<div class="brief-overview">' + b.keyDynamics + '</div>';
+    }
+  }
+
+  // 3. Variant Perception
+  if (b.variantPerception) {
+    html += '<div class="brief-section-title">Consensus &amp; Variant Perception</div>';
+    if (b.variantPerception.consensus) {
+      html += '<div class="consensus-text">' + b.variantPerception.consensus + '</div>';
+    }
+    html += '<div class="variant-card"><div class="variant-q">Variant Perception</div>';
+    if (b.variantPerception.bull) {
+      html += '<div class="variant-case variant-bull"><div class="variant-label">Bull Case</div>' + b.variantPerception.bull + '</div>';
+    }
+    if (b.variantPerception.bear) {
+      html += '<div class="variant-case variant-bear"><div class="variant-label">Bear Case</div>' + b.variantPerception.bear + '</div>';
+    }
+    if (b.variantPerception.resolutionSignal) {
+      html += '<div class="variant-case variant-signal"><div class="variant-label">Resolution Signal</div>' + b.variantPerception.resolutionSignal + '</div>';
+    }
+    html += '</div>';
+  }
+
+  // 4. Revenue Breakdown — handle object format
+  if (b.revenueBreakdown) {
+    html += '<div class="brief-section-title">Revenue Breakdown</div>';
+    if (typeof b.revenueBreakdown === 'string') {
+      html += '<div class="brief-overview">' + b.revenueBreakdown + '</div>';
+    } else if (typeof b.revenueBreakdown === 'object' && !Array.isArray(b.revenueBreakdown)) {
+      html += '<table class="rev-table"><thead><tr><th>Segment</th><th>Share</th></tr></thead><tbody>';
+      Object.entries(b.revenueBreakdown).forEach(function([key, value]) {
+        var label = key.replace(/([A-Z])/g, ' $1').replace(/^./, function(s) { return s.toUpperCase(); }).replace(/ And /g, ' & ');
+        html += '<tr><td>' + label + '</td><td>' + value + '</td></tr>';
+      });
+      html += '</tbody></table>';
+    } else if (Array.isArray(b.revenueBreakdown)) {
+      html += '<table class="rev-table"><thead><tr><th>Ticker</th><th>Revenue</th><th>Growth</th><th>Note</th></tr></thead><tbody>';
+      b.revenueBreakdown.forEach(function(r) {
+        var gc = r.growth && r.growth.startsWith('+') ? 'growth-pos' : (r.growth && r.growth.startsWith('-') ? 'growth-neg' : '');
+        html += '<tr><td>' + r.ticker + '</td><td>' + r.revenue + '</td><td class="' + gc + '">' + r.growth + '</td><td class="rev-note">' + (r.note||'') + '</td></tr>';
+      });
+      html += '</tbody></table>';
+    }
+  }
+
+  // 5. Anchor Tickers
+  if (b.anchorTickers && b.anchorTickers.length) {
+    html += '<div class="brief-section-title">Anchor Tickers</div>';
+    html += '<div class="anchor-list">';
+    b.anchorTickers.forEach(function(a) {
+      if (typeof a === 'string') {
+        html += '<span class="anchor-tag" onclick="navigateToTicker(\'' + a + '\')">' + a + '</span>';
+      } else if (a.ticker) {
+        html += '<span class="anchor-tag" onclick="navigateToTicker(\'' + a.ticker + '\')">' + a.ticker + '</span>';
+      }
+    });
+    html += '</div>';
+  }
+
+  // 6. Key Metrics
+  if (b.keyMetrics && b.keyMetrics.length) {
+    html += '<div class="brief-section-title">Key Metrics to Watch</div>';
+    html += '<div class="metrics-list">';
+    b.keyMetrics.forEach(function(m) { html += '<span class="metric-tag">' + m + '</span>'; });
+    html += '</div>';
+  }
+
+  // 7. Watchlist
+  if (b.watchlist && b.watchlist.length) {
+    html += '<div class="brief-section-title">Watchlist</div>';
+    b.watchlist.forEach(function(w) { html += '<div class="watchlist-item">' + w + '</div>'; });
+  }
+
+  briefContent.innerHTML = html;
+}
+
+function navigateToTicker(ticker) {
+  closeBrief();
+  searchInput.value = ticker;
+  tierFilter.value = '';
+  subIndustryFilter.value = '';
+  archetypeFilter.value = '';
+  capFilter.value = '';
+  expandedTicker = ticker;
+  render();
+  setTimeout(function() {
+    document.getElementById('gridSection').scrollIntoView({ behavior: 'smooth' });
+  }, 350);
+}
+
+function navigateToSubIndustry(subIndustry) {
+  closeBrief();
+  subIndustryFilter.value = subIndustry;
+  searchInput.value = '';
+  tierFilter.value = '';
+  archetypeFilter.value = '';
+  capFilter.value = '';
+  expandedTicker = null;
+  render();
+  setTimeout(function() {
+    document.getElementById('gridSection').scrollIntoView({ behavior: 'smooth' });
+  }, 350);
+}
+
+// ─── Render Signal Chains ───
+function renderSignalChains() {
+  const container = document.getElementById('chainsContainer');
+  let html = '';
+  materialsSignalChains.forEach(chain => {
+    html += '<div class="chain-card">';
+    html += '<div class="chain-name">' + chain.title + '</div>';
+    html += '<div class="chain-trigger">' + chain.trigger + '</div>';
+
+    // Chain flow — array of step strings, render vertically
+    html += '<div class="chain-flow chain-flow-vertical">';
+    chain.chain.forEach((step, i) => {
+      if (i > 0) html += '<div class="chain-step-arrow">&#x2193;</div>';
+      html += '<span class="chain-entity chain-entity-wide">' + step + '</span>';
+    });
+    html += '</div>';
+
+    // Affected Tickers
+    if (chain.affectedTickers && chain.affectedTickers.length) {
+      html += '<div class="chain-meta">';
+      html += '<span class="chain-meta-label affected">Affected:</span>';
+      chain.affectedTickers.forEach(t => {
+        html += '<span class="chain-ticker-tag affected" onclick="navigateToTicker(\'' + t + '\')">' + t + '</span>';
+      });
+      html += '</div>';
+    }
+
+    // Signal Sources
+    if (chain.signalSources && chain.signalSources.length) {
+      html += '<div class="chain-metrics">';
+      chain.signalSources.forEach(s => {
+        html += '<span class="chain-metric-tag">' + s + '</span>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+// ─── Render Glossary ───
+function renderGlossary(filter) {
+  const grid = document.getElementById('glossaryGrid');
+  const q = (filter || '').toLowerCase().trim();
+  const sorted = [...materialsGlossary].sort((a, b) => a.term.localeCompare(b.term));
+  let html = '';
+  sorted.forEach(g => {
+    if (q && !g.term.toLowerCase().includes(q) && !g.definition.toLowerCase().includes(q)) return;
+    html += '<div class="glossary-card" onclick="this.classList.toggle(\'open\')">';
+    html += '<div class="glossary-term">' + g.term + '<span class="toggle-icon">&#x203A;</span></div>';
+    html += '<div class="glossary-def">' + g.definition + '</div>';
+    html += '</div>';
+  });
+  grid.innerHTML = html || '<div class="empty-state">No terms match your search.</div>';
+}
+
+// ─── SVG Interactivity ───
+function filterByTier(tier) {
+  tierFilter.value = tier;
+  searchInput.value = '';
+  subIndustryFilter.value = '';
+  archetypeFilter.value = '';
+  capFilter.value = '';
+  expandedTicker = null;
+  render();
+  setTimeout(function() { document.getElementById('gridSection').scrollIntoView({ behavior: 'smooth' }); }, 200);
+}
+
+// ─── Event Listeners ───
+[searchInput].forEach(el => el.addEventListener('input', () => { expandedTicker = null; render(); }));
+[tierFilter, subIndustryFilter, archetypeFilter, capFilter].forEach(el => {
+  el.addEventListener('change', () => { expandedTicker = null; render(); });
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  searchInput.value = '';
+  tierFilter.value = '';
+  subIndustryFilter.value = '';
+  archetypeFilter.value = '';
+  capFilter.value = '';
+  expandedTicker = null;
+  activeFactors.clear();
+  document.querySelectorAll('.factor-toggle').forEach(b => b.classList.remove('active'));
+  render();
+});
+
+document.querySelectorAll('.grid-table thead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (!col) return;
+    if (sortCol === col) { sortAsc = !sortAsc; }
+    else { sortCol = col; sortAsc = true; }
+    render();
+  });
+});
+
+document.querySelectorAll('.factor-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const factor = btn.dataset.factor;
+    if (activeFactors.has(factor)) {
+      activeFactors.delete(factor);
+      btn.classList.remove('active');
+    } else {
+      activeFactors.add(factor);
+      btn.classList.add('active');
+    }
+    render();
+  });
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBrief(); });
+
+document.getElementById('glossarySearch').addEventListener('input', function() {
+  renderGlossary(this.value);
+});
+
+// ─── Initialize ───
+populateFilters();
+render();
+renderSignalChains();
+renderGlossary('');
+
+</script>
+</body>
+</html>
