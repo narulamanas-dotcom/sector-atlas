@@ -3,673 +3,1544 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Information Technology — GICS Sector Atlas</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<title>Information Technology &mdash; GICS Sector Visual Atlas</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #0a0a0f;
-    color: #e0e0e0;
-    font-family: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
-    min-height: 100vh;
-    padding: 24px;
-  }
-  .header {
-    text-align: center;
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .header h1 {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #4a90d9, #9b59b6, #27ae60);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 6px;
-  }
-  .header .subtitle {
-    font-size: 12px;
-    color: #888;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  .legend {
-    display: flex;
-    justify-content: center;
-    gap: 28px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-  .legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
-  }
-  .mermaid-container {
-    background: #0e0e16;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    padding: 20px;
-    overflow-x: auto;
-  }
-  .mermaid {
-    display: flex;
-    justify-content: center;
-  }
-  .mermaid svg {
-    max-width: 100%;
-    height: auto;
-  }
-  .tracks {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-top: 24px;
-  }
-  .track-card {
-    border-radius: 10px;
-    padding: 16px;
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-  .track-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
-  .track-card p { font-size: 11px; color: #999; line-height: 1.5; }
-  .track-hard { background: rgba(74,144,217,0.08); border-color: rgba(74,144,217,0.2); }
-  .track-hard h3 { color: #4a90d9; }
-  .track-soft { background: rgba(155,89,182,0.08); border-color: rgba(155,89,182,0.2); }
-  .track-soft h3 { color: #9b59b6; }
-  .track-svc { background: rgba(230,126,34,0.08); border-color: rgba(230,126,34,0.2); }
-  .track-svc h3 { color: #e67e22; }
-
-  /* ── Discovery Grid Styles ── */
-  .grid-section {
-    margin-top: 36px;
-  }
-  .grid-header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  .grid-header h2 {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-    background: linear-gradient(135deg, #4a90d9, #9b59b6, #27ae60);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 4px;
-  }
-  .grid-header .grid-sub {
-    font-size: 11px;
-    color: #666;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-  }
-
-  /* Filters */
-  .filters {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .filter-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .filter-group label {
-    font-size: 10px;
-    color: #777;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-  }
-  .filter-group select,
-  .search-box {
-    background: #13131d;
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #ccc;
-    font-size: 12px;
-    padding: 7px 12px;
-    border-radius: 6px;
-    outline: none;
-    font-family: inherit;
-  }
-  .filter-group select:focus,
-  .search-box:focus {
-    border-color: rgba(74,144,217,0.5);
-  }
-  .search-box {
-    flex: 1;
-    min-width: 180px;
-  }
-  .result-count {
-    font-size: 11px;
-    color: #555;
-    margin-left: auto;
-    white-space: nowrap;
-  }
-
-  /* Table */
-  .grid-table-wrap {
-    background: #0e0e16;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  .grid-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
-  .grid-table thead th {
-    background: #111119;
-    padding: 10px 14px;
-    text-align: left;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #777;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-  }
-  .grid-table thead th:hover {
-    color: #aaa;
-  }
-  .grid-table tbody tr {
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-    transition: background 0.15s;
-  }
-  .grid-table tbody tr:hover {
-    background: rgba(74,144,217,0.06);
-  }
-  .grid-table tbody td {
-    padding: 9px 14px;
-    white-space: nowrap;
-  }
-  .ticker-cell {
-    font-weight: 700;
-    color: #4a90d9;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    letter-spacing: 0.5px;
-  }
-  .name-cell {
-    color: #bbb;
-    max-width: 220px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* Badges */
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-  }
-  .badge-upstream { background: rgba(74,144,217,0.15); color: #4a90d9; }
-  .badge-midstream { background: rgba(155,89,182,0.15); color: #9b59b6; }
-  .badge-downstream { background: rgba(39,174,96,0.15); color: #27ae60; }
-
-  .badge-tollbridge { background: rgba(231,76,60,0.12); color: #e74c3c; }
-  .badge-cashengine { background: rgba(46,204,113,0.12); color: #2ecc71; }
-  .badge-ruleof40 { background: rgba(241,196,15,0.12); color: #f1c40f; }
-  .badge-deepvalue { background: rgba(149,165,166,0.12); color: #95a5a6; }
-
-  .badge-mega { background: rgba(255,255,255,0.06); color: #fff; font-weight: 700; }
-  .badge-large { background: rgba(255,255,255,0.04); color: #ccc; }
-  .badge-mid { background: rgba(255,255,255,0.03); color: #aaa; }
-  .badge-small { background: rgba(255,255,255,0.02); color: #888; }
-  .badge-micro { background: rgba(255,255,255,0.01); color: #666; }
-
-  @media (max-width: 768px) {
-    .tracks { grid-template-columns: 1fr; }
-    .filters { flex-direction: column; }
-  }
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #0e0e16;
+  --bg-hover: #14141e;
+  --border: rgba(255,255,255,0.06);
+  --border-light: rgba(255,255,255,0.1);
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --text-muted: #666;
+  --upstream: #4a90d9;
+  --upstream-bg: rgba(74,144,217,0.08);
+  --upstream-border: rgba(74,144,217,0.25);
+  --midstream: #9b59b6;
+  --midstream-bg: rgba(155,89,182,0.08);
+  --midstream-border: rgba(155,89,182,0.25);
+  --downstream: #27ae60;
+  --downstream-bg: rgba(39,174,96,0.08);
+  --downstream-border: rgba(39,174,96,0.25);
+  --macro: #e67e22;
+  --macro-bg: rgba(230,126,34,0.08);
+  --macro-border: rgba(230,126,34,0.25);
+  --tollbridge: #00d4aa;
+  --cashengine: #4a9eff;
+  --compounder: #9b59b6;
+  --ruleof40: #3498db;
+  --deepvalue: #e67e22;
+  --specgrowth: #f1c40f;
+  --turnaround: #e74c3c;
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 24px;
+  padding-top: 64px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+.sticky-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+  background: rgba(10,10,15,0.92); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: center; gap: 8px;
+  padding: 10px 20px; flex-wrap: wrap;
+}
+.sticky-nav a {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 500;
+  color: var(--text-dim); text-decoration: none;
+  padding: 6px 14px; border-radius: 6px;
+  border: 1px solid transparent; transition: all 0.2s;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.sticky-nav a:hover { color: var(--text); border-color: var(--border-light); }
+.sticky-nav a.active { color: var(--upstream); border-color: var(--upstream-border); }
+.header {
+  text-align: center;
+  padding: 40px 0 30px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.header h1 {
+  font-size: 2rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--upstream), var(--midstream), var(--downstream));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 8px;
+}
+.header .subtitle {
+  font-family: var(--mono); color: var(--text-dim);
+  font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase;
+}
+.header .tagline {
+  font-size: 0.82rem; color: var(--text-muted); font-style: italic;
+  max-width: 700px; margin: 12px auto 0; line-height: 1.5;
+}
+.header .stats-bar {
+  display: flex; justify-content: center; gap: 24px;
+  margin-top: 16px; flex-wrap: wrap;
+}
+.header .stat-item {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); letter-spacing: 0.5px;
+}
+.header .stat-item strong { color: var(--text); font-weight: 700; }
+.legend {
+  display: flex; justify-content: center; gap: 20px;
+  margin-top: 20px; flex-wrap: wrap;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.78rem; color: var(--text-dim);
+}
+.legend-item::before {
+  content: ''; width: 12px; height: 12px;
+  border-radius: 3px; background: var(--lc); flex-shrink: 0;
+}
+/* Flowchart */
+.flowchart-section { margin-bottom: 48px; }
+.flowchart-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); text-align: center; margin-bottom: 28px;
+}
+.flowchart-wrapper { display: flex; gap: 24px; position: relative; }
+.flowchart-tiers { flex: 1; display: flex; flex-direction: column; gap: 0; }
+.flowchart-svg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: visible;
+}
+.flowchart-svg text { font-family: var(--mono); font-size: 8px; fill: var(--text-muted); }
+.tier { border: 1px solid var(--border); border-radius: 12px; padding: 20px; background: var(--bg-card); position: relative; z-index: 1; }
+.tier-upstream { border-color: var(--upstream-border); background: var(--upstream-bg); }
+.tier-midstream { border-color: var(--midstream-border); background: var(--midstream-bg); }
+.tier-downstream { border-color: var(--downstream-border); background: var(--downstream-bg); }
+.tier-label {
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.tier-upstream .tier-label { color: var(--upstream); }
+.tier-midstream .tier-label { color: var(--midstream); }
+.tier-downstream .tier-label { color: var(--downstream); }
+.tier-body { display: flex; gap: 16px; flex-wrap: wrap; }
+.cluster { flex: 1; min-width: 200px; border: 1px dashed var(--border-light); border-radius: 8px; padding: 12px; }
+.cluster-label {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 10px;
+}
+.cluster-nodes { display: flex; flex-direction: column; gap: 8px; }
+.fc-node {
+  padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-light);
+  background: rgba(0,0,0,0.3); cursor: pointer; transition: all 0.2s ease;
+}
+.fc-node:hover { transform: translateY(-1px); }
+.tier-upstream .fc-node:hover { border-color: var(--upstream); box-shadow: 0 0 12px rgba(74,144,217,0.2); }
+.tier-midstream .fc-node:hover { border-color: var(--midstream); box-shadow: 0 0 12px rgba(155,89,182,0.2); }
+.tier-downstream .fc-node:hover { border-color: var(--downstream); box-shadow: 0 0 12px rgba(39,174,96,0.2); }
+.node-name { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.node-tickers { font-family: var(--mono); font-size: 0.68rem; color: var(--text-dim); letter-spacing: 0.5px; }
+.inter-tier-flow {
+  display: flex; justify-content: center; gap: 32px; padding: 12px 0;
+  position: relative; z-index: 1;
+}
+.inter-tier-flow::before {
+  content: ''; position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 1px; background: linear-gradient(to bottom, var(--border-light), transparent);
+}
+.flow-label {
+  font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted);
+  background: var(--bg); padding: 2px 10px; border-radius: 10px;
+  border: 1px solid var(--border); z-index: 1; white-space: nowrap;
+}
+.macro-drivers-column {
+  width: 160px; display: flex; flex-direction: column;
+  justify-content: space-around; align-items: center; gap: 16px;
+  padding: 20px 0; flex-shrink: 0;
+}
+.macro-circle {
+  width: 130px; height: 130px; border-radius: 50%;
+  border: 2px dashed var(--macro-border); background: var(--macro-bg);
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; font-size: 0.72rem; font-weight: 600;
+  color: var(--macro); padding: 12px; position: relative; line-height: 1.3;
+}
+.macro-circle::before {
+  content: ''; position: absolute; left: -24px; top: 50%;
+  width: 24px; height: 0; border-top: 1px dashed var(--macro-border);
+}
+/* Summary */
+.summary-section { margin-bottom: 48px; }
+.tier-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;
+}
+.summary-card {
+  border-radius: 10px; padding: 20px;
+  border: 1px solid var(--border); background: var(--bg-card);
+}
+.summary-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 10px; }
+.summary-card p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
+.card-upstream { border-color: var(--upstream-border); }
+.card-upstream h3 { color: var(--upstream); }
+.card-midstream { border-color: var(--midstream-border); }
+.card-midstream h3 { color: var(--midstream); }
+.card-downstream { border-color: var(--downstream-border); }
+.card-downstream h3 { color: var(--downstream); }
+.macro-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.macro-card {
+  background: var(--macro-bg); border: 1px solid var(--macro-border);
+  border-radius: 10px; padding: 16px;
+}
+.macro-card h4 { font-size: 0.82rem; font-weight: 700; color: var(--macro); margin-bottom: 8px; }
+.macro-card p { font-size: 0.76rem; color: var(--text-dim); line-height: 1.5; }
+/* Grid */
+.grid-section { margin-bottom: 48px; }
+.grid-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px;
+}
+.grid-section .grid-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 20px; }
+.grid-filters {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px;
+}
+.grid-filters input, .grid-filters select {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  color: var(--text); padding: 8px 12px; border-radius: 6px;
+  font-size: 0.78rem; font-family: var(--font); outline: none; transition: border-color 0.2s;
+}
+.grid-filters input:focus, .grid-filters select:focus { border-color: var(--upstream); }
+.grid-filters input { flex: 1; min-width: 180px; }
+.grid-filters select { min-width: 120px; }
+.filter-meta { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+#resultCount { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); }
+#clearBtn {
+  background: transparent; border: 1px solid var(--border-light);
+  color: var(--text-dim); padding: 6px 14px; border-radius: 6px;
+  font-size: 0.72rem; cursor: pointer; transition: all 0.2s; font-family: var(--font);
+}
+#clearBtn:hover { border-color: var(--text-dim); color: var(--text); }
+.factor-toggles { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.factor-toggle {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  color: var(--text-dim); padding: 7px 16px; border-radius: 20px;
+  font-size: 0.74rem; cursor: pointer; transition: all 0.2s; font-family: var(--font);
+}
+.factor-toggle:hover { border-color: var(--text-muted); }
+.factor-toggle.active {
+  border-color: var(--macro); color: var(--macro);
+  box-shadow: 0 0 8px rgba(230,126,34,0.2); background: var(--macro-bg);
+}
+.grid-table-wrapper { overflow-x: auto; }
+.grid-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.grid-table thead th {
+  text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-muted); font-size: 0.68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  cursor: pointer; user-select: none; white-space: nowrap; transition: color 0.15s;
+}
+.grid-table thead th:hover { color: var(--text); }
+.grid-table thead th.sorted { color: var(--upstream); }
+.grid-table thead th .sort-arrow { font-size: 0.6rem; margin-left: 4px; opacity: 0.5; }
+.grid-table thead th.sorted .sort-arrow { opacity: 1; color: var(--upstream); }
+.grid-table tbody tr {
+  border-bottom: 1px solid var(--border); transition: background 0.15s; cursor: pointer;
+}
+.grid-table tbody tr:hover { background: var(--bg-hover); }
+.grid-table tbody td { padding: 10px 12px; vertical-align: middle; }
+.td-ticker { font-family: var(--mono); font-weight: 600; font-size: 0.8rem; }
+.td-company { font-size: 0.78rem; }
+.td-industry { font-size: 0.74rem; color: var(--text-dim); cursor: pointer; }
+.td-industry:hover { color: var(--upstream); text-decoration: underline; }
+.td-cap { font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); }
+.node-badge, .arch-badge, .cycle-badge {
+  display: inline-block; padding: 2px 10px; border-radius: 10px;
+  font-size: 0.65rem; font-weight: 600; white-space: nowrap;
+}
+.node-upstream { background: var(--upstream-bg); color: var(--upstream); border: 1px solid var(--upstream-border); }
+.node-midstream { background: var(--midstream-bg); color: var(--midstream); border: 1px solid var(--midstream-border); }
+.node-downstream { background: var(--downstream-bg); color: var(--downstream); border: 1px solid var(--downstream-border); }
+.arch-tollbridge { background: rgba(0,212,170,0.1); color: var(--tollbridge); border: 1px solid rgba(0,212,170,0.25); }
+.arch-cashengine { background: rgba(74,158,255,0.1); color: var(--cashengine); border: 1px solid rgba(74,158,255,0.25); }
+.arch-compounder { background: rgba(155,89,182,0.1); color: var(--compounder); border: 1px solid rgba(155,89,182,0.25); }
+.arch-ruleof40 { background: rgba(52,152,219,0.1); color: var(--ruleof40); border: 1px solid rgba(52,152,219,0.25); }
+.arch-deepvalue { background: rgba(230,126,34,0.1); color: var(--deepvalue); border: 1px solid rgba(230,126,34,0.25); }
+.arch-specgrowth { background: rgba(241,196,15,0.1); color: var(--specgrowth); border: 1px solid rgba(241,196,15,0.25); }
+.arch-turnaround { background: rgba(231,76,60,0.1); color: var(--turnaround); border: 1px solid rgba(231,76,60,0.25); }
+.arch-badge { position: relative; cursor: help; }
+.arch-badge .tooltip {
+  display: none; position: absolute; bottom: calc(100% + 8px); right: 0;
+  background: #1a1a2e; border: 1px solid var(--border-light); border-radius: 8px;
+  padding: 10px 14px; width: 280px; font-size: 0.72rem; font-weight: 400;
+  color: var(--text); line-height: 1.5; white-space: normal; z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: none;
+}
+.arch-badge .tooltip::after {
+  content: ''; position: absolute; top: 100%; right: 20px;
+  border: 6px solid transparent; border-top-color: #1a1a2e;
+}
+.arch-badge:hover .tooltip { display: block; }
+.cycle-badge {
+  font-size: 0.62rem; color: var(--text-muted);
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+}
+/* Expanded row */
+.expanded-row td { padding: 0 !important; border-bottom: 1px solid var(--border-light); }
+.expanded-content {
+  padding: 16px 20px; background: rgba(255,255,255,0.015);
+  display: grid; grid-template-columns: 1fr 240px; gap: 16px;
+}
+.exp-block h5 {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px;
+}
+.exp-block p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+.radar-wrap { display: flex; flex-direction: column; align-items: center; }
+.radar-wrap canvas { max-width: 220px; max-height: 220px; }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.85rem; }
+/* Signal Chains */
+.chains-section { margin-bottom: 48px; }
+.chains-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px;
+}
+.chains-section .chains-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 20px; }
+.chain-card {
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 20px; margin-bottom: 16px; background: var(--bg-card);
+}
+.chain-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.chain-name { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+.chain-toggle { color: var(--text-muted); font-size: 1.2rem; transition: transform 0.2s; }
+.chain-card.open .chain-toggle { transform: rotate(90deg); }
+.chain-trigger {
+  font-size: 0.74rem; color: var(--text-muted); margin: 8px 0 12px; font-style: italic;
+}
+.chain-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.chain-card.open .chain-body { max-height: 3000px; }
+.chain-steps { padding: 8px 0; }
+.chain-step {
+  display: flex; gap: 10px; padding: 10px 12px; margin-bottom: 2px;
+  border-radius: 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+}
+.chain-step-num {
+  font-family: var(--mono); font-size: 0.65rem; font-weight: 700;
+  color: var(--text-muted); min-width: 24px; padding-top: 2px;
+}
+.chain-step-content { flex: 1; }
+.chain-step-event { font-size: 0.78rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.chain-step-detail { font-size: 0.72rem; color: var(--text-dim); line-height: 1.4; }
+.chain-step-tickers { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.chain-step-arrow { text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 2px 0 2px 34px; }
+.direction-bullish { border-left: 3px solid #27ae60; }
+.direction-bearish { border-left: 3px solid #e74c3c; }
+.direction-mixed { border-left: 3px solid #f5a623; }
+.direction-mildly { border-left: 3px solid rgba(39,174,96,0.5); }
+.direction-risk { border-left: 3px solid #e74c3c; border-left-style: dashed; }
+.chain-inverse {
+  margin-top: 12px; padding: 10px 14px;
+  border-left: 3px solid #e74c3c; background: rgba(231,76,60,0.04);
+  border-radius: 0 6px 6px 0; font-size: 0.74rem; color: var(--text-dim); line-height: 1.5;
+}
+.chain-inverse strong { color: #e74c3c; }
+.chain-ticker-tag {
+  font-family: var(--mono); font-size: 0.65rem; padding: 2px 8px;
+  border-radius: 10px; cursor: pointer; transition: all 0.2s;
+  background: rgba(39,174,96,0.1); color: #27ae60; border: 1px solid rgba(39,174,96,0.25);
+}
+.chain-ticker-tag:hover { opacity: 0.8; transform: translateY(-1px); }
+.chain-ticker-tag.bearish-tag { background: rgba(231,76,60,0.1); color: #e74c3c; border-color: rgba(231,76,60,0.25); }
+/* Glossary */
+.glossary-section { margin-bottom: 48px; }
+.glossary-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px;
+}
+.glossary-section .glossary-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 16px; }
+.glossary-search {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  color: var(--text); padding: 8px 14px; border-radius: 6px;
+  font-size: 0.78rem; font-family: var(--font); outline: none;
+  width: 100%; max-width: 400px; margin-bottom: 16px; transition: border-color 0.2s;
+}
+.glossary-search:focus { border-color: var(--upstream); }
+.glossary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.glossary-card {
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 16px; background: var(--bg-card); cursor: pointer; transition: all 0.2s;
+}
+.glossary-card:hover { border-color: var(--border-light); }
+.glossary-card.open { border-color: var(--upstream-border); }
+.glossary-term {
+  font-size: 0.8rem; font-weight: 600; color: var(--text);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.glossary-term .toggle-icon { color: var(--text-muted); transition: transform 0.2s; font-size: 1rem; }
+.glossary-card.open .toggle-icon { transform: rotate(90deg); }
+.glossary-def {
+  font-size: 0.76rem; color: var(--text-dim); line-height: 1.55;
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin 0.3s ease; margin-top: 0;
+}
+.glossary-card.open .glossary-def { max-height: 500px; margin-top: 8px; }
+.glossary-tickers { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
+.glossary-ticker-tag {
+  font-family: var(--mono); font-size: 0.62rem; padding: 2px 6px;
+  border-radius: 8px; background: var(--upstream-bg); color: var(--upstream);
+  border: 1px solid var(--upstream-border); cursor: pointer; transition: all 0.2s;
+}
+.glossary-ticker-tag:hover { background: rgba(74,144,217,0.15); }
+/* Brief Panel */
+.brief-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.brief-overlay.open { opacity: 1; pointer-events: all; }
+.brief-panel {
+  position: fixed; top: 0; right: 0; width: 560px; height: 100vh;
+  background: #0c0c14; border-left: 1px solid var(--border-light);
+  transform: translateX(100%); transition: transform 0.3s ease;
+  z-index: 1001; overflow-y: auto; padding: 32px;
+}
+.brief-overlay.open .brief-panel { transform: translateX(0); }
+.brief-close {
+  position: absolute; top: 16px; right: 20px; background: none;
+  border: 1px solid var(--border-light); color: var(--text-dim);
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.brief-close:hover { border-color: var(--text); color: var(--text); }
+.brief-body h2 { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 4px; margin-right: 40px; }
+.brief-body .brief-tier { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 20px; }
+.brief-section-title {
+  font-family: var(--mono); font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted);
+  margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.brief-overview { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.consensus-text {
+  font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px;
+  padding: 12px 16px; border-left: 3px solid var(--text-muted);
+  background: rgba(255,255,255,0.02); border-radius: 0 6px 6px 0;
+}
+.variant-case {
+  padding: 8px 12px; border-radius: 6px; margin-bottom: 8px;
+  font-size: 0.76rem; color: var(--text-dim); line-height: 1.5;
+}
+.variant-bull { border-left: 3px solid #27ae60; background: rgba(39,174,96,0.04); }
+.variant-bear { border-left: 3px solid #e74c3c; background: rgba(231,76,60,0.04); }
+.variant-signal { border-left: 3px solid #3498db; background: rgba(52,152,219,0.04); }
+.variant-label { font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.variant-bull .variant-label { color: #27ae60; }
+.variant-bear .variant-label { color: #e74c3c; }
+.variant-signal .variant-label { color: #3498db; }
+.dynamics-list { list-style: none; padding: 0; }
+.dynamics-list li {
+  font-size: 0.78rem; color: var(--text-dim); line-height: 1.55;
+  padding: 6px 0 6px 16px; border-bottom: 1px solid var(--border); position: relative;
+}
+.dynamics-list li:last-child { border-bottom: none; }
+.dynamics-list li::before { content: '\203A'; position: absolute; left: 0; color: var(--text-muted); font-weight: 700; }
+.brief-rev { font-size: 0.78rem; color: var(--text-dim); line-height: 1.6; }
+.anchor-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.anchor-tag {
+  font-family: var(--mono); font-weight: 600; font-size: 0.75rem;
+  color: var(--upstream); padding: 4px 12px; border: 1px solid var(--upstream-border);
+  border-radius: 6px; background: var(--upstream-bg); cursor: pointer; transition: all 0.2s;
+}
+.anchor-tag:hover { background: rgba(74,158,255,0.15); transform: translateY(-1px); }
+.metrics-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.metric-tag {
+  font-family: var(--mono); font-size: 0.68rem; padding: 4px 12px;
+  border-radius: 12px; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); color: var(--text-dim);
+}
+.watchlist-item {
+  font-size: 0.76rem; color: var(--text-dim); line-height: 1.5;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.watchlist-item:last-child { border-bottom: none; }
+/* Responsive */
+@media (max-width: 768px) {
+  body { padding: 12px; padding-top: 64px; }
+  .flowchart-wrapper { flex-direction: column; }
+  .macro-drivers-column { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .macro-circle::before { display: none; }
+  .tier-body { flex-direction: column; }
+  .tier-cards { grid-template-columns: 1fr; }
+  .macro-cards { grid-template-columns: 1fr; }
+  .grid-filters { flex-direction: column; }
+  .grid-filters input, .grid-filters select { width: 100%; }
+  .filter-meta { margin-left: 0; width: 100%; justify-content: space-between; }
+  .expanded-content { grid-template-columns: 1fr; }
+  .brief-panel { width: 100%; }
+  .glossary-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════ HEADER ════════════════════════ -->
-<div class="header">
-  <h1>Information Technology — GICS Sector Visual Atlas</h1>
-  <div class="subtitle">Upstream → Midstream → Downstream Value Chain</div>
-</div>
+<nav class="sticky-nav">
+  <a href="index.html">&larr; Atlas</a>
+  <a href="#heroSection">Hero</a>
+  <a href="#flowchartSection">Map</a>
+  <a href="#gridSection">Grid</a>
+  <a href="#chainsSection">Signals</a>
+  <a href="#glossarySection">Glossary</a>
+</nav>
 
-<!-- ════════════════════════ LEGEND ════════════════════════ -->
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#4a90d9;"></div>Upstream — Semiconductor Equipment &amp; EDA</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#9b59b6;"></div>Midstream — Chips, Hardware &amp; Components</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#27ae60;"></div>Downstream — Software &amp; IT Services</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#e67e22;"></div>Macro Drivers</div>
-</div>
-
-<!-- ════════════════════════ PART A: MERMAID ATLAS ════════════════════════ -->
-<div class="mermaid-container">
-<pre class="mermaid">
-graph TD
-
-subgraph UPSTREAM["🔧 UPSTREAM — Equipment, EDA & Materials"]
-    direction LR
-    subgraph UP_E[" "]
-        SE["Semiconductor Equipment <br> ASML, AMAT, LRCX, KLAC"]
-        SM["Materials &amp; Test <br> ENTG, MKSI, TER"]
-    end
-    subgraph UP_D[" "]
-        EDA["EDA &amp; Design IP <br> SNPS, CDNS, ARM"]
-    end
-end
-
-subgraph MIDSTREAM["🏛️ MIDSTREAM — Semiconductors, Hardware & Components"]
-    direction LR
-    subgraph MC["Compute Semiconductors"]
-        GPU["Accelerators &amp; Logic <br> NVDA, AMD, INTC"]
-        SOC["SoC &amp; Connectivity <br> QCOM, AVGO, MRVL"]
-        ANA["Analog &amp; Mixed-Signal <br> TXN, ADI, NXPI, ON"]
-    end
-    subgraph MH["Technology Hardware"]
-        HW["Hardware Platforms <br> AAPL, DELL, HPE"]
-        NET["Networking &amp; Infra <br> CSCO, ANET, JNPR"]
-        STR["Storage &amp; Memory <br> MU, WDC, PSTG"]
-    end
-    subgraph ME["Electronic Components"]
-        EC["Connectors &amp; Optics <br> APH, TEL, GLW"]
-    end
-end
-
-subgraph DOWNSTREAM["🛒 DOWNSTREAM — Software & IT Services"]
-    direction LR
-    subgraph DS["Platform Software"]
-        SYS["Systems &amp; Cloud <br> MSFT, ORCL, NOW"]
-        APP["Application Software <br> CRM, ADBE, INTU"]
-    end
-    subgraph DC["Cybersecurity & Data"]
-        SEC["Cybersecurity <br> CRWD, PANW, FTNT, ZS"]
-        DAT["Data &amp; Analytics <br> PLTR, SNOW, DDOG"]
-    end
-    subgraph DI["IT Services"]
-        CON["IT Consulting <br> ACN, IBM, CTSH"]
-    end
-end
-
-SE -->|"Litho & Etch Tools"| GPU
-SE -->|"Deposition"| SOC
-SE -->|"Process Tools"| ANA
-SM -->|"Materials"| GPU
-EDA -->|"Design IP"| GPU
-EDA -->|"IP Cores"| SOC
-
-GPU -->|"GPUs / CPUs"| HW
-SOC -->|"Chipsets"| NET
-ANA -->|"Analog ICs"| EC
-STR -->|"Storage"| HW
-EC -->|"Interconnects"| NET
-
-HW -->|"Cloud Infra"| SYS
-NET -->|"Network Layer"| SYS
-HW -->|"Endpoints"| APP
-GPU -->|"AI Compute"| DAT
-SYS -->|"Platforms"| CON
-SEC -->|"Security Layer"| CON
-
-CAPEX(("💰 Enterprise Capex"))
-AI(("🤖 AI / ML Investment"))
-RATES(("📊 Rate Cycle"))
-
-CAPEX -.->|"Fab Buildout"| UPSTREAM
-AI -.->|"GPU Demand"| MC
-RATES -.->|"Discount Rates"| DS
-
-classDef upstream fill:#1e3a5f,stroke:#4a90d9,stroke-width:2px,color:#e8f0fe,rx:8,ry:8
-classDef midstream fill:#2d1b4e,stroke:#9b59b6,stroke-width:2px,color:#f0e6ff,rx:8,ry:8
-classDef downstream fill:#1a3c2a,stroke:#27ae60,stroke-width:2px,color:#e8f8f0,rx:8,ry:8
-classDef macrodriver fill:#4a3728,stroke:#e67e22,stroke-width:2px,color:#fdebd0,rx:8,ry:8
-
-class SE,SM,EDA upstream
-class GPU,SOC,ANA,HW,NET,STR,EC midstream
-class SYS,APP,SEC,DAT,CON downstream
-class CAPEX,AI,RATES macrodriver
-
-style UPSTREAM fill:#0d1f33,stroke:#4a90d9,stroke-width:3px,color:#4a90d9,rx:12,ry:12
-style MIDSTREAM fill:#1a0e2e,stroke:#9b59b6,stroke-width:3px,color:#9b59b6,rx:12,ry:12
-style DOWNSTREAM fill:#0e261a,stroke:#27ae60,stroke-width:3px,color:#27ae60,rx:12,ry:12
-</pre>
-</div>
-
-<!-- ════════════════════════ TRACK CARDS ════════════════════════ -->
-<div class="tracks">
-  <div class="track-card track-hard">
-    <h3>🔧 Semiconductor Equipment &amp; EDA</h3>
-    <p>Capex-cycle-sensitive. Lithography, etch, deposition, and EDA design tools. Flows from equipment makers (ASML, AMAT) and IP licensors (ARM, SNPS, CDNS) into the global semiconductor fab complex.</p>
+<header class="header" id="heroSection">
+  <h1>Information Technology Sector Visual Atlas</h1>
+  <p class="subtitle">Silicon to SaaS &mdash; The Abstraction Stack</p>
+  <p class="tagline">Value creation follows a predictable abstraction escalator from physical silicon through logic chips and hardware to pure software. The highest-quality businesses sit at critical abstraction boundaries or achieve tollbridge positioning within their layer.</p>
+  <div class="stats-bar">
+    <span class="stat-item"><strong>124</strong> companies</span>
+    <span class="stat-item"><strong>14</strong> sub-industries</span>
+    <span class="stat-item"><strong>8</strong> signal chains</span>
+    <span class="stat-item"><strong>35</strong> glossary terms</span>
   </div>
-  <div class="track-card track-soft">
-    <h3>🏛️ Chips, Hardware &amp; Components</h3>
-    <p>AI-investment-driven. Accelerators, networking, analog, and storage. Flows from compute semis (NVDA, AMD, AVGO) through hardware platforms (AAPL, CSCO, ANET) and connectors (APH, TEL) into the cloud and enterprise stack.</p>
+  <div class="legend">
+    <span class="legend-item" style="--lc: var(--upstream)">Upstream: Equipment, EDA &amp; Materials</span>
+    <span class="legend-item" style="--lc: var(--midstream)">Midstream: Semiconductors, Hardware &amp; Components</span>
+    <span class="legend-item" style="--lc: var(--downstream)">Downstream: Software &amp; Services</span>
+    <span class="legend-item" style="--lc: var(--macro)">Macro Drivers</span>
   </div>
-  <div class="track-card track-svc">
-    <h3>🛒 Software &amp; IT Services</h3>
-    <p>Rate-cycle-sensitive. Platform software, cybersecurity, data analytics, and IT consulting. Flows from systems software (MSFT, ORCL, NOW) and security (CRWD, PANW) through IT services (ACN, IBM) to the end enterprise customer.</p>
-  </div>
-</div>
+</header>
 
-<!-- ════════════════════════ PART B: DISCOVERY GRID ════════════════════════ -->
-<div class="grid-section">
-  <div class="grid-header">
-    <h2>Discovery Grid — Information Technology</h2>
-    <div class="grid-sub">Mega-Cap to Micro-Cap &bull; 115+ Tickers &bull; Search &amp; Filter</div>
-  </div>
+<section class="flowchart-section" id="flowchartSection">
+  <h2>Value Chain Architecture</h2>
+  <div class="flowchart-wrapper">
+    <svg class="flowchart-svg" id="flowchartSvg"></svg>
+    <div class="flowchart-tiers">
 
-  <div class="filters">
-    <div class="filter-group">
-      <label>Node</label>
-      <select id="filterNode">
-        <option value="">All</option>
-        <option value="Upstream">Upstream</option>
-        <option value="Midstream">Midstream</option>
-        <option value="Downstream">Downstream</option>
-      </select>
+      <div class="tier tier-upstream">
+        <div class="tier-label">Tier 1 &mdash; Upstream: Equipment, EDA &amp; Materials</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">Fab Equipment</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Semiconductor Equipment" onclick="openBrief(this)">
+                <div class="node-name">Semiconductor Equipment</div>
+                <div class="node-tickers">ASML &middot; AMAT &middot; LRCX &middot; KLAC &middot; TER &middot; ENTG</div>
+              </div>
+              <div class="fc-node" data-brief="Semiconductor Materials &amp; Packaging" onclick="openBrief(this)">
+                <div class="node-name">Materials &amp; Packaging</div>
+                <div class="node-tickers">MKSI &middot; ONTO &middot; AMKR &middot; WOLF &middot; CEVA</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Design IP</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="EDA &amp; Design IP" onclick="openBrief(this)">
+                <div class="node-name">EDA &amp; Design IP</div>
+                <div class="node-tickers">SNPS &middot; CDNS &middot; ARM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inter-tier-flow">
+        <span class="flow-label">Litho &amp; etch tools &darr;</span>
+        <span class="flow-label">Design IP &darr;</span>
+        <span class="flow-label">Wafer &amp; packaging &darr;</span>
+      </div>
+
+      <div class="tier tier-midstream">
+        <div class="tier-label">Tier 2 &mdash; Midstream: Semiconductors, Hardware &amp; Components</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">Semiconductors</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Compute Semiconductors" onclick="openBrief(this)">
+                <div class="node-name">Compute Semiconductors</div>
+                <div class="node-tickers">NVDA &middot; AMD &middot; INTC &middot; AVGO &middot; QCOM &middot; MRVL &middot; MU &middot; SNDK</div>
+              </div>
+              <div class="fc-node" data-brief="Compute Semiconductors" onclick="openBrief(this)">
+                <div class="node-name">Analog &amp; Mixed-Signal</div>
+                <div class="node-tickers">TXN &middot; ADI &middot; NXPI &middot; ON &middot; MCHP &middot; MPWR</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Hardware &amp; Storage</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Technology Hardware" onclick="openBrief(this)">
+                <div class="node-name">Technology Hardware</div>
+                <div class="node-tickers">AAPL &middot; DELL &middot; HPE &middot; HPQ &middot; SMCI &middot; CDW &middot; PSTG</div>
+              </div>
+              <div class="fc-node" data-brief="Communications Equipment &amp; Networking" onclick="openBrief(this)">
+                <div class="node-name">Networking &amp; Comms</div>
+                <div class="node-tickers">CSCO &middot; ANET &middot; MSI &middot; FFIV &middot; UI &middot; CIEN</div>
+              </div>
+              <div class="fc-node" data-brief="Storage &amp; Memory" onclick="openBrief(this)">
+                <div class="node-name">Storage &amp; Memory</div>
+                <div class="node-tickers">WDC &middot; STX &middot; NTAP</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Components</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Electronic Components &amp; Test Equipment" onclick="openBrief(this)">
+                <div class="node-name">Components &amp; Test</div>
+                <div class="node-tickers">APH &middot; TEL &middot; GLW &middot; KEYS &middot; COHR &middot; FLEX &middot; JBL</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inter-tier-flow">
+        <span class="flow-label">Compute platforms &darr;</span>
+        <span class="flow-label">Network infra &darr;</span>
+        <span class="flow-label">Hardware &darr;</span>
+      </div>
+
+      <div class="tier tier-downstream">
+        <div class="tier-label">Tier 3 &mdash; Downstream: Software &amp; Services</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">Software</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Platform &amp; Systems Software" onclick="openBrief(this)">
+                <div class="node-name">Platform &amp; Systems Software</div>
+                <div class="node-tickers">MSFT &middot; ORCL &middot; NOW &middot; SAP &middot; SNOW &middot; PTC &middot; BSY</div>
+              </div>
+              <div class="fc-node" data-brief="Application Software" onclick="openBrief(this)">
+                <div class="node-name">Application Software</div>
+                <div class="node-tickers">CRM &middot; ADBE &middot; INTU &middot; FICO &middot; TYL &middot; CDAY &middot; GWRE &middot; NICE</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Security &amp; Data</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Cybersecurity" onclick="openBrief(this)">
+                <div class="node-name">Cybersecurity</div>
+                <div class="node-tickers">PANW &middot; CRWD &middot; FTNT &middot; ZS &middot; CYBR &middot; CHKP &middot; OKTA</div>
+              </div>
+              <div class="fc-node" data-brief="Data Infrastructure &amp; Analytics" onclick="openBrief(this)">
+                <div class="node-name">Data Infrastructure &amp; Analytics</div>
+                <div class="node-tickers">DDOG &middot; NET &middot; NTNX &middot; DT &middot; ESTC</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Services &amp; Internet</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="IT Services &amp; Consulting" onclick="openBrief(this)">
+                <div class="node-name">IT Services &amp; Consulting</div>
+                <div class="node-tickers">ACN &middot; IBM &middot; IT &middot; BR &middot; CTSH &middot; SSNC &middot; OTEX</div>
+              </div>
+              <div class="fc-node" data-brief="Internet Infrastructure" onclick="openBrief(this)">
+                <div class="node-name">Internet Infrastructure</div>
+                <div class="node-tickers">VRSN &middot; GDDY &middot; TWLO</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
-    <div class="filter-group">
-      <label>Archetype</label>
-      <select id="filterArchetype">
-        <option value="">All</option>
-        <option value="Tollbridge">Tollbridge</option>
-        <option value="Cash Engine">Cash Engine</option>
-        <option value="Rule of 40">Rule of 40</option>
-        <option value="Deep Value">Deep Value</option>
-      </select>
+    <div class="macro-drivers-column">
+      <div class="macro-circle">Enterprise Capex</div>
+      <div class="macro-circle">AI / ML Investment</div>
+      <div class="macro-circle">Rate Cycle</div>
     </div>
-    <div class="filter-group">
-      <label>Market Cap</label>
-      <select id="filterCap">
-        <option value="">All</option>
-        <option value="Mega">Mega</option>
-        <option value="Large">Large</option>
-        <option value="Mid">Mid</option>
-        <option value="Small">Small</option>
-        <option value="Micro">Micro</option>
-      </select>
-    </div>
-    <input type="text" class="search-box" id="searchBox" placeholder="Search ticker or company name…">
-    <span class="result-count" id="resultCount"></span>
   </div>
+</section>
 
-  <div class="grid-table-wrap">
+<section class="summary-section">
+  <div class="tier-cards">
+    <div class="summary-card card-upstream">
+      <h3>Upstream &mdash; Enablers</h3>
+      <p>Semiconductor equipment, EDA tools, and materials that make chip fabrication possible. Capex-cycle sensitive but structurally essential. Highest moats accrue to monopoly tool providers like ASML (EUV lithography) and the Synopsys/Cadence EDA duopoly.</p>
+    </div>
+    <div class="summary-card card-midstream">
+      <h3>Midstream &mdash; Silicon &amp; Systems</h3>
+      <p>Semiconductors, hardware platforms, networking, and storage. Physical product layer with cyclicality but increasing differentiation through custom silicon, AI accelerators, and advanced packaging. NVIDIA defines the AI capex cycle.</p>
+    </div>
+    <div class="summary-card card-downstream">
+      <h3>Downstream &mdash; Software &amp; Services</h3>
+      <p>Platform software, applications, cybersecurity, data infrastructure, and IT services. Highest margins, most recurring revenue, strongest network effects. Value accretes to platforms that become systems of record.</p>
+    </div>
+  </div>
+  <div class="macro-cards">
+    <div class="macro-card">
+      <h4>Enterprise Capex Cycle</h4>
+      <p>Corporate IT spending budgets, server refresh cycles, and datacenter buildout pace. CIO surveys (Gartner, Morgan Stanley) provide leading indicators. Cloud migration and AI infrastructure are the primary capex vectors.</p>
+    </div>
+    <div class="macro-card">
+      <h4>AI / ML Investment Wave</h4>
+      <p>Hyperscaler AI capex (MSFT, GOOG, AMZN, META) is the most powerful demand signal cascading through all three tiers. GPU supply, custom silicon, and AI software monetization define the investment landscape.</p>
+    </div>
+    <div class="macro-card">
+      <h4>Interest Rate Cycle</h4>
+      <p>Fed funds rate and 10-year Treasury yield directly impact growth stock valuations (duration effect), enterprise IT budgets (borrowing cost), and M&amp;A activity (financing availability). Rate cuts expand SaaS multiples.</p>
+    </div>
+  </div>
+</section>
+
+<section class="grid-section" id="gridSection">
+  <h2>Discovery Grid &mdash; IT Company Registry</h2>
+  <p class="grid-subtitle">Filterable, searchable registry of 124 IT companies across the Silicon-to-SaaS abstraction stack</p>
+  <div class="grid-filters">
+    <input type="text" id="searchInput" placeholder="Search ticker or company...">
+    <select id="tierFilter"><option value="">All Tiers</option></select>
+    <select id="subIndustryFilter"><option value="">All Sub-Industries</option></select>
+    <select id="archetypeFilter"><option value="">All Archetypes</option></select>
+    <select id="capFilter"><option value="">All Market Caps</option></select>
+    <select id="cycleFilter"><option value="">All Cycles</option></select>
+    <div class="filter-meta">
+      <span id="resultCount">124 companies</span>
+      <button id="clearBtn">Clear Filters</button>
+    </div>
+  </div>
+  <div class="factor-toggles">
+    <button class="factor-toggle" data-factor="ai">AI Exposure</button>
+    <button class="factor-toggle" data-factor="cyc">Cyclicality</button>
+    <button class="factor-toggle" data-factor="rec">Recurring Rev</button>
+    <button class="factor-toggle" data-factor="mar">Margins</button>
+    <button class="factor-toggle" data-factor="grw">Growth</button>
+    <button class="factor-toggle" data-factor="moat">Moat</button>
+  </div>
+  <div class="grid-table-wrapper">
     <table class="grid-table">
-      <thead>
-        <tr>
-          <th data-sort="ticker">Ticker ▾</th>
-          <th data-sort="name">Company</th>
-          <th data-sort="industry">Industry</th>
-          <th data-sort="node">Node</th>
-          <th data-sort="archetype">Archetype</th>
-          <th data-sort="marketCap">Mkt Cap</th>
-        </tr>
-      </thead>
+      <thead><tr>
+        <th data-col="ticker">Ticker <span class="sort-arrow"></span></th>
+        <th data-col="name">Company <span class="sort-arrow"></span></th>
+        <th data-col="subIndustry">Industry <span class="sort-arrow"></span></th>
+        <th data-col="tier">Tier <span class="sort-arrow"></span></th>
+        <th data-col="archetype">Archetype <span class="sort-arrow"></span></th>
+        <th data-col="marketCap">Mkt Cap <span class="sort-arrow"></span></th>
+        <th data-col="cyclePosition">Cycle <span class="sort-arrow"></span></th>
+      </tr></thead>
       <tbody id="gridBody"></tbody>
     </table>
   </div>
+</section>
+
+<section class="chains-section" id="chainsSection">
+  <h2>Signal Chains &mdash; Causal Logic Flows</h2>
+  <p class="chains-subtitle">8 interconnected chains showing how macro drivers propagate through the IT abstraction stack</p>
+  <div id="chainsContainer"></div>
+</section>
+
+<section class="glossary-section" id="glossarySection">
+  <h2>Glossary &mdash; Key Terms &amp; Definitions</h2>
+  <p class="glossary-subtitle">35 sector-specific terms used throughout this atlas</p>
+  <input type="text" class="glossary-search" id="glossarySearch" placeholder="Search glossary terms...">
+  <div class="glossary-grid" id="glossaryGrid"></div>
+</section>
+
+<div id="briefOverlay" class="brief-overlay" onclick="handleOverlayClick(event)">
+  <div id="briefPanel" class="brief-panel">
+    <button class="brief-close" onclick="closeBrief()">&#x2715;</button>
+    <div id="briefContent" class="brief-body"></div>
+  </div>
 </div>
 
-<!-- ════════════════════════ DATA + JS ════════════════════════ -->
 <script>
-/* ── Mermaid init ── */
-mermaid.initialize({
-  startOnLoad: true,
-  theme: 'dark',
-  flowchart: {
-    useMaxWidth: true,
-    htmlLabels: true,
-    curve: 'basis',
-    nodeSpacing: 30,
-    rankSpacing: 60,
-    padding: 12
-  },
-  themeVariables: {
-    darkMode: true,
-    background: '#0e0e16',
-    primaryColor: '#2d1b4e',
-    primaryTextColor: '#e0e0e0',
-    lineColor: '#555',
-    fontSize: '12px'
-  }
-});
+// ═══ FLOWCHART SVG CONNECTIONS ═══
 
-/* ══════════════════════════════════════════════════════════════
-   SECTOR DATA — 118 Information Technology Companies
-   ══════════════════════════════════════════════════════════════ */
-const sectorData = [
-  // ─── UPSTREAM: Semiconductor Equipment ───
-  {ticker:"ASML",name:"ASML Holding",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Tollbridge",marketCap:"Mega"},
-  {ticker:"AMAT",name:"Applied Materials",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"LRCX",name:"Lam Research",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"KLAC",name:"KLA Corp",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Tollbridge",marketCap:"Large"},
-  {ticker:"TER",name:"Teradyne",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"ENTG",name:"Entegris",industry:"Semiconductor Materials",node:"Upstream",archetype:"Tollbridge",marketCap:"Mid"},
-  {ticker:"MKSI",name:"MKS Instruments",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"ONTO",name:"Onto Innovation",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"ACLS",name:"Axcelis Technologies",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"CAMT",name:"Camtek",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"COHU",name:"Cohu Inc",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Deep Value",marketCap:"Small"},
-  {ticker:"AMKR",name:"Amkor Technology",industry:"Semiconductor Packaging",node:"Upstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"UCTT",name:"Ultra Clean Holdings",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Deep Value",marketCap:"Small"},
-  {ticker:"IPGP",name:"IPG Photonics",industry:"Semiconductor Equipment",node:"Upstream",archetype:"Deep Value",marketCap:"Small"},
+// ═══ INLINE DATA ═══
 
-  // ─── UPSTREAM: EDA & Design IP ───
-  {ticker:"SNPS",name:"Synopsys",industry:"EDA & Design IP",node:"Upstream",archetype:"Tollbridge",marketCap:"Mega"},
-  {ticker:"CDNS",name:"Cadence Design Systems",industry:"EDA & Design IP",node:"Upstream",archetype:"Tollbridge",marketCap:"Large"},
-  {ticker:"ARM",name:"Arm Holdings",industry:"Semiconductor IP",node:"Upstream",archetype:"Tollbridge",marketCap:"Mega"},
-
-  // ─── MIDSTREAM: Compute Semiconductors ───
-  {ticker:"NVDA",name:"NVIDIA",industry:"Semiconductors — Accelerators",node:"Midstream",archetype:"Tollbridge",marketCap:"Mega"},
-  {ticker:"AMD",name:"Advanced Micro Devices",industry:"Semiconductors — Logic",node:"Midstream",archetype:"Rule of 40",marketCap:"Mega"},
-  {ticker:"INTC",name:"Intel",industry:"Semiconductors — IDM",node:"Midstream",archetype:"Deep Value",marketCap:"Large"},
-  {ticker:"AVGO",name:"Broadcom",industry:"Semiconductors — Diversified",node:"Midstream",archetype:"Tollbridge",marketCap:"Mega"},
-  {ticker:"QCOM",name:"Qualcomm",industry:"Semiconductors — Mobile SoC",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"TXN",name:"Texas Instruments",industry:"Semiconductors — Analog",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"ADI",name:"Analog Devices",industry:"Semiconductors — Analog",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"MRVL",name:"Marvell Technology",industry:"Semiconductors — Custom Silicon",node:"Midstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"NXPI",name:"NXP Semiconductors",industry:"Semiconductors — Auto/IoT",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"MU",name:"Micron Technology",industry:"Semiconductors — Memory",node:"Midstream",archetype:"Deep Value",marketCap:"Large"},
-  {ticker:"ON",name:"ON Semiconductor",industry:"Semiconductors — Power",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"MCHP",name:"Microchip Technology",industry:"Semiconductors — MCU",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"MPWR",name:"Monolithic Power Systems",industry:"Semiconductors — Power Mgmt",node:"Midstream",archetype:"Tollbridge",marketCap:"Large"},
-  {ticker:"SWKS",name:"Skyworks Solutions",industry:"Semiconductors — RF",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"QRVO",name:"Qorvo",industry:"Semiconductors — RF",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"GFS",name:"GlobalFoundries",industry:"Semiconductors — Foundry",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"LSCC",name:"Lattice Semiconductor",industry:"Semiconductors — FPGA",node:"Midstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"WOLF",name:"Wolfspeed",industry:"Semiconductors — SiC",node:"Midstream",archetype:"Deep Value",marketCap:"Small"},
-  {ticker:"MTSI",name:"MACOM Technology",industry:"Semiconductors — RF/Optical",node:"Midstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"DIOD",name:"Diodes Inc",industry:"Semiconductors — Discrete",node:"Midstream",archetype:"Deep Value",marketCap:"Small"},
-  {ticker:"SLAB",name:"Silicon Laboratories",industry:"Semiconductors — IoT",node:"Midstream",archetype:"Deep Value",marketCap:"Small"},
-  {ticker:"SMTC",name:"Semtech",industry:"Semiconductors — Analog",node:"Midstream",archetype:"Deep Value",marketCap:"Small"},
-  {ticker:"ALGM",name:"Allegro MicroSystems",industry:"Semiconductors — Sensors",node:"Midstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"CRUS",name:"Cirrus Logic",industry:"Semiconductors — Audio",node:"Midstream",archetype:"Cash Engine",marketCap:"Small"},
-
-  // ─── MIDSTREAM: Technology Hardware ───
-  {ticker:"AAPL",name:"Apple",industry:"Technology Hardware",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega"},
-  {ticker:"DELL",name:"Dell Technologies",industry:"Technology Hardware",node:"Midstream",archetype:"Deep Value",marketCap:"Large"},
-  {ticker:"HPQ",name:"HP Inc",industry:"Technology Hardware",node:"Midstream",archetype:"Deep Value",marketCap:"Large"},
-  {ticker:"HPE",name:"Hewlett Packard Enterprise",industry:"Technology Hardware",node:"Midstream",archetype:"Deep Value",marketCap:"Large"},
-  {ticker:"SMCI",name:"Super Micro Computer",industry:"Technology Hardware — Servers",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"CSCO",name:"Cisco Systems",industry:"Communications Equipment",node:"Midstream",archetype:"Cash Engine",marketCap:"Mega"},
-  {ticker:"ANET",name:"Arista Networks",industry:"Communications Equipment",node:"Midstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"JNPR",name:"Juniper Networks",industry:"Communications Equipment",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"ZBRA",name:"Zebra Technologies",industry:"Technology Hardware",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"CDW",name:"CDW Corp",industry:"Technology Distribution",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
-
-  // ─── MIDSTREAM: Storage ───
-  {ticker:"WDC",name:"Western Digital",industry:"Storage",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"STX",name:"Seagate Technology",industry:"Storage",node:"Midstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"NTAP",name:"NetApp",industry:"Storage",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"PSTG",name:"Pure Storage",industry:"Storage",node:"Midstream",archetype:"Rule of 40",marketCap:"Mid"},
-
-  // ─── MIDSTREAM: Electronic Components ───
-  {ticker:"APH",name:"Amphenol",industry:"Electronic Components",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"TEL",name:"TE Connectivity",industry:"Electronic Components",node:"Midstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"GLW",name:"Corning",industry:"Electronic Components — Optical",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"KEYS",name:"Keysight Technologies",industry:"Electronic Test Equipment",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"TRMB",name:"Trimble",industry:"Electronic Equipment",node:"Midstream",archetype:"Cash Engine",marketCap:"Mid"},
-
-  // ─── DOWNSTREAM: Systems & Platform Software ───
-  {ticker:"MSFT",name:"Microsoft",industry:"Systems Software — Cloud",node:"Downstream",archetype:"Tollbridge",marketCap:"Mega"},
-  {ticker:"ORCL",name:"Oracle",industry:"Systems Software — Database",node:"Downstream",archetype:"Tollbridge",marketCap:"Mega"},
-  {ticker:"NOW",name:"ServiceNow",industry:"Platform Software",node:"Downstream",archetype:"Rule of 40",marketCap:"Mega"},
-  {ticker:"CRM",name:"Salesforce",industry:"Application Software — CRM",node:"Downstream",archetype:"Cash Engine",marketCap:"Mega"},
-  {ticker:"ADBE",name:"Adobe",industry:"Application Software — Creative",node:"Downstream",archetype:"Cash Engine",marketCap:"Mega"},
-  {ticker:"INTU",name:"Intuit",industry:"Application Software — Finance",node:"Downstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"PLTR",name:"Palantir Technologies",industry:"Data Analytics & AI",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"WDAY",name:"Workday",industry:"Application Software — HCM",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"SNOW",name:"Snowflake",industry:"Data Infrastructure",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"HUBS",name:"HubSpot",industry:"Application Software — Marketing",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"TEAM",name:"Atlassian",industry:"Application Software — DevTools",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"TTD",name:"The Trade Desk",industry:"Application Software — AdTech",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"ANSS",name:"Ansys",industry:"Application Software — Simulation",node:"Downstream",archetype:"Tollbridge",marketCap:"Large"},
-  {ticker:"PTC",name:"PTC Inc",industry:"Application Software — PLM",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"DDOG",name:"Datadog",industry:"Observability Software",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"VEEV",name:"Veeva Systems",industry:"Application Software — Life Sci",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"MNDY",name:"monday.com",industry:"Application Software — WorkOS",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"MDB",name:"MongoDB",industry:"Data Infrastructure",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"NET",name:"Cloudflare",industry:"Cloud Infrastructure",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"MANH",name:"Manhattan Associates",industry:"Application Software — Supply Chain",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"BILL",name:"BILL Holdings",industry:"Application Software — FinOps",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"PCOR",name:"Procore Technologies",industry:"Application Software — Construction",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"DOCU",name:"DocuSign",industry:"Application Software — eSignature",node:"Downstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"PATH",name:"UiPath",industry:"Application Software — RPA",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"ZM",name:"Zoom Video Communications",industry:"Application Software — UCaaS",node:"Downstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"SMAR",name:"Smartsheet",industry:"Application Software — WorkMgmt",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"ESTC",name:"Elastic NV",industry:"Data Analytics",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"CFLT",name:"Confluent",industry:"Data Infrastructure",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"GWRE",name:"Guidewire Software",industry:"Application Software — Insurance",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"TOST",name:"Toast",industry:"Application Software — Restaurant",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"BRZE",name:"Braze",industry:"Application Software — Engagement",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"NCNO",name:"nCino",industry:"Application Software — Banking",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"APPF",name:"AppFolio",industry:"Application Software — PropTech",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"U",name:"Unity Software",industry:"Application Software — 3D Engine",node:"Downstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"DT",name:"Dynatrace",industry:"Observability Software",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"PAYC",name:"Paycom Software",industry:"Application Software — HCM",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"ALTR",name:"Altair Engineering",industry:"Application Software — Simulation",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-
-  // ─── DOWNSTREAM: Cybersecurity ───
-  {ticker:"CRWD",name:"CrowdStrike Holdings",industry:"Cybersecurity — Endpoint",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"PANW",name:"Palo Alto Networks",industry:"Cybersecurity — Platform",node:"Downstream",archetype:"Rule of 40",marketCap:"Large"},
-  {ticker:"FTNT",name:"Fortinet",industry:"Cybersecurity — Network",node:"Downstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"ZS",name:"Zscaler",industry:"Cybersecurity — Zero Trust",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"CYBR",name:"CyberArk Software",industry:"Cybersecurity — Identity",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"S",name:"SentinelOne",industry:"Cybersecurity — XDR",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"RPD",name:"Rapid7",industry:"Cybersecurity — SIEM",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"VRNS",name:"Varonis Systems",industry:"Cybersecurity — Data Security",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-  {ticker:"QLYS",name:"Qualys",industry:"Cybersecurity — Vuln Mgmt",node:"Downstream",archetype:"Cash Engine",marketCap:"Small"},
-  {ticker:"TENB",name:"Tenable Holdings",industry:"Cybersecurity — Exposure Mgmt",node:"Downstream",archetype:"Rule of 40",marketCap:"Small"},
-
-  // ─── DOWNSTREAM: IT Consulting & Services ───
-  {ticker:"ACN",name:"Accenture",industry:"IT Consulting & Services",node:"Downstream",archetype:"Cash Engine",marketCap:"Mega"},
-  {ticker:"IBM",name:"IBM",industry:"IT Consulting & Hybrid Cloud",node:"Downstream",archetype:"Deep Value",marketCap:"Large"},
-  {ticker:"CTSH",name:"Cognizant Technology Solutions",industry:"IT Services — Outsourcing",node:"Downstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"INFY",name:"Infosys",industry:"IT Services — Outsourcing",node:"Downstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"WIT",name:"Wipro",industry:"IT Services — Outsourcing",node:"Downstream",archetype:"Deep Value",marketCap:"Mid"},
-  {ticker:"EPAM",name:"EPAM Systems",industry:"IT Services — Digital Engineering",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"GLOB",name:"Globant",industry:"IT Services — Digital Engineering",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
-  {ticker:"DXC",name:"DXC Technology",industry:"IT Services — Legacy",node:"Downstream",archetype:"Deep Value",marketCap:"Small"},
-  {ticker:"LDOS",name:"Leidos Holdings",industry:"IT Services — Government",node:"Downstream",archetype:"Cash Engine",marketCap:"Large"},
-  {ticker:"SAIC",name:"Science Applications Intl",industry:"IT Services — Government",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"GDDY",name:"GoDaddy",industry:"Internet Infrastructure",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"GEN",name:"Gen Digital",industry:"Consumer Security",node:"Downstream",archetype:"Cash Engine",marketCap:"Mid"},
-  {ticker:"TWLO",name:"Twilio",industry:"Communications Platform",node:"Downstream",archetype:"Rule of 40",marketCap:"Mid"},
+const itCompanies=[
+// UPSTREAM — Semiconductor Equipment
+{t:"ASML",n:"ASML Holding",tier:"Upstream",sub:"Semiconductor Equipment",mc:"Mega",arch:"Tollbridge",cyc:"mid-cycle",fe:{ai:2,cyc:1,rec:-1,mar:2,grw:1,moat:2},d:"Monopoly supplier of EUV lithography systems. Every leading-edge chip on earth passes through an ASML tool. Multi-year backlog, >60% gross margins, no substitute."},
+{t:"AMAT",n:"Applied Materials",tier:"Upstream",sub:"Semiconductor Equipment",mc:"Mega",arch:"Tollbridge",cyc:"mid-cycle",fe:{ai:2,cyc:1,rec:-1,mar:1,grw:1,moat:1},d:"Broadest portfolio in deposition, etch, CMP, and inspection. Dominant in materials engineering steps that grow with transistor complexity."},
+{t:"LRCX",n:"Lam Research",tier:"Upstream",sub:"Semiconductor Equipment",mc:"Mega",arch:"Tollbridge",cyc:"mid-cycle",fe:{ai:2,cyc:1,rec:-1,mar:1,grw:1,moat:2},d:"Etch and deposition leader. Critical for 3D NAND layer stacking — each generation adds more Lam steps. CSBG provides recurring revenue floor."},
+{t:"KLAC",n:"KLA Corporation",tier:"Upstream",sub:"Semiconductor Equipment",mc:"Large",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:1,rec:0,mar:2,grw:1,moat:2},d:"Near-monopoly in wafer inspection and metrology. Process control is non-negotiable as geometries shrink. Highest margins in semi equipment."},
+{t:"TER",n:"Teradyne",tier:"Upstream",sub:"Semiconductor Equipment",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:1,rec:-1,mar:1,grw:0,moat:1},d:"Leading ATE supplier. Every chip must be tested. Robotics division (Universal Robots) provides diversification."},
+{t:"ENTG",n:"Entegris",tier:"Upstream",sub:"Semiconductor Equipment",mc:"Mid",arch:"Compounder",cyc:"mid-cycle",fe:{ai:1,cyc:1,rec:0,mar:1,grw:1,moat:1},d:"Specialty materials and contamination control for fabs. Filters, chemicals, and advanced materials that scale with process complexity."},
+{t:"MKSI",n:"MKS Instruments",tier:"Upstream",sub:"Semiconductor Equipment",mc:"Mid",arch:"Compounder",cyc:"recovery",fe:{ai:1,cyc:1,rec:-1,mar:0,grw:0,moat:0},d:"Instruments, lasers, and subsystems for semi equipment OEMs. Atotech acquisition added electronics chemicals. Deleveraging post-acquisition."},
+{t:"ONTO",n:"Onto Innovation",tier:"Upstream",sub:"Semiconductor Equipment",mc:"Small",arch:"Compounder",cyc:"expansion",fe:{ai:1,cyc:1,rec:-1,mar:1,grw:1,moat:1},d:"Process control and lithography for advanced packaging. Beneficiary of chiplet/heterogeneous integration trend."},
+// UPSTREAM — EDA & Design IP
+{t:"SNPS",n:"Synopsys",tier:"Upstream",sub:"EDA & Design IP",mc:"Mega",arch:"Tollbridge",cyc:"expansion",fe:{ai:2,cyc:-1,rec:2,mar:2,grw:1,moat:2},d:"Duopoly in electronic design automation with Cadence. Mission-critical software for chip design — switching costs are astronomical."},
+{t:"CDNS",n:"Cadence Design Systems",tier:"Upstream",sub:"EDA & Design IP",mc:"Mega",arch:"Tollbridge",cyc:"expansion",fe:{ai:2,cyc:-1,rec:2,mar:2,grw:1,moat:2},d:"EDA duopoly partner. Expanding from chip to system design (CFD, structural analysis via Ansys). IP portfolio and emulation provide additional moats."},
+{t:"ARM",n:"Arm Holdings",tier:"Upstream",sub:"EDA & Design IP",mc:"Mega",arch:"Tollbridge",cyc:"expansion",fe:{ai:2,cyc:0,rec:1,mar:2,grw:2,moat:2},d:"Architecture licensor underpinning virtually all mobile, IoT, and increasingly datacenter chips. Royalty model means near-zero marginal cost."},
+// UPSTREAM — Semiconductor Materials & Packaging
+{t:"AMKR",n:"Amkor Technology",tier:"Upstream",sub:"Semiconductor Materials & Packaging",mc:"Small",arch:"Deep Value",cyc:"recovery",fe:{ai:1,cyc:2,rec:-2,mar:-1,grw:0,moat:0},d:"Leading OSAT. Advanced packaging for AI chips growing but margins thin. Leveraged to heterogeneous integration trend."},
+{t:"CEVA",n:"CEVA Inc",tier:"Upstream",sub:"Semiconductor Materials & Packaging",mc:"Micro",arch:"Speculative Growth",cyc:"recovery",fe:{ai:1,cyc:0,rec:1,mar:1,grw:1,moat:1},d:"IP licensor for DSP, wireless, and sensor processing cores. Royalty model similar to ARM but narrower."},
+{t:"WOLF",n:"Wolfspeed",tier:"Upstream",sub:"Semiconductor Materials & Packaging",mc:"Micro",arch:"Turnaround",cyc:"recovery",fe:{ai:0,cyc:1,rec:-2,mar:-2,grw:0,moat:1},d:"Silicon carbide wafer and device manufacturer. Filed Chapter 11 Jun 2025, emerged Sep 2025. SiC technology valuable but execution challenged."},
+// MIDSTREAM — Compute Semiconductors
+{t:"NVDA",n:"NVIDIA",tier:"Midstream",sub:"Compute Semiconductors",mc:"Mega",arch:"Tollbridge",cyc:"expansion",fe:{ai:2,cyc:1,rec:0,mar:2,grw:2,moat:2},d:"GPU and AI accelerator monopoly. CUDA ecosystem creates massive software moat. Datacenter revenue dominates; Blackwell/Rubin architectures extend lead."},
+{t:"AMD",n:"Advanced Micro Devices",tier:"Midstream",sub:"Compute Semiconductors",mc:"Mega",arch:"Compounder",cyc:"expansion",fe:{ai:2,cyc:1,rec:-1,mar:1,grw:1,moat:1},d:"CPU and GPU challenger. EPYC server CPUs taking share from Intel. MI300/MI400 AI accelerators position as credible NVIDIA alternative."},
+{t:"INTC",n:"Intel",tier:"Midstream",sub:"Compute Semiconductors",mc:"Large",arch:"Turnaround",cyc:"downturn",fe:{ai:0,cyc:1,rec:-1,mar:-1,grw:-2,moat:0},d:"Legacy CPU giant in multi-year restructuring. Foundry ambitions (18A process) face execution risk. Deep value if turnaround succeeds."},
+{t:"AVGO",n:"Broadcom",tier:"Midstream",sub:"Compute Semiconductors",mc:"Mega",arch:"Cash Engine",cyc:"expansion",fe:{ai:2,cyc:0,rec:1,mar:2,grw:1,moat:2},d:"Diversified semi + infrastructure software conglomerate. Custom AI accelerators plus VMware acquisition creates recurring software base. Best capital allocator in semis."},
+{t:"QCOM",n:"Qualcomm",tier:"Midstream",sub:"Compute Semiconductors",mc:"Mega",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:1,rec:0,mar:1,grw:0,moat:2},d:"Mobile SoC and modem monopoly via patent portfolio. Snapdragon dominates Android. Automotive and IoT diversification."},
+{t:"TXN",n:"Texas Instruments",tier:"Midstream",sub:"Compute Semiconductors",mc:"Mega",arch:"Cash Engine",cyc:"late-cycle",fe:{ai:0,cyc:1,rec:-1,mar:2,grw:-1,moat:1},d:"Analog and embedded processing leader. 80,000+ products across industrial/auto end markets. Own fabs drive structural cost advantage."},
+{t:"MRVL",n:"Marvell Technology",tier:"Midstream",sub:"Compute Semiconductors",mc:"Large",arch:"Compounder",cyc:"expansion",fe:{ai:2,cyc:1,rec:-1,mar:1,grw:1,moat:1},d:"Custom silicon and data infrastructure semis. Electra optical DSPs and custom AI accelerators for hyperscalers. Datacenter >70% of revenue."},
+{t:"ADI",n:"Analog Devices",tier:"Midstream",sub:"Compute Semiconductors",mc:"Large",arch:"Cash Engine",cyc:"recovery",fe:{ai:0,cyc:1,rec:-1,mar:2,grw:0,moat:1},d:"High-performance analog, mixed-signal, and DSP. Industrial and auto end markets. Inventory correction normalizing, recovery underway."},
+{t:"NXPI",n:"NXP Semiconductors",tier:"Midstream",sub:"Compute Semiconductors",mc:"Large",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:1,rec:-1,mar:1,grw:0,moat:1},d:"Auto and industrial semiconductor leader. Radar, processors, and secure connectivity for vehicles. Content per car growing."},
+{t:"MPWR",n:"Monolithic Power Systems",tier:"Midstream",sub:"Compute Semiconductors",mc:"Mid",arch:"Compounder",cyc:"expansion",fe:{ai:2,cyc:1,rec:-1,mar:2,grw:1,moat:1},d:"Power management ICs for datacenter, auto, and consumer. AI GPU power delivery is key growth driver. Best-in-class gross margins (>58%)."},
+{t:"ON",n:"ON Semiconductor",tier:"Midstream",sub:"Compute Semiconductors",mc:"Mid",arch:"Compounder",cyc:"mid-cycle",fe:{ai:0,cyc:1,rec:-1,mar:1,grw:0,moat:1},d:"SiC power semis and image sensors. EV powertrain and ADAS exposure. Transformed from commodity analog to high-value auto/industrial."},
+{t:"MCHP",n:"Microchip Technology",tier:"Midstream",sub:"Compute Semiconductors",mc:"Mid",arch:"Cash Engine",cyc:"downturn",fe:{ai:0,cyc:2,rec:-1,mar:1,grw:-1,moat:0},d:"Microcontrollers and analog for industrial/auto. Aggressive inventory correction hitting revenue hard. Long-term compounder via M&A."},
+{t:"SWKS",n:"Skyworks Solutions",tier:"Midstream",sub:"Compute Semiconductors",mc:"Mid",arch:"Deep Value",cyc:"downturn",fe:{ai:0,cyc:2,rec:-2,mar:1,grw:-1,moat:0},d:"RF front-end filters and amplifiers. Apple concentration risk (~60% revenue). Cheap on fundamentals if mobile stabilizes."},
+{t:"QRVO",n:"Qorvo",tier:"Midstream",sub:"Compute Semiconductors",mc:"Small",arch:"Deep Value",cyc:"downturn",fe:{ai:0,cyc:2,rec:-2,mar:0,grw:-1,moat:0},d:"RF solutions for mobile, defense, and infrastructure. Activist pressure driving restructuring."},
+{t:"LSCC",n:"Lattice Semiconductor",tier:"Midstream",sub:"Compute Semiconductors",mc:"Small",arch:"Compounder",cyc:"recovery",fe:{ai:1,cyc:1,rec:-1,mar:1,grw:0,moat:1},d:"Low-power FPGA specialist. Edge AI, industrial automation, and communications use cases. Recovering from inventory correction."},
+{t:"GFS",n:"GlobalFoundries",tier:"Midstream",sub:"Compute Semiconductors",mc:"Mid",arch:"Deep Value",cyc:"downturn",fe:{ai:0,cyc:2,rec:-1,mar:0,grw:-1,moat:1},d:"Pure-play contract foundry (not leading-edge). Specialty nodes for auto, IoT, RF. Utilization pressure from demand softness."},
+{t:"MU",n:"Micron Technology",tier:"Midstream",sub:"Compute Semiconductors",mc:"Large",arch:"Cash Engine",cyc:"expansion",fe:{ai:2,cyc:2,rec:-2,mar:0,grw:1,moat:1},d:"DRAM and NAND memory manufacturer. HBM for AI GPUs is transformational growth vector. Deeply cyclical but AI demand creating structural upturn."},
+// MIDSTREAM — Technology Hardware
+{t:"AAPL",n:"Apple",tier:"Midstream",sub:"Technology Hardware",mc:"Mega",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:0,rec:1,mar:2,grw:0,moat:2},d:"Consumer electronics ecosystem. Services segment (~$100B run rate) provides recurring revenue. Unmatched brand loyalty and ecosystem lock-in."},
+{t:"DELL",n:"Dell Technologies",tier:"Midstream",sub:"Technology Hardware",mc:"Large",arch:"Cash Engine",cyc:"expansion",fe:{ai:2,cyc:1,rec:0,mar:0,grw:1,moat:0},d:"Server, storage, and PC OEM. AI server revenue accelerating. ISG benefiting from enterprise AI buildout. Thin margins but massive scale."},
+{t:"HPQ",n:"HP Inc",tier:"Midstream",sub:"Technology Hardware",mc:"Mid",arch:"Cash Engine",cyc:"late-cycle",fe:{ai:0,cyc:1,rec:0,mar:0,grw:-1,moat:0},d:"PC and printing hardware. Mature business with declining print volumes. AI PC refresh cycle potential upside."},
+{t:"HPE",n:"Hewlett Packard Enterprise",tier:"Midstream",sub:"Technology Hardware",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:1,rec:0,mar:0,grw:0,moat:0},d:"Enterprise servers, networking (Juniper acquisition closed Jul 2025), and GreenLake hybrid cloud."},
+{t:"PSTG",n:"Pure Storage",tier:"Midstream",sub:"Technology Hardware",mc:"Mid",arch:"Rule of 40",cyc:"expansion",fe:{ai:1,cyc:0,rec:1,mar:1,grw:1,moat:1},d:"All-flash storage arrays with subscription model (Evergreen). Displacing legacy disk storage. Subscription ARR growing >25%."},
+{t:"SMCI",n:"Super Micro Computer",tier:"Midstream",sub:"Technology Hardware",mc:"Mid",arch:"Speculative Growth",cyc:"expansion",fe:{ai:2,cyc:2,rec:-2,mar:-1,grw:2,moat:0},d:"AI server and rack-scale solutions. Liquid cooling leadership. Revenue surged on AI demand but accounting concerns create risk."},
+{t:"ZBRA",n:"Zebra Technologies",tier:"Midstream",sub:"Technology Hardware",mc:"Mid",arch:"Compounder",cyc:"recovery",fe:{ai:0,cyc:1,rec:0,mar:1,grw:0,moat:1},d:"Enterprise barcode scanners, mobile computers, and RFID. Warehouse automation and supply chain digitization."},
+{t:"CDW",n:"CDW Corporation",tier:"Midstream",sub:"Technology Hardware",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:0,rec:0,mar:0,grw:0,moat:1},d:"IT solutions provider / value-added reseller. Capital-light distribution model with steady margins."},
+// MIDSTREAM — Communications Equipment & Networking
+{t:"CSCO",n:"Cisco Systems",tier:"Midstream",sub:"Communications Equipment & Networking",mc:"Mega",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:0,rec:1,mar:1,grw:0,moat:1},d:"Enterprise networking, security, and collaboration. Splunk acquisition adds observability. Transitioning to subscription model (>50% ARR)."},
+{t:"ANET",n:"Arista Networks",tier:"Midstream",sub:"Communications Equipment & Networking",mc:"Large",arch:"Compounder",cyc:"expansion",fe:{ai:2,cyc:0,rec:0,mar:2,grw:1,moat:1},d:"High-speed datacenter and campus networking. Dominant in 400G/800G Ethernet for AI clusters. 60%+ gross margins."},
+{t:"MSI",n:"Motorola Solutions",tier:"Midstream",sub:"Communications Equipment & Networking",mc:"Large",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:-1,rec:1,mar:1,grw:1,moat:2},d:"Mission-critical communications for public safety and enterprise. Land mobile radio near-monopoly. Extremely sticky installed base."},
+{t:"FFIV",n:"F5 Inc",tier:"Midstream",sub:"Communications Equipment & Networking",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:0,rec:1,mar:1,grw:0,moat:1},d:"Application delivery controllers and security. Load balancing, WAF, and API gateway. Transitioning to software subscriptions."},
+{t:"LITE",n:"Lumentum Holdings",tier:"Midstream",sub:"Communications Equipment & Networking",mc:"Small",arch:"Deep Value",cyc:"downturn",fe:{ai:1,cyc:2,rec:-2,mar:0,grw:-1,moat:1},d:"Optical and photonic products for telecom and datacenter. Cloud optical transceiver opportunity from AI networking buildout."},
+{t:"CIEN",n:"Ciena Corporation",tier:"Midstream",sub:"Communications Equipment & Networking",mc:"Small",arch:"Deep Value",cyc:"recovery",fe:{ai:1,cyc:2,rec:-1,mar:0,grw:0,moat:1},d:"Optical networking and WaveLogic coherent technology. AI-driven datacenter interconnect demand provides tailwind."},
+{t:"CALX",n:"Calix",tier:"Midstream",sub:"Communications Equipment & Networking",mc:"Small",arch:"Compounder",cyc:"recovery",fe:{ai:0,cyc:1,rec:1,mar:1,grw:0,moat:1},d:"Cloud platform and systems for broadband service providers. Enabling rural fiber buildouts (BEAD program)."},
+{t:"UI",n:"Ubiquiti",tier:"Midstream",sub:"Communications Equipment & Networking",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:0,rec:0,mar:1,grw:0,moat:1},d:"Prosumer and SMB networking (UniFi). Direct-to-customer model with minimal SG&A. Exceptional capital efficiency."},
+{t:"VIAV",n:"Viavi Solutions",tier:"Midstream",sub:"Communications Equipment & Networking",mc:"Small",arch:"Deep Value",cyc:"downturn",fe:{ai:0,cyc:1,rec:-1,mar:0,grw:-1,moat:0},d:"Network test, measurement, and optical products. Telecom spending weakness weighing on core business."},
+// MIDSTREAM — Storage & Memory
+{t:"SNDK",n:"SanDisk",tier:"Midstream",sub:"Storage & Memory",mc:"Mid",arch:"Cash Engine",cyc:"expansion",fe:{ai:1,cyc:2,rec:-2,mar:0,grw:1,moat:1},d:"Pure-play NAND flash company spun off from WDC Feb 2025. Consumer and enterprise SSDs. Cyclical recovery with cleaner balance sheet."},
+{t:"WDC",n:"Western Digital",tier:"Midstream",sub:"Storage & Memory",mc:"Mid",arch:"Deep Value",cyc:"recovery",fe:{ai:0,cyc:2,rec:-2,mar:0,grw:-1,moat:0},d:"Pure HDD company post-SanDisk NAND spinoff. Nearline drives for cloud and enterprise."},
+{t:"STX",n:"Seagate Technology",tier:"Midstream",sub:"Storage & Memory",mc:"Mid",arch:"Cash Engine",cyc:"recovery",fe:{ai:0,cyc:2,rec:-2,mar:0,grw:0,moat:1},d:"HDD leader with HAMR technology advantage. Cloud nearline drives dominate revenue. Duopoly with WDC."},
+{t:"NTAP",n:"NetApp",tier:"Midstream",sub:"Storage & Memory",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:0,rec:1,mar:1,grw:0,moat:1},d:"Enterprise storage and data management. Hybrid cloud (ONTAP) connecting on-prem to AWS/Azure. Subscription transition progressing."},
+// MIDSTREAM — Electronic Components & Test Equipment
+{t:"APH",n:"Amphenol",tier:"Midstream",sub:"Electronic Components & Test Equipment",mc:"Mega",arch:"Compounder",cyc:"expansion",fe:{ai:2,cyc:0,rec:-1,mar:1,grw:1,moat:1},d:"Interconnect solutions across IT, auto, military, and industrial. AI server power/data connectors are key growth vector."},
+{t:"TEL",n:"TE Connectivity",tier:"Midstream",sub:"Electronic Components & Test Equipment",mc:"Large",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:1,rec:-1,mar:1,grw:0,moat:1},d:"Sensors and connectors for auto, industrial, and communications. EV content per vehicle growth."},
+{t:"GLW",n:"Corning",tier:"Midstream",sub:"Electronic Components & Test Equipment",mc:"Mid",arch:"Cash Engine",cyc:"expansion",fe:{ai:1,cyc:1,rec:-1,mar:1,grw:0,moat:1},d:"Specialty glass and ceramics. Optical fiber for AI datacenter buildout is key catalyst. Materials science moat."},
+{t:"KEYS",n:"Keysight Technologies",tier:"Midstream",sub:"Electronic Components & Test Equipment",mc:"Mid",arch:"Cash Engine",cyc:"recovery",fe:{ai:1,cyc:1,rec:0,mar:1,grw:0,moat:1},d:"Electronic test and measurement for comms, semi, and defense. Software and services mix increasing."},
+{t:"COHR",n:"Coherent Corp",tier:"Midstream",sub:"Electronic Components & Test Equipment",mc:"Mid",arch:"Compounder",cyc:"recovery",fe:{ai:2,cyc:1,rec:-1,mar:0,grw:1,moat:1},d:"Optical transceivers and laser components. 800G/1.6T datacenter transceivers for AI networking are massive growth driver."},
+{t:"FLEX",n:"Flex Ltd",tier:"Midstream",sub:"Electronic Components & Test Equipment",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:1,rec:-2,mar:0,grw:0,moat:0},d:"Electronics manufacturing services. Diversified across auto, industrial, cloud, and medical."},
+{t:"JBL",n:"Jabil",tier:"Midstream",sub:"Electronic Components & Test Equipment",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:1,rec:-2,mar:0,grw:0,moat:0},d:"Diversified EMS provider. Healthcare, auto, and cloud infrastructure. Consistent buyback execution."},
+{t:"SANM",n:"Sanmina Corporation",tier:"Midstream",sub:"Electronic Components & Test Equipment",mc:"Small",arch:"Deep Value",cyc:"mid-cycle",fe:{ai:0,cyc:1,rec:-2,mar:0,grw:0,moat:0},d:"EMS for defense, industrial, medical, and cloud. Smaller scale but higher-complexity builds."},
+// DOWNSTREAM — Platform & Systems Software
+{t:"MSFT",n:"Microsoft",tier:"Downstream",sub:"Platform & Systems Software",mc:"Mega",arch:"Tollbridge",cyc:"expansion",fe:{ai:2,cyc:-2,rec:2,mar:2,grw:1,moat:2},d:"Cloud (Azure), productivity (M365), and AI (Copilot/OpenAI partnership) platform. Triple moat of enterprise OS, cloud infrastructure, and developer ecosystem."},
+{t:"ORCL",n:"Oracle",tier:"Downstream",sub:"Platform & Systems Software",mc:"Mega",arch:"Cash Engine",cyc:"expansion",fe:{ai:1,cyc:-1,rec:2,mar:2,grw:1,moat:2},d:"Database and ERP platform transitioning to cloud (OCI). Multi-cloud partnerships. AI infrastructure buildout driving OCI acceleration."},
+{t:"NOW",n:"ServiceNow",tier:"Downstream",sub:"Platform & Systems Software",mc:"Mega",arch:"Rule of 40",cyc:"expansion",fe:{ai:2,cyc:-1,rec:2,mar:2,grw:1,moat:2},d:"Enterprise workflow automation platform. IT service management core expanding to HR, security, and AI agents. 97%+ renewal rates."},
+{t:"PLTR",n:"Palantir Technologies",tier:"Downstream",sub:"Platform & Systems Software",mc:"Mega",arch:"Rule of 40",cyc:"expansion",fe:{ai:2,cyc:-1,rec:1,mar:1,grw:2,moat:1},d:"AI/data analytics platform for government and commercial. AIP driving commercial acceleration. Premium valuation."},
+{t:"SAP",n:"SAP SE",tier:"Downstream",sub:"Platform & Systems Software",mc:"Mega",arch:"Cash Engine",cyc:"expansion",fe:{ai:1,cyc:-1,rec:2,mar:1,grw:1,moat:2},d:"Enterprise ERP platform (S/4HANA Cloud). Dominant in large enterprise back-office. Cloud transition inflecting."},
+{t:"INTU",n:"Intuit",tier:"Downstream",sub:"Platform & Systems Software",mc:"Mega",arch:"Tollbridge",cyc:"mid-cycle",fe:{ai:1,cyc:-2,rec:2,mar:2,grw:1,moat:2},d:"TurboTax, QuickBooks, Credit Karma, Mailchimp platform. Tax preparation near-monopoly. Extremely resilient recurring revenue."},
+{t:"SNOW",n:"Snowflake",tier:"Downstream",sub:"Platform & Systems Software",mc:"Large",arch:"Rule of 40",cyc:"expansion",fe:{ai:2,cyc:-1,rec:1,mar:0,grw:1,moat:1},d:"Cloud data platform. Consumption-based model. AI/ML workloads driving reacceleration. Improving margins."},
+{t:"WDAY",n:"Workday",tier:"Downstream",sub:"Platform & Systems Software",mc:"Large",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:-1,rec:2,mar:1,grw:0,moat:1},d:"Cloud HCM and financial management for large enterprises. 95%+ gross retention. Decelerating growth but expanding margins."},
+{t:"HUBS",n:"HubSpot",tier:"Downstream",sub:"Platform & Systems Software",mc:"Mid",arch:"Compounder",cyc:"expansion",fe:{ai:1,cyc:-1,rec:2,mar:1,grw:1,moat:1},d:"CRM and marketing automation platform for SMB. Product-led growth engine. Emerging as the mid-market CRM standard."},
+{t:"TEAM",n:"Atlassian",tier:"Downstream",sub:"Platform & Systems Software",mc:"Large",arch:"Compounder",cyc:"mid-cycle",fe:{ai:1,cyc:-1,rec:2,mar:1,grw:1,moat:1},d:"Developer and team collaboration tools (Jira, Confluence). Cloud migration complete. No salesforce model."},
+{t:"MDB",n:"MongoDB",tier:"Downstream",sub:"Platform & Systems Software",mc:"Mid",arch:"Rule of 40",cyc:"mid-cycle",fe:{ai:1,cyc:-1,rec:1,mar:1,grw:1,moat:1},d:"Document database platform (Atlas cloud + Enterprise). Developer-first approach. Consumption model."},
+{t:"ADSK",n:"Autodesk",tier:"Downstream",sub:"Platform & Systems Software",mc:"Large",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:0,rec:2,mar:2,grw:0,moat:2},d:"Design and engineering software (AutoCAD, Revit, Fusion). Near-monopoly in architectural design. Steady compounder."},
+{t:"PTC",n:"PTC Inc",tier:"Downstream",sub:"Platform & Systems Software",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:0,rec:2,mar:1,grw:0,moat:1},d:"PLM, CAD, and IoT platform. Digital thread connecting design to manufacturing."},
+{t:"BSY",n:"Bentley Systems",tier:"Downstream",sub:"Platform & Systems Software",mc:"Mid",arch:"Compounder",cyc:"mid-cycle",fe:{ai:0,cyc:0,rec:2,mar:1,grw:1,moat:1},d:"Infrastructure engineering software. Digital twin platform. Niche monopoly in civil engineering design."},
+// DOWNSTREAM — Application Software
+{t:"CRM",n:"Salesforce",tier:"Downstream",sub:"Application Software",mc:"Mega",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:-1,rec:2,mar:2,grw:0,moat:2},d:"CRM platform leader. Agentforce AI strategy pivoting from productivity to autonomous agents. Margin expansion story."},
+{t:"ADBE",n:"Adobe",tier:"Downstream",sub:"Application Software",mc:"Mega",arch:"Tollbridge",cyc:"mid-cycle",fe:{ai:2,cyc:-1,rec:2,mar:2,grw:0,moat:2},d:"Creative, Document, and Experience Cloud. AI (Firefly) integrated across creative suite. Dominant in creative professional workflows."},
+{t:"FICO",n:"Fair Isaac Corporation",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Tollbridge",cyc:"mid-cycle",fe:{ai:0,cyc:-1,rec:1,mar:2,grw:1,moat:2},d:"FICO Score is the US credit scoring standard — used in >90% of lending decisions. Purest tollbridge in software."},
+{t:"TYL",n:"Tyler Technologies",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Compounder",cyc:"expansion",fe:{ai:0,cyc:-2,rec:2,mar:1,grw:1,moat:2},d:"Government software near-monopoly for state and local agencies. Extremely sticky (30+ year contracts). Cloud transition driving margin expansion."},
+{t:"VEEV",n:"Veeva Systems",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Tollbridge",cyc:"mid-cycle",fe:{ai:0,cyc:-1,rec:2,mar:2,grw:0,moat:2},d:"Vertical SaaS for life sciences. CRM, clinical data management, and regulatory. Dominant in pharma."},
+{t:"PAYC",n:"Paycom Software",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:-1,rec:2,mar:2,grw:0,moat:1},d:"Cloud HCM and payroll for mid-market. Single-database architecture differentiator."},
+{t:"PCOR",n:"Procore Technologies",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Rule of 40",cyc:"expansion",fe:{ai:0,cyc:0,rec:2,mar:0,grw:1,moat:1},d:"Construction management platform. Dominant in large commercial construction project management."},
+{t:"MANH",n:"Manhattan Associates",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Compounder",cyc:"expansion",fe:{ai:0,cyc:0,rec:2,mar:2,grw:1,moat:1},d:"Supply chain and omnichannel commerce software. Warehouse management systems leader. Mission-critical for retail and logistics."},
+{t:"BILL",n:"BILL Holdings",tier:"Downstream",sub:"Application Software",mc:"Small",arch:"Rule of 40",cyc:"recovery",fe:{ai:0,cyc:-1,rec:1,mar:0,grw:0,moat:0},d:"AP/AR automation and B2B payments for SMBs. Network effects from supplier/buyer connections."},
+{t:"DOCU",n:"DocuSign",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:-1,rec:2,mar:1,grw:0,moat:1},d:"E-signature and contract lifecycle management. Category creator with dominant share. Mature growth, improving margins."},
+{t:"APPF",n:"AppFolio",tier:"Downstream",sub:"Application Software",mc:"Small",arch:"Compounder",cyc:"expansion",fe:{ai:1,cyc:-1,rec:2,mar:1,grw:1,moat:1},d:"Property management software for SMB landlords. AI-powered leasing assistant and maintenance workflows."},
+{t:"APP",n:"AppLovin",tier:"Downstream",sub:"Application Software",mc:"Large",arch:"Rule of 40",cyc:"expansion",fe:{ai:2,cyc:0,rec:1,mar:2,grw:2,moat:1},d:"AI-powered advertising technology (AXON 2.0 engine). Explosive margin expansion. High-conviction AI ad-tech platform."},
+{t:"TOST",n:"Toast",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Compounder",cyc:"expansion",fe:{ai:0,cyc:0,rec:1,mar:0,grw:1,moat:0},d:"Restaurant technology platform (POS, payments, operations). Fintech + SaaS hybrid model."},
+{t:"BRZE",n:"Braze",tier:"Downstream",sub:"Application Software",mc:"Small",arch:"Speculative Growth",cyc:"expansion",fe:{ai:1,cyc:-1,rec:2,mar:0,grw:1,moat:0},d:"Customer engagement platform. Real-time data streaming architecture differentiator. Growing but not yet profitable at scale."},
+{t:"ZM",n:"Zoom Video Communications",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Deep Value",cyc:"late-cycle",fe:{ai:1,cyc:-1,rec:2,mar:2,grw:-1,moat:0},d:"Video communications platform expanding to contact center and AI companion. Deep value on cash flow basis."},
+{t:"U",n:"Unity Technologies",tier:"Downstream",sub:"Application Software",mc:"Small",arch:"Turnaround",cyc:"recovery",fe:{ai:1,cyc:0,rec:1,mar:0,grw:0,moat:1},d:"Game engine and real-time 3D platform. Core engine dominant in mobile gaming. Recovery dependent on rebuilding developer trust."},
+{t:"CDAY",n:"Dayforce",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Compounder",cyc:"expansion",fe:{ai:0,cyc:-1,rec:2,mar:1,grw:1,moat:1},d:"Cloud HCM platform. Single-application architecture. On-demand pay and compliance moats."},
+{t:"GWRE",n:"Guidewire Software",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Compounder",cyc:"expansion",fe:{ai:0,cyc:-2,rec:2,mar:1,grw:1,moat:2},d:"Core platform for P&C insurance carriers. Dominant in insurance vertical with extremely high switching costs."},
+{t:"NICE",n:"NICE Ltd",tier:"Downstream",sub:"Application Software",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:2,cyc:-1,rec:2,mar:1,grw:0,moat:1},d:"Cloud contact center and financial compliance. AI-powered workforce engagement."},
+// DOWNSTREAM — Cybersecurity
+{t:"PANW",n:"Palo Alto Networks",tier:"Downstream",sub:"Cybersecurity",mc:"Mega",arch:"Tollbridge",cyc:"expansion",fe:{ai:1,cyc:-1,rec:2,mar:1,grw:1,moat:2},d:"Cybersecurity platform leader. Platformization strategy consolidating point products. Largest pure-play cybersecurity company."},
+{t:"CRWD",n:"CrowdStrike Holdings",tier:"Downstream",sub:"Cybersecurity",mc:"Large",arch:"Rule of 40",cyc:"expansion",fe:{ai:2,cyc:-1,rec:2,mar:1,grw:1,moat:2},d:"Cloud-native endpoint security platform (Falcon). AI-native architecture with single agent. Module adoption deepening."},
+{t:"FTNT",n:"Fortinet",tier:"Downstream",sub:"Cybersecurity",mc:"Large",arch:"Compounder",cyc:"mid-cycle",fe:{ai:0,cyc:-1,rec:1,mar:2,grw:1,moat:1},d:"Network security with custom ASIC advantage (FortiGate). Highest margins in cybersecurity. Massive installed base renewal cycle."},
+{t:"ZS",n:"Zscaler",tier:"Downstream",sub:"Cybersecurity",mc:"Mid",arch:"Rule of 40",cyc:"expansion",fe:{ai:1,cyc:-1,rec:2,mar:1,grw:1,moat:1},d:"Zero-trust cloud security platform. Inline proxy architecture for secure internet access. Premium growth."},
+{t:"S",n:"SentinelOne",tier:"Downstream",sub:"Cybersecurity",mc:"Small",arch:"Speculative Growth",cyc:"expansion",fe:{ai:2,cyc:-1,rec:2,mar:0,grw:1,moat:0},d:"AI-powered endpoint and cloud security. Autonomous response capability. Approaching profitability."},
+{t:"CYBR",n:"CyberArk Software",tier:"Downstream",sub:"Cybersecurity",mc:"Mid",arch:"Compounder",cyc:"expansion",fe:{ai:0,cyc:-1,rec:2,mar:1,grw:1,moat:1},d:"Privileged access management leader. Identity security becoming critical as AI agents proliferate."},
+{t:"AKAM",n:"Akamai Technologies",tier:"Downstream",sub:"Cybersecurity",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:-1,rec:1,mar:1,grw:0,moat:1},d:"CDN pioneer evolving into cloud security and edge compute. Delivery declining, security and compute growing."},
+{t:"GEN",n:"Gen Digital",tier:"Downstream",sub:"Cybersecurity",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:-2,rec:2,mar:2,grw:0,moat:1},d:"Consumer cybersecurity (Norton, Avast, LifeLock). Massive installed base. High margins, strong FCF."},
+{t:"RPD",n:"Rapid7",tier:"Downstream",sub:"Cybersecurity",mc:"Micro",arch:"Deep Value",cyc:"downturn",fe:{ai:0,cyc:-1,rec:2,mar:0,grw:-1,moat:0},d:"Vulnerability management and SIEM/SOAR. Revenue declining as customers consolidate to platform vendors."},
+{t:"CHKP",n:"Check Point Software",tier:"Downstream",sub:"Cybersecurity",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:-1,rec:1,mar:2,grw:0,moat:1},d:"Network security pioneer. Highest margins in cybersecurity. Massive buybacks."},
+{t:"OKTA",n:"Okta",tier:"Downstream",sub:"Cybersecurity",mc:"Mid",arch:"Compounder",cyc:"mid-cycle",fe:{ai:1,cyc:-1,rec:2,mar:1,grw:0,moat:1},d:"Cloud identity and access management leader. Zero Trust anchor. Auth0 added developer identity."},
+// DOWNSTREAM — Data Infrastructure & Analytics
+{t:"DDOG",n:"Datadog",tier:"Downstream",sub:"Data Infrastructure & Analytics",mc:"Large",arch:"Rule of 40",cyc:"expansion",fe:{ai:2,cyc:-1,rec:2,mar:1,grw:1,moat:1},d:"Cloud monitoring and observability platform. AI workload monitoring is incremental TAM. Best net revenue retention in infrastructure software."},
+{t:"DT",n:"Dynatrace",tier:"Downstream",sub:"Data Infrastructure & Analytics",mc:"Mid",arch:"Compounder",cyc:"mid-cycle",fe:{ai:1,cyc:-1,rec:2,mar:1,grw:1,moat:1},d:"AI-powered observability platform. Grail data lakehouse architecture. Enterprise-focused."},
+{t:"ESTC",n:"Elastic",tier:"Downstream",sub:"Data Infrastructure & Analytics",mc:"Small",arch:"Compounder",cyc:"recovery",fe:{ai:1,cyc:-1,rec:2,mar:0,grw:0,moat:1},d:"Search-powered observability and security analytics. Elasticsearch ubiquitous in log analytics."},
+{t:"NET",n:"Cloudflare",tier:"Downstream",sub:"Data Infrastructure & Analytics",mc:"Mid",arch:"Rule of 40",cyc:"expansion",fe:{ai:1,cyc:-1,rec:2,mar:0,grw:1,moat:1},d:"Edge cloud platform (CDN, security, serverless, AI inference). Workers platform enabling edge computing. Path to profitability improving."},
+{t:"NTNX",n:"Nutanix",tier:"Downstream",sub:"Data Infrastructure & Analytics",mc:"Mid",arch:"Compounder",cyc:"expansion",fe:{ai:1,cyc:0,rec:2,mar:1,grw:1,moat:1},d:"Hybrid multicloud infrastructure (HCI). VMware alternative gaining share post-Broadcom acquisition pricing disruption."},
+{t:"TDC",n:"Teradata",tier:"Downstream",sub:"Data Infrastructure & Analytics",mc:"Small",arch:"Deep Value",cyc:"downturn",fe:{ai:0,cyc:0,rec:1,mar:1,grw:-1,moat:0},d:"Enterprise data warehouse transitioning to cloud. Legacy on-prem base declining. Deep value if cloud transition succeeds."},
+// DOWNSTREAM — IT Services & Consulting
+{t:"ACN",n:"Accenture",tier:"Downstream",sub:"IT Services & Consulting",mc:"Mega",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:0,rec:1,mar:1,grw:0,moat:1},d:"Global IT services and consulting leader. GenAI bookings accelerating. Barometer for IT spending trends."},
+{t:"IBM",n:"IBM",tier:"Downstream",sub:"IT Services & Consulting",mc:"Mega",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:-1,rec:1,mar:1,grw:0,moat:1},d:"Hybrid cloud (Red Hat) and AI (watsonx) platform. Mainframe installed base creates annuity revenue. Dividend aristocrat."},
+{t:"CTSH",n:"Cognizant Technology Solutions",tier:"Downstream",sub:"IT Services & Consulting",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:0,rec:0,mar:1,grw:0,moat:0},d:"IT services and digital transformation. Healthcare and financial services verticals."},
+{t:"EPAM",n:"EPAM Systems",tier:"Downstream",sub:"IT Services & Consulting",mc:"Mid",arch:"Compounder",cyc:"recovery",fe:{ai:1,cyc:0,rec:0,mar:1,grw:0,moat:0},d:"Digital engineering and software development services. AI-augmented engineering differentiation."},
+{t:"GLOB",n:"Globant",tier:"Downstream",sub:"IT Services & Consulting",mc:"Small",arch:"Compounder",cyc:"expansion",fe:{ai:1,cyc:0,rec:0,mar:1,grw:1,moat:0},d:"AI-native digital transformation services from Latin America. Studios model differentiates from traditional IT services."},
+{t:"IT",n:"Gartner",tier:"Downstream",sub:"IT Services & Consulting",mc:"Large",arch:"Tollbridge",cyc:"mid-cycle",fe:{ai:0,cyc:-1,rec:2,mar:2,grw:1,moat:2},d:"IT research and advisory monopoly. Magic Quadrant shapes enterprise buying decisions. Near-irreplaceable in enterprise IT procurement."},
+{t:"BR",n:"Broadridge Financial Solutions",tier:"Downstream",sub:"IT Services & Consulting",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:-1,rec:2,mar:1,grw:0,moat:2},d:"Financial infrastructure plumbing — proxy distribution, post-trade processing. Embedded in capital markets workflows."},
+{t:"DXC",n:"DXC Technology",tier:"Downstream",sub:"IT Services & Consulting",mc:"Small",arch:"Turnaround",cyc:"downturn",fe:{ai:0,cyc:0,rec:0,mar:0,grw:-1,moat:0},d:"Legacy IT outsourcing. Revenue declining. Deep value if stabilization achieved but secular headwinds from cloud migration."},
+{t:"WIT",n:"Wipro",tier:"Downstream",sub:"IT Services & Consulting",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:0,rec:0,mar:1,grw:0,moat:0},d:"Indian IT services major. AI-led transformation services gaining traction."},
+{t:"SSNC",n:"SS&C Technologies",tier:"Downstream",sub:"IT Services & Consulting",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:0,cyc:-1,rec:1,mar:1,grw:0,moat:1},d:"Financial services software and fund administration. High switching costs in fund accounting."},
+{t:"OTEX",n:"Open Text",tier:"Downstream",sub:"IT Services & Consulting",mc:"Small",arch:"Deep Value",cyc:"recovery",fe:{ai:0,cyc:-1,rec:1,mar:1,grw:-1,moat:0},d:"Enterprise information management. Cloud transition progressing."},
+// DOWNSTREAM — Internet Infrastructure
+{t:"GDDY",n:"GoDaddy",tier:"Downstream",sub:"Internet Infrastructure",mc:"Mid",arch:"Cash Engine",cyc:"mid-cycle",fe:{ai:1,cyc:-1,rec:2,mar:1,grw:0,moat:1},d:"Domain registration and web hosting platform. Airo AI website builder expanding TAM. 20M+ customers."},
+{t:"VRSN",n:"VeriSign",tier:"Downstream",sub:"Internet Infrastructure",mc:"Mid",arch:"Tollbridge",cyc:"mid-cycle",fe:{ai:0,cyc:-2,rec:2,mar:2,grw:0,moat:2},d:"Exclusive registry operator for .com and .net domains. Government-sanctioned monopoly. ~87% operating margins. Purest tollbridge in technology."},
+{t:"TWLO",n:"Twilio",tier:"Downstream",sub:"Internet Infrastructure",mc:"Mid",arch:"Compounder",cyc:"recovery",fe:{ai:1,cyc:-1,rec:1,mar:0,grw:0,moat:1},d:"Cloud communications platform (APIs for SMS, voice, video, email). Profitability improving after growth-at-all-costs era."}
 ];
 
-/* ══════════════════════════════════════════════════════════════
-   RENDER + FILTER LOGIC
-   ══════════════════════════════════════════════════════════════ */
-const tbody = document.getElementById('gridBody');
-const filterNode = document.getElementById('filterNode');
-const filterArchetype = document.getElementById('filterArchetype');
-const filterCap = document.getElementById('filterCap');
-const searchBox = document.getElementById('searchBox');
-const resultCount = document.getElementById('resultCount');
+// ═══ INDUSTRY BRIEFS ═══
+const itIndustryBriefs=[
+{title:"Semiconductor Equipment",tier:"Upstream",overview:"The picks-and-shovels layer of the chip industry. These companies build the tools that fabricate semiconductors — lithography, deposition, etch, inspection, test, and packaging systems. Capex-cycle sensitive but structurally essential: every transistor shrink and fab expansion requires their equipment. Concentrated oligopoly structure with deep moats in physics and process know-how.",keyDynamics:["WFE spending cycles correlate with memory and logic capex — typically 2-3 year up/down cycles","EUV lithography (ASML monopoly) is the bottleneck for leading-edge nodes","Advanced packaging (chiplets, HBM, CoWoS) creating new equipment TAM","China self-sufficiency push driving demand for trailing-edge tools despite export controls","Installed base services provide recurring revenue floor through downturns"],variantPerception:{consensus:"AI-driven WFE super-cycle sustains elevated spending through 2027; ASML and Lam best positioned.",bull:"Advanced packaging TAM doubles WFE addressable market. Equipment intensity per wafer rising structurally.",bear:"Memory capex pullback after HBM overbuild could create 2025-2026 air pocket. China restrictions narrow addressable market.",resolutionSignal:"Watch TSMC quarterly capex guidance, Samsung memory capex plans, and ASML backlog duration."},revenueBreakdown:"WFE spending ~$95-100B globally (2025E). Logic/foundry ~55%, memory ~30%, analog/other ~15%. ASML ~20% share, AMAT ~18%, Lam ~14%, KLA ~8%.",anchorTickers:["ASML","AMAT","LRCX","KLAC"],keyMetrics:["WFE spending growth YoY","Backlog / book-to-bill ratio","Installed base services revenue %","China revenue %","Gross margin trajectory"],watchlist:["TSMC capex guidance","Samsung memory investment plans","Intel foundry milestone execution","US CHIPS Act disbursement timeline","EUV layer count per node"]},
+{title:"EDA & Design IP",tier:"Upstream",overview:"Electronic Design Automation is the mission-critical software layer that enables chip design. Synopsys and Cadence form an entrenched duopoly with near-insurmountable switching costs. ARM licenses the instruction set architecture underpinning virtually all mobile and increasingly datacenter compute. AI is both a demand driver (more custom chips) and a product catalyst (AI-assisted chip design).",keyDynamics:["Duopoly pricing power: SNPS+CDNS control ~65% of EDA market; 3-5 year contracts","Custom silicon proliferation: hyperscalers designing own chips expands total design starts","ARM royalty model: near-zero marginal cost per chip shipped; v9 commanding higher rates","TAM expansion: Cadence acquiring Ansys for system-level simulation","AI-driven EDA: ML reducing design iteration cycles from months to weeks"],variantPerception:{consensus:"Durable high-teens growth as custom silicon proliferation and AI-driven design expand TAM.",bull:"System-level design doubles addressable market to $30B+. Every company becomes a chip company.",bear:"Open-source RISC-V erodes ARM's licensing moat. Chip design consolidation slows EDA seat growth.",resolutionSignal:"Track unique chip design starts annually. Monitor ARM datacenter royalty revenue as % of total."},revenueBreakdown:"Global EDA+IP market ~$18-20B (2025E). SNPS ~35%, CDNS ~30%, Siemens EDA ~15%. ARM licensing+royalty ~$4B. Revenue >85% recurring.",anchorTickers:["SNPS","CDNS","ARM"],keyMetrics:["RPO growth","Subscription % of revenue","ARM royalty revenue per chip","Design starts by end market","R&D intensity"],watchlist:["Custom silicon announcements from hyperscalers","RISC-V adoption metrics","Cadence-Ansys integration milestones","ARM Neoverse datacenter design wins","China EDA self-sufficiency efforts"]},
+{title:"Semiconductor Materials & Packaging",tier:"Upstream",overview:"The physical substrate layer: wafer materials, advanced packaging, and specialty compounds that enable chip performance. Advanced packaging is the fastest-growing segment as chiplet architectures become mainstream. This sub-industry is more fragmented and lower-margin than equipment or EDA, but structurally essential.",keyDynamics:["Advanced packaging becoming the new scaling vector: CoWoS, HBM stacking, chiplet integration","SiC adoption in EVs: 800V architectures requiring SiC power devices","IP licensing models (CEVA) provide software-like margins on hardware building blocks","Consolidation trend: larger players acquiring niche materials and packaging capabilities","Geopolitical sensitivity: substrate materials concentrated in specific regions"],variantPerception:{consensus:"Advanced packaging TAM grows 15-20% CAGR. SiC adoption continues despite Wolfspeed setback.",bull:"Heterogeneous integration makes packaging more valuable than lithography for performance gains.",bear:"TSMC internalizes advanced packaging, squeezing independent OSAT margins. SiC oversupply from China.",resolutionSignal:"Monitor TSMC advanced packaging capacity utilization and wait times."},revenueBreakdown:"Global OSAT market ~$45B (2025E). Advanced packaging ~30% of OSAT revenue and growing. SiC device market ~$5-6B. IP licensing ~$500M niche.",anchorTickers:["AMKR","WOLF","CEVA"],keyMetrics:["Advanced packaging revenue growth","SiC wafer pricing and utilization","CoWoS capacity vs. demand","Royalty revenue per unit","Gross margin expansion"],watchlist:["TSMC CoWoS capacity expansion timeline","Wolfspeed post-bankruptcy execution","Chinese SiC capacity ramp","HBM stacking layer count","GaN adoption in datacenter power"]},
+{title:"Compute Semiconductors",tier:"Midstream",overview:"The brain of the technology stack: processors, accelerators, and analog/mixed-signal chips. This is the largest and most diverse sub-industry in IT. The AI capex wave has bifurcated the group — datacenter-exposed names trade at massive premiums while analog/industrial-exposed names face inventory corrections. Compute semis sit at the highest-value junction where silicon meets software ecosystems.",keyDynamics:["AI accelerator demand: NVIDIA controls ~80%+ of training GPU market; CUDA creates lock-in","Custom silicon: hyperscalers designing own chips threatens merchant GPU TAM long-term","Analog inventory cycle: post-COVID double-ordering created 2023-2025 destocking","HBM: Micron and SK Hynix capacity constrained; memory attached to every AI GPU","Intel foundry: 18A process node is existential bet","Edge AI: on-device inference driving new chip demand"],variantPerception:{consensus:"AI GPU demand sustains through 2027 but growth decelerates. Analog recovers H2 2025. Intel remains challenged.",bull:"AI inference TAM exceeds training by 5-10x. CUDA moat extends to inference. Sovereign AI programs add incremental demand. Broadcom custom silicon TAM reaches $60-90B.",bear:"AI capex pullback as hyperscaler ROI scrutiny intensifies. Custom silicon erodes merchant GPU pricing. Analog recovery pushed to 2026.",resolutionSignal:"Track hyperscaler capex guidance quarterly. If aggregate AI capex grows >30% YoY through 2026, bull case intact."},revenueBreakdown:"Global semiconductor market ~$620B (2025E). NVDA datacenter ~$100B+, AVGO semis ~$30B, TXN ~$17B. AI accelerator market ~$150B.",anchorTickers:["NVDA","AVGO","AMD","TXN","QCOM","MU"],keyMetrics:["Datacenter revenue growth","AI GPU ASP trends","Analog inventory days","HBM attach rate per GPU","Gross margin","Book-to-bill ratio"],watchlist:["NVIDIA Blackwell/Rubin ramp cadence","Hyperscaler capex guidance","Intel 18A milestone tape-outs","DRAM/NAND pricing","Auto semiconductor content per vehicle","China AI chip alternatives"]},
+{title:"Technology Hardware",tier:"Midstream",overview:"Physical computing platforms: servers, PCs, smartphones, and specialized devices. The AI server buildout has transformed this from a mature segment into a high-growth beneficiary. Apple remains the outlier: a hardware company with software economics thanks to its services ecosystem.",keyDynamics:["AI server demand: GPU-dense systems driving ASP inflation from $15K to $300K+ per server","Apple Services: ~$100B run rate at 70%+ margins transforms hardware cycle into annuity","PC refresh cycle: AI PC creates potential upgrade catalyst","Liquid cooling: datacenter thermal demands creating new infrastructure requirement","Value-added resellers (CDW): capital-light model aggregating vendor complexity"],variantPerception:{consensus:"AI server growth sustains but normalizes to 30-50% YoY. PC market stabilizes. Apple grows via Services.",bull:"AI server TAM reaches $400B+ as inference scales. Liquid cooling becomes standard. AI PC replacement cycle drives above-trend growth.",bear:"AI server margins compress from competition. SMCI accounting issues prove systemic. PC refresh underwhelms.",resolutionSignal:"Monitor server ODM revenue growth and gross margin trends. If AI server margins compress below 12%, commodity risk strengthens."},revenueBreakdown:"Global server market ~$150B (2025E), AI servers ~40-50%. Global PC market ~$250B. Apple ~$400B. CDW ~$21B.",anchorTickers:["AAPL","DELL","SMCI","PSTG"],keyMetrics:["Server revenue growth (AI vs. traditional)","GPU attach rate per server","Apple Services revenue and margin","PC unit shipments","Gross margin trajectory"],watchlist:["NVIDIA GPU supply allocation to OEMs","AI PC NPU adoption","Apple Intelligence adoption rates","Datacenter liquid cooling penetration","Enterprise PC refresh survey data"]},
+{title:"Communications Equipment & Networking",tier:"Midstream",overview:"The pipes and switches that move data between compute and storage nodes. Arista Networks is dominant in high-speed datacenter Ethernet for AI clusters. Cisco remains the enterprise networking giant. MSI holds a mission-critical monopoly in public safety communications. The AI buildout is fundamentally a networking problem.",keyDynamics:["AI networking: 800G/1.6T Ethernet for GPU-to-GPU communication — Arista's core growth vector","Cisco subscription transition: moving to recurring software/services (>50% ARR)","Optical networking: coherent optics and 800G transceivers connecting datacenters","Campus networking: WiFi 7 and SD-WAN refresh cycle","Mission-critical comms: MSI's land mobile radio installed base creates annuity"],variantPerception:{consensus:"AI networking spend grows 40%+ annually through 2027. Cisco stable. Arista premium justified.",bull:"InfiniBand-to-Ethernet transition massively expands Arista's TAM. Ultra Ethernet Consortium standardizes AI networking.",bear:"NVIDIA networking (Spectrum-X) vertically integrates switching. Telecom spending depressed. White box switches commoditize.",resolutionSignal:"Track Arista cloud titan revenue and Ethernet vs. InfiniBand share in new AI clusters."},revenueBreakdown:"Global enterprise networking ~$60B (2025E). Cisco ~$55B. Arista ~$7-8B. MSI ~$10B. Optical networking ~$15B.",anchorTickers:["CSCO","ANET","MSI"],keyMetrics:["400G/800G port shipments","ARR and subscription % (Cisco)","Cloud titan revenue % (Arista)","Backlog duration","Optical transceiver pricing"],watchlist:["Ethernet vs. InfiniBand in AI clusters","NVIDIA Spectrum-X deployments","Ultra Ethernet Consortium milestones","Carrier capex recovery","WiFi 7 enterprise adoption"]},
+{title:"Storage & Memory",tier:"Midstream",overview:"Data persistence layer: DRAM, NAND flash, HDDs, and enterprise storage systems. The WDC/SanDisk separation created pure-play exposure. Memory is deeply cyclical but AI creates structural uplift via HBM. HDD demand persists for cloud nearline storage.",keyDynamics:["HBM demand: AI GPUs require 6-12 HBM stacks each; capacity constrained","NAND flash recovery: pricing firming as supply discipline holds","HDD nearline: cloud data growth sustains demand for high-capacity drives","Enterprise storage software: NetApp and Pure Storage selling data management","Duopoly pricing: HDD consolidated to WDC+STX"],variantPerception:{consensus:"Memory cycle in upcycle through 2026. HBM structural growth. Enterprise flash displacing disk.",bull:"HBM revenue reaches $50B+ by 2027. NAND pricing recovery drives SanDisk to $5B+ EBITDA. Pure Storage becomes the VMware of storage.",bear:"HBM oversupply by late 2026. NAND pricing collapses on Chinese YMTC capacity. HDD secular decline accelerates.",resolutionSignal:"Track HBM wafer capacity vs. AI GPU shipments. Monitor NAND bit supply growth vs. demand."},revenueBreakdown:"Global memory ~$180B (2025E). DRAM ~$110B (HBM ~$25B), NAND ~$70B. HDD ~$25B. Enterprise storage ~$35B.",anchorTickers:["MU","SNDK","STX","NTAP"],keyMetrics:["DRAM/NAND pricing","HBM revenue and shipments","HDD nearline units","Enterprise flash mix %","Inventory days"],watchlist:["HBM capacity additions","NAND supply growth","Cloud capex storage allocation","HAMR milestones (Seagate)","Chinese YMTC ramp"]},
+{title:"Electronic Components & Test Equipment",tier:"Midstream",overview:"Connectors, sensors, test instruments, optical components, and EMS. Amphenol is the standout compounder. AI datacenter buildout benefits the entire chain: power connectors, optical transceivers, fiber, and test equipment.",keyDynamics:["AI power delivery: GPU servers require 2-5x more power per rack","Optical transceivers: 800G/1.6T pluggable optics for AI datacenter interconnect","Fiber optic buildout: Corning benefits from AI datacenter and rural broadband","EMS mix shift: Flex and Jabil focusing on healthcare, auto, and cloud","Test equipment: every new chip and wireless standard requires Keysight validation"],variantPerception:{consensus:"Amphenol and Coherent best-positioned for AI interconnect spend. Test equipment recovers with semi cycle.",bull:"Power connector TAM per AI rack grows 3-5x. Co-packaged optics shift value to Coherent laser components. Corning fiber demand doubles.",bear:"Copper vs. optical competition compresses transceiver ASPs. EMS remains commoditized. Test equipment faces budget cuts.",resolutionSignal:"Watch Amphenol AI-related revenue and Coherent 800G/1.6T transceiver bookings."},revenueBreakdown:"Global connector market ~$80B (2025E). Amphenol ~$17B, TE ~$16B. Optical transceivers ~$15B. Test ~$10B. EMS ~$500B.",anchorTickers:["APH","COHR","GLW","KEYS"],keyMetrics:["Connector content per AI rack","800G transceiver shipments and ASPs","Fiber cable demand","EMS gross margin","Test equipment book-to-bill"],watchlist:["AI rack power density evolution","Co-packaged optics timeline","Corning fiber volume vs. pricing","Nearshoring manufacturing trends","Keysight 5G/6G test pipeline"]},
+{title:"Platform & Systems Software",tier:"Downstream",overview:"Operating systems, cloud platforms, databases, and horizontal infrastructure software. Microsoft is the archetype — triple moat of enterprise OS, cloud infrastructure, and AI platform. This sub-industry contains the highest-quality businesses in technology. The AI wave is additive — Copilot/AI assistants layer on top of existing subscriptions.",keyDynamics:["Cloud migration: still only ~30-35% of enterprise workloads in cloud","AI monetization: Copilot/AI assistants adding $20-50/seat/month","Platform consolidation: customers reducing vendor count, favoring integrated suites","Consumption vs. subscription: usage-based models create revenue volatility","ERP modernization: SAP S/4HANA Cloud and Oracle Fusion are multi-year upgrade cycles"],variantPerception:{consensus:"Azure and cloud platforms grow 25-30%. AI copilots add 5-10% incremental revenue.",bull:"AI agents transform platform software into autonomous workflow engines. Cloud penetration reaches 60%+ by 2030.",bear:"AI copilot monetization disappoints. Open-source alternatives erode pricing power. Consumption models underperform.",resolutionSignal:"Track Microsoft Copilot seat count and retention. Monitor Snowflake consumption growth."},revenueBreakdown:"Microsoft ~$260B (Azure ~$80B). Oracle ~$55B. ServiceNow ~$12B. SAP ~$35B. Snowflake ~$4B. MongoDB ~$2B.",anchorTickers:["MSFT","ORCL","NOW","SAP","SNOW"],keyMetrics:["Azure/cloud revenue growth","ARR and net revenue retention","AI copilot attach rates","RPO growth","Free cash flow margin"],watchlist:["Microsoft Copilot adoption","Oracle OCI customer wins","ServiceNow ACV growth","Snowflake consumption reacceleration","SAP S/4HANA Cloud migration pace"]},
+{title:"Application Software",tier:"Downstream",overview:"Vertical and horizontal applications that solve specific business problems. The best companies become the system of record for their domain. FICO is the purest tollbridge: a credit scoring standard embedded in >90% of US lending decisions. AI is the primary catalyst across the group.",keyDynamics:["System of record stickiness: switching costs measured in years and millions","Vertical SaaS premium: domain-specific platforms command higher multiples","AI integration: generative AI features creating new monetization vectors","Margin expansion: mature SaaS pivoting from growth-at-all-costs to profitability","Consolidation: PE and strategic buyers acquiring mid-cap SaaS"],variantPerception:{consensus:"Mature SaaS grows 8-15% with margin expansion. FICO pricing power persists. Vertical SaaS outperforms.",bull:"AI agents replace human workflows — per-agent pricing 3-5x current per-seat. FICO expands internationally. AppLovin AXON proves transferable beyond gaming.",bear:"AI commoditizes application software. FICO faces regulatory scrutiny. SaaS fatigue drives consolidation.",resolutionSignal:"Watch Salesforce Agentforce revenue and FICO pricing actions. Track AppLovin e-commerce pilot revenue."},revenueBreakdown:"Salesforce ~$38B, Adobe ~$22B, Intuit ~$17B, Workday ~$8B, FICO ~$1.7B. AppLovin ~$5B. Veeva ~$2.5B, Tyler ~$2.2B.",anchorTickers:["CRM","ADBE","FICO","TYL","APP"],keyMetrics:["Net revenue retention","RPO growth","Free cash flow margin","FICO Score pricing","Module attach rate"],watchlist:["Salesforce Agentforce adoption","Adobe Firefly monetization","FICO regulatory risk","AppLovin e-commerce advertising","PE SaaS M&A activity"]},
+{title:"Cybersecurity",tier:"Downstream",overview:"Defense layer protecting the entire abstraction stack. The most resilient sub-industry in IT — security budgets are last to be cut. Structural growth drivers are multiplicative. Palo Alto Networks leads platformization. The sub-industry is bifurcating between platform winners and point-product losers.",keyDynamics:["Platformization: CISOs consolidating from 50-70 vendors to 3-5 platforms","AI security: both offensive and defensive expanding TAM","Identity as the new perimeter: zero-trust puts identity at the center","Regulatory tailwinds: SEC cyber disclosure rules, DORA, NIS2","Managed detection and response: mid-market outsourcing security operations"],variantPerception:{consensus:"Cybersecurity grows 12-18% structurally. Platform vendors gain share. Identity fastest-growing.",bull:"AI-driven attacks double security spending as % of IT budgets. Platformization creates winner-take-most. CyberArk machine identity becomes critical.",bear:"Security budget growth normalizes. Open-source commoditizes cloud security. CrowdStrike outage damage proves lasting.",resolutionSignal:"Track PANW and CRWD platformization metrics (modules per customer). If average customer uses 5+ modules by 2027, thesis confirmed."},revenueBreakdown:"Global cybersecurity ~$200B (2025E). PANW ~$9B, CRWD ~$4.5B, FTNT ~$6B, ZS ~$2.5B, CHKP ~$2.5B. OKTA ~$2.7B, CYBR ~$1B. GEN ~$4B.",anchorTickers:["PANW","CRWD","FTNT","ZS","CYBR"],keyMetrics:["ARR growth","Net revenue retention","Modules per customer","Free cash flow margin","Billings growth"],watchlist:["PANW platformization ARR","CrowdStrike Falcon module adoption","Okta breach recovery metrics","SEC cyber disclosure enforcement","AI-generated attack frequency"]},
+{title:"Data Infrastructure & Analytics",tier:"Downstream",overview:"Observability, monitoring, and data platform layer. Datadog is the category leader. Cloudflare straddles edge computing and security. Nutanix provides hybrid cloud infrastructure, gaining share as VMware customers flee Broadcom pricing.",keyDynamics:["Observability TAM expansion: AI workloads require monitoring GPUs, model inference, token costs","Consumption-based pricing: revenue scales with customer usage","VMware disruption: Broadcom pricing increases driving migration to Nutanix and alternatives","Edge computing: Cloudflare Workers creating serverless compute alternative","Data lakehouse convergence: Snowflake vs. Databricks expanding total market"],variantPerception:{consensus:"Observability grows 20%+. Nutanix benefits from VMware disruption. Cloudflare emerges as fourth cloud platform.",bull:"AI observability becomes largest monitoring segment. Cloudflare edge becomes default for latency-sensitive AI inference. Nutanix captures 30%+ of VMware migration.",bear:"Open-source observability (Grafana) commoditizes monitoring. Cloudflare developer platform remains niche. Nutanix VMware opportunity is one-time.",resolutionSignal:"Track Datadog AI product revenue. Monitor Nutanix new customer acquisition. If Cloudflare compute >20% of total by 2027, platform thesis validated."},revenueBreakdown:"Observability ~$35B (2025E). Datadog ~$3B, Dynatrace ~$1.5B, Elastic ~$1.3B. Cloudflare ~$2B. Nutanix ~$2.5B. Teradata ~$1.7B.",anchorTickers:["DDOG","NET","NTNX","DT"],keyMetrics:["Net revenue retention","Customer count (>$100K ARR)","Consumption growth rate","Free cash flow margin","Multi-product adoption"],watchlist:["Datadog AI monitoring adoption","VMware customer migration announcements","Cloudflare Workers/AI edge usage","Grafana Cloud competitive threat","Databricks vs. Snowflake share"]},
+{title:"IT Services & Consulting",tier:"Downstream",overview:"Human capital-intensive businesses that implement and manage technology. Accenture is the bellwether for enterprise IT spending. Gartner occupies a unique tollbridge as research/advisory monopoly. Broadridge is deeply embedded financial infrastructure plumbing. AI is both a growth driver (consulting) and a threat (automating lower-value work).",keyDynamics:["AI consulting demand: every enterprise needs help implementing AI","Gartner advisory monopoly: Magic Quadrant shapes enterprise buying decisions","Broadridge financial plumbing: proxy distribution, post-trade processing","Offshore model disruption: AI coding assistants potentially reduce outsourcing demand","SS&C fund administration: embedded in asset manager back-office"],variantPerception:{consensus:"IT services grow 5-8%. Gartner compounds 10-12%. Broadridge steady mid-single-digit.",bull:"AI transformation creates multi-year consulting super-cycle. Gartner expands into supply chain and HR advisory. Broadridge benefits from T+1 settlement.",bear:"AI automates 30-40% of IT services work within 5 years. Gartner faces competition from AI research tools. Offshore arbitrage commoditized.",resolutionSignal:"Track Accenture GenAI bookings as % of total and utilization rates. If utilization >90% despite AI tools, services model proves resilient."},revenueBreakdown:"Accenture ~$65B, IBM ~$62B, Cognizant ~$20B, Wipro ~$11B. Gartner ~$6.5B. Broadridge ~$6.5B. EPAM ~$3.5B, Globant ~$2.5B.",anchorTickers:["ACN","IT","BR","IBM"],keyMetrics:["Bookings growth","Revenue per employee","Utilization rate","Contract value growth (Gartner)","Recurring revenue % (Broadridge)"],watchlist:["Accenture GenAI bookings","Gartner contract value and retention","Broadridge closed sales backlog","AI coding tool impact on offshore utilization","CIO spending survey data"]},
+{title:"Internet Infrastructure",tier:"Downstream",overview:"Foundational plumbing of the internet: domain registration, DNS, cloud communications, and web hosting. VeriSign is the purest tollbridge in technology — government-sanctioned monopoly with ~87% operating margins. GoDaddy aggregates millions of small business web presences. Twilio provides the communications API layer.",keyDynamics:["VeriSign regulated monopoly: ICANN contract guarantees .com/.net with permitted 7% annual price increases","GoDaddy SMB platform: domain registration as beachhead for commerce tools","Twilio communications platform: CPaaS market growing as every app embeds messaging","Domain name demand: steady low-single-digit growth in .com registrations","AI-driven website creation: GoDaddy Airo lowering barriers to web presence"],variantPerception:{consensus:"VeriSign is a bond-like compounder. GoDaddy grows mid-single-digits. Twilio stabilizes.",bull:"VeriSign pricing power accelerates as .com becomes more valuable. GoDaddy Airo drives ARPU step-function. Twilio Segment CDP becomes AI personalization layer.",bear:"Alternative TLDs and social media reduce .com relevance. GoDaddy faces competition from AI website builders. CPaaS commoditizes as messaging apps reduce SMS.",resolutionSignal:"Monitor .com registration growth and VeriSign pricing. Track GoDaddy ARPU and Twilio Segment revenue."},revenueBreakdown:"VeriSign ~$1.6B. GoDaddy ~$4.5B. Twilio ~$4.5B.",anchorTickers:["VRSN","GDDY","TWLO"],keyMetrics:["Domain registration volume","VeriSign operating margin","GoDaddy ARPU","Twilio net expansion rate","Free cash flow conversion"],watchlist:["ICANN .com registry agreement terms","GoDaddy Airo AI adoption","CPaaS market consolidation","Alternative TLD growth rates","SMB formation trends"]}
+];
 
-function badgeClass(type, val) {
-  if (type === 'node') return 'badge badge-' + val.toLowerCase();
-  if (type === 'archetype') {
-    const map = {'Tollbridge':'tollbridge','Cash Engine':'cashengine','Rule of 40':'ruleof40','Deep Value':'deepvalue'};
-    return 'badge badge-' + (map[val] || '');
-  }
-  if (type === 'cap') return 'badge badge-' + val.toLowerCase();
-  return 'badge';
-}
+// ═══ GLOSSARY ═══
+const itGlossary=[
+{term:"EUV Lithography",definition:"Extreme Ultraviolet Lithography. Uses 13.5nm wavelength light to pattern sub-7nm chip features. ASML is the sole supplier. Each machine costs $150-400M.",relatedTickers:["ASML","LRCX","AMAT"]},
+{term:"WFE (Wafer Fab Equipment)",definition:"Total capital equipment spending by semiconductor fabs. The headline metric for the semi equipment cycle. Typically $80-100B annually.",relatedTickers:["ASML","AMAT","LRCX","KLAC","TER"]},
+{term:"EDA (Electronic Design Automation)",definition:"Software tools for chip design, simulation, verification, and layout. Synopsys and Cadence form an entrenched duopoly. Switching EDA tools mid-design is effectively impossible.",relatedTickers:["SNPS","CDNS"]},
+{term:"IP Core",definition:"Pre-designed semiconductor building blocks licensed for integration into larger chip designs. ARM's Cortex and Neoverse cores are the most widely licensed.",relatedTickers:["ARM","SNPS","CDNS","CEVA"]},
+{term:"Advanced Packaging",definition:"Techniques for stacking, bonding, and interconnecting multiple chiplets — including 2.5D, 3D stacking, fan-out, and hybrid bonding. Becoming the primary performance scaling vector.",relatedTickers:["AMKR","AMAT","ENTG","ONTO"]},
+{term:"HBM (High Bandwidth Memory)",definition:"Vertically stacked DRAM connected via through-silicon vias, mounted next to GPUs. Provides 5-10x bandwidth vs. standard DRAM. Every AI GPU requires 4-12 HBM stacks.",relatedTickers:["MU","NVDA","AMD","AMKR"]},
+{term:"Fabless / Foundry / IDM",definition:"Three semiconductor business models. Fabless: designs chips, outsources manufacturing. Foundry: manufactures for others. IDM: designs and manufactures own chips.",relatedTickers:["NVDA","AMD","INTC","GFS","TXN"]},
+{term:"Process Node",definition:"Manufacturing technology generation for chips. Smaller nodes enable more transistors per area. Leading-edge nodes cost $20B+ per fab to build.",relatedTickers:["INTC","ASML","AMAT","LRCX"]},
+{term:"SiC (Silicon Carbide)",definition:"Wide-bandgap semiconductor material for high-voltage power electronics — critical for EV powertrains. Superior efficiency vs. silicon but more expensive.",relatedTickers:["WOLF","ON"]},
+{term:"OSAT",definition:"Outsourced Semiconductor Assembly and Test. Companies that package and test chips after wafer fabrication. Growing in importance with advanced packaging.",relatedTickers:["AMKR"]},
+{term:"CUDA",definition:"NVIDIA's proprietary parallel computing platform. The software moat that locks AI developers into NVIDIA GPUs. The single most valuable software ecosystem in semiconductors.",relatedTickers:["NVDA"]},
+{term:"Custom Silicon / ASIC",definition:"Application-Specific Integrated Circuits designed for a single customer's workload. Broadcom and Marvell are leading design partners for hyperscalers.",relatedTickers:["AVGO","MRVL","NVDA"]},
+{term:"Analog Semiconductor",definition:"Chips that process continuous real-world signals. Longer product lifecycles, higher margins, and less capex-intensive than digital.",relatedTickers:["TXN","ADI","NXPI","MCHP","ON","MPWR"]},
+{term:"AI Server",definition:"GPU-dense rack-scale computing systems for AI training and inference. Typically contain 4-8 GPUs, require 40-120kW power per rack, and cost $200K-$1M+.",relatedTickers:["NVDA","DELL","SMCI","HPE","AVGO"]},
+{term:"Optical Transceiver",definition:"Modules converting electrical signals to optical for high-speed data transmission. 400G is current standard, 800G/1.6T ramping for AI clusters.",relatedTickers:["COHR","LITE","CIEN","GLW"]},
+{term:"Content per Vehicle",definition:"Dollar value of semiconductor components per automobile. Rising from ~$500 in ICE to $1,500+ in EVs and $3,000+ in autonomous vehicles.",relatedTickers:["NXPI","ON","MCHP","TXN","ADI"]},
+{term:"ARR (Annual Recurring Revenue)",definition:"Annualized value of active subscription contracts. The north-star metric for SaaS companies. Excludes one-time and consumption revenue.",relatedTickers:["NOW","CRM","CRWD","PANW","ZS"]},
+{term:"Net Revenue Retention (NRR)",definition:"Revenue from existing customers this year vs. last year, including upsells, downgrades, and churn. >120% means existing customers spend 20%+ more annually.",relatedTickers:["DDOG","NOW","CRWD","NET","SNOW"]},
+{term:"Rule of 40",definition:"SaaS health metric: revenue growth % + FCF margin % should exceed 40%. Best-in-class exceed 60.",relatedTickers:["CRWD","DDOG","NOW","APP","PLTR"]},
+{term:"RPO (Remaining Performance Obligations)",definition:"Total contracted but unrecognized revenue — the subscription backlog. Current RPO (within 12 months) is the most useful near-term signal.",relatedTickers:["MSFT","CRM","NOW","SNOW","WDAY"]},
+{term:"Platformization",definition:"Strategy of expanding from a single product to a multi-product platform, consolidating customer spend. Drives higher ARPU and switching costs.",relatedTickers:["PANW","CRWD","FTNT","CRM","NOW"]},
+{term:"Zero Trust",definition:"Security architecture that assumes no user, device, or network is inherently trusted. Every access request is verified regardless of location.",relatedTickers:["ZS","OKTA","CRWD","PANW","CYBR"]},
+{term:"SASE (Secure Access Service Edge)",definition:"Cloud-delivered convergence of networking and security into a single service. Eliminates need for on-premise security hardware.",relatedTickers:["PANW","ZS","FTNT","CSCO"]},
+{term:"Copilot / AI Agent",definition:"AI assistants embedded in enterprise software. Copilots assist humans; AI agents act autonomously. Per-agent pricing could be 3-5x higher than per-seat.",relatedTickers:["MSFT","CRM","NOW","ADBE","PLTR"]},
+{term:"Consumption-Based Pricing",definition:"Revenue model where customers pay based on usage rather than fixed subscriptions. Creates volatility but aligns incentives with customer value.",relatedTickers:["SNOW","DDOG","MDB","TWLO","NET"]},
+{term:"System of Record",definition:"The authoritative data source for a business domain. Once established, switching costs are measured in years and tens of millions of dollars.",relatedTickers:["CRM","ORCL","SAP","WDAY","ADBE","VEEV"]},
+{term:"Vertical SaaS",definition:"Software purpose-built for a specific industry. Commands premium valuations due to deeper moats and domain expertise barriers.",relatedTickers:["VEEV","TYL","GWRE","PCOR","TOST"]},
+{term:"Magic Quadrant",definition:"Gartner's proprietary market analysis framework. Placement in the Leaders quadrant materially influences enterprise buying decisions.",relatedTickers:["IT"]},
+{term:"CPaaS",definition:"Communications Platform as a Service. Cloud APIs for embedding real-time communications into applications without building telecom infrastructure.",relatedTickers:["TWLO"]},
+{term:"Tollbridge",definition:"Business with monopoly positioning where spend is unavoidable and pricing power is structural. The highest-quality archetype in this atlas.",relatedTickers:["ASML","VRSN","FICO","ARM","MSFT","IT"]},
+{term:"Installed Base",definition:"Total units deployed and actively used. Critical for recurring revenue models — services, upgrades, and consumables scale with installed base.",relatedTickers:["CSCO","AMAT","LRCX","MSI","FTNT"]},
+{term:"Book-to-Bill Ratio",definition:"New orders divided by revenue shipped. >1.0 means growing backlog. Key leading indicator for semi equipment and networking.",relatedTickers:["ASML","AMAT","LRCX","KLAC","ANET"]},
+{term:"Gross Margin",definition:"Revenue minus COGS divided by revenue. Rises predictably up the abstraction stack: silicon ~40-55%, hardware ~25-40%, software ~70-85%.",relatedTickers:[]},
+{term:"FCF Conversion",definition:"Free cash flow as percentage of revenue. High conversion (>25%) with growth indicates a self-funding compounder.",relatedTickers:[]},
+{term:"TAM / SAM / SOM",definition:"Total Addressable Market, Serviceable Addressable Market, Serviceable Obtainable Market. Best companies expand TAM through product adjacencies.",relatedTickers:[]}
+];
 
-function renderGrid(data) {
-  tbody.innerHTML = '';
-  data.forEach(d => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="ticker-cell">${d.ticker}</td>
-      <td class="name-cell">${d.name}</td>
-      <td>${d.industry}</td>
-      <td><span class="${badgeClass('node',d.node)}">${d.node}</span></td>
-      <td><span class="${badgeClass('archetype',d.archetype)}">${d.archetype}</span></td>
-      <td><span class="${badgeClass('cap',d.marketCap)}">${d.marketCap}</span></td>`;
-    tbody.appendChild(tr);
-  });
-  resultCount.textContent = data.length + ' / ' + sectorData.length + ' companies';
-}
+// ═══ SIGNAL CHAINS ═══
+const itSignalChains=[
+{id:"ai-capex-cascade",title:"AI Capex Cascade",trigger:"Hyperscaler AI capex guidance increases (MSFT, GOOG, AMZN, META raise datacenter spending plans)",chain:[
+{step:1,event:"GPU order acceleration",affectedTickers:["NVDA","AMD","AVGO","MRVL"],direction:"bullish",detail:"NVIDIA Blackwell/Rubin orders pull forward. Broadcom custom silicon demand rises."},
+{step:2,event:"AI server OEM revenue surge",affectedTickers:["DELL","SMCI","HPE"],direction:"bullish",detail:"Dell ISG, Super Micro, and HPE server divisions report accelerating backlog."},
+{step:3,event:"Networking and optical buildout",affectedTickers:["ANET","COHR","CIEN","GLW"],direction:"bullish",detail:"800G/1.6T Ethernet switches and optical transceivers needed for GPU-to-GPU fabric."},
+{step:4,event:"Power and interconnect demand",affectedTickers:["APH","MPWR","TEL"],direction:"bullish",detail:"AI racks require 5-10x power connectors and high-amperage delivery."},
+{step:5,event:"Memory capacity expansion",affectedTickers:["MU","SNDK"],direction:"bullish",detail:"HBM production ramps at Micron. NVMe SSD demand benefits SanDisk."},
+{step:6,event:"Semi equipment orders rise",affectedTickers:["ASML","AMAT","LRCX","KLAC"],direction:"bullish",detail:"New fab capacity and HBM production lines require lithography, deposition, etch, and inspection tools."},
+{step:7,event:"Software observability and security expand",affectedTickers:["DDOG","CRWD","PANW","NET"],direction:"bullish",detail:"More AI workloads require monitoring, securing, and edge delivery."}
+],inverseScenario:"Hyperscaler capex guidance cuts trigger reverse cascade: GPU orders decelerate, server OEMs see backlog compression, networking spend deferred, semi equipment enters downcycle."},
+{id:"memory-cycle-inflection",title:"Memory Cycle Inflection",trigger:"DRAM/NAND spot pricing inflects from decline to sustained increases",chain:[
+{step:1,event:"Memory manufacturer earnings inflect",affectedTickers:["MU","SNDK"],direction:"bullish",detail:"Micron and SanDisk guide gross margins higher. HBM premium pricing adds mix benefit."},
+{step:2,event:"HDD makers stabilize",affectedTickers:["WDC","STX"],direction:"bullish",detail:"Nearline HDD demand improves as cloud storage budgets recover."},
+{step:3,event:"Semi equipment orders for memory fabs",affectedTickers:["LRCX","AMAT","ONTO"],direction:"bullish",detail:"Memory capex recovery drives Lam Research and AMAT orders."},
+{step:4,event:"Enterprise storage refresh",affectedTickers:["PSTG","NTAP"],direction:"bullish",detail:"Flash price recovery triggers enterprise storage refresh cycle."},
+{step:5,event:"PC and smartphone refresh catalyst",affectedTickers:["AAPL","HPQ","DELL","QCOM"],direction:"mildly bullish",detail:"Improved memory economics reduce BOM costs, supporting OEM margins."}
+],inverseScenario:"Memory pricing collapses on oversupply. Micron and SanDisk guide margins lower. Semi equipment memory orders deferred. Enterprise storage refresh postponed."},
+{id:"fed-rate-cut-software-rerating",title:"Rate Cut Software Re-Rating",trigger:"Federal Reserve initiates rate cutting cycle; 10-year Treasury yield declines below 4%",chain:[
+{step:1,event:"Long-duration growth stocks re-rate",affectedTickers:["NOW","CRWD","DDOG","SNOW","PLTR","APP"],direction:"bullish",detail:"Lower discount rates increase present value of future cash flows. High-growth SaaS multiples expand."},
+{step:2,event:"Enterprise IT budget expansion",affectedTickers:["ACN","CRM","MSFT","ORCL"],direction:"bullish",detail:"Lower borrowing costs unlock digital transformation budgets."},
+{step:3,event:"SMB formation and spending",affectedTickers:["INTU","HUBS","GDDY","TOST","BILL"],direction:"bullish",detail:"Lower rates stimulate small business formation."},
+{step:4,event:"M&A and PE activity accelerates",affectedTickers:["U","RPD","DXC","OTEX"],direction:"bullish",detail:"Cheaper financing revives tech M&A. Deep value names become acquisition targets."},
+{step:5,event:"Hardware capex projects pull forward",affectedTickers:["CSCO","DELL","CDW"],direction:"mildly bullish",detail:"Lower cost of capital makes infrastructure refresh more attractive."}
+],inverseScenario:"Rates remain higher for longer. Growth multiples compress. Enterprise budgets tighten. M&A freezes."},
+{id:"cybersecurity-breach-catalyst",title:"Major Breach Catalyst",trigger:"Large-scale cybersecurity breach at a Fortune 500 company or critical infrastructure",chain:[
+{step:1,event:"Security budget step-function increase",affectedTickers:["PANW","CRWD","FTNT","ZS"],direction:"bullish",detail:"Board-level urgency drives immediate security spending increases. Platform vendors benefit most."},
+{step:2,event:"Identity and access controls prioritized",affectedTickers:["OKTA","CYBR"],direction:"bullish",detail:"Credential compromise is root cause in >80% of breaches."},
+{step:3,event:"Regulatory response tightens mandates",affectedTickers:["PANW","CRWD","CHKP","GEN"],direction:"bullish",detail:"New compliance requirements create mandatory security spend floor."},
+{step:4,event:"Cyber insurance premiums spike",affectedTickers:["GWRE"],direction:"mildly bullish",detail:"Insurance carriers raise premiums, requiring policyholders to demonstrate stronger security posture."},
+{step:5,event:"IT services consulting demand surges",affectedTickers:["ACN","IBM"],direction:"bullish",detail:"Incident response and security architecture consulting demand spikes."}
+],inverseScenario:"Extended period without major breaches leads to security budget complacency. Platform migrations deferred."},
+{id:"analog-inventory-recovery",title:"Analog Inventory Normalization",trigger:"Distributor and OEM channel inventory days normalize to historical levels (~60-70 days)",chain:[
+{step:1,event:"Analog semiconductor orders reaccelerate",affectedTickers:["TXN","ADI","NXPI","MCHP","ON"],direction:"bullish",detail:"Order rates recover as customers restock. Book-to-bill returns above 1.0."},
+{step:2,event:"Industrial end market demand improves",affectedTickers:["TXN","ADI","KEYS","ZBRA"],direction:"bullish",detail:"Factory automation and process control spending rebounds."},
+{step:3,event:"Automotive semiconductor content growth resumes",affectedTickers:["NXPI","ON","MCHP"],direction:"bullish",detail:"ADAS, EV powertrain, and infotainment demand normalizes."},
+{step:4,event:"Analog margins expand on operating leverage",affectedTickers:["TXN","ADI","MPWR"],direction:"bullish",detail:"Incremental revenue on fixed fab costs drives margin expansion."},
+{step:5,event:"Semi equipment orders broaden beyond AI",affectedTickers:["AMAT","LRCX","TER","ENTG"],direction:"mildly bullish",detail:"Non-AI semi capex recovers. Equipment cycle broadens from AI-only to broad-based."}
+],inverseScenario:"Industrial recession extends destocking. Analog inventory builds again. Margins compress on underutilization."},
+{id:"cloud-migration-reacceleration",title:"Cloud Migration Reacceleration",trigger:"Azure/AWS/GCP revenue growth reaccelerates; enterprise cloud penetration inflects from ~30% to next leg higher",chain:[
+{step:1,event:"Hyperscaler revenue beats and guides higher",affectedTickers:["MSFT","ORCL","SNOW","MDB"],direction:"bullish",detail:"Azure, OCI, Snowflake, and MongoDB consumption growth inflects."},
+{step:2,event:"Cloud-native software adoption accelerates",affectedTickers:["NOW","DDOG","NET","CRWD","ZS"],direction:"bullish",detail:"More workloads in cloud means more to monitor, secure, deliver, and automate."},
+{step:3,event:"ERP cloud migration wave",affectedTickers:["SAP","ORCL","WDAY","CRM"],direction:"bullish",detail:"S/4HANA Cloud, Oracle Fusion, and Workday migration projects accelerate."},
+{step:4,event:"Legacy IT vendors face accelerated displacement",affectedTickers:["DXC","OTEX","TDC"],direction:"bearish",detail:"On-premise revenue declines accelerate as migration pace increases."},
+{step:5,event:"VMware alternative adoption spikes",affectedTickers:["NTNX"],direction:"bullish",detail:"Cloud migration often starts with hypervisor migration. Broadcom VMware pricing pushes enterprises to Nutanix."}
+],inverseScenario:"Cloud optimization extends. Hyperscaler growth decelerates below 20%. Cloud-native vendors see expansion headwinds."},
+{id:"intel-foundry-resolution",title:"Intel Foundry Resolution",trigger:"Intel 18A process node achieves successful external customer tape-out (or fails to by target date)",chain:[
+{step:1,event:"Success: Intel foundry credibility established",affectedTickers:["INTC"],direction:"bullish",detail:"External validation proves 18A competitive. Intel re-rates on foundry revenue potential."},
+{step:2,event:"Success: x86 ecosystem revitalized",affectedTickers:["INTC","AMD"],direction:"mixed",detail:"Intel regains process leadership. AMD faces renewed competition but x86 ecosystem strengthened vs. ARM."},
+{step:3,event:"Success: Geopolitical supply chain diversification",affectedTickers:["ASML","AMAT","LRCX"],direction:"bullish",detail:"US-based leading-edge fab reduces Taiwan concentration risk. Equipment vendors benefit from multi-geography buildout."},
+{step:4,event:"Failure: Intel restructuring deepens",affectedTickers:["INTC"],direction:"bearish",detail:"18A failure forces foundry strategy abandonment. Deep value thesis collapses."},
+{step:5,event:"Failure: TSMC concentration risk increases",affectedTickers:["NVDA","AMD","AVGO","QCOM"],direction:"risk flag",detail:"Without Intel alternative, all leading-edge chips depend on TSMC. Geopolitical risk premium increases."}
+],inverseScenario:"This chain is inherently binary. Success and failure paths described above."},
+{id:"saas-consolidation-wave",title:"SaaS Consolidation Wave",trigger:"PE and strategic buyers accelerate acquisitions of mid-cap SaaS companies trading below 5x revenue",chain:[
+{step:1,event:"Take-private activity increases",affectedTickers:["ZM","RPD","ESTC","BILL","U"],direction:"bullish",detail:"PE firms target strong recurring revenue with depressed multiples. Creates valuation floor."},
+{step:2,event:"Strategic consolidation accelerates",affectedTickers:["CRM","PANW","NOW"],direction:"mildly bullish",detail:"Platform vendors acquire point products using strong currencies (high multiples) to buy cheaper assets."},
+{step:3,event:"Remaining pure-play multiples expand",affectedTickers:["DDOG","CRWD","SNOW","NET"],direction:"bullish",detail:"Scarcity premium for remaining independent high-growth SaaS increases."},
+{step:4,event:"IPO window reopens",affectedTickers:[],direction:"neutral",detail:"Improved multiples encourage late-stage private companies to IPO."},
+{step:5,event:"IT services M&A advisory fees spike",affectedTickers:["ACN","BR"],direction:"mildly bullish",detail:"Integration consulting demand rises as acquirers merge technology stacks."}
+],inverseScenario:"Credit markets tighten. PE financing costs rise. Distressed SaaS stocks decline without takeout support."}
+];
 
-function applyFilters() {
-  const nv = filterNode.value;
-  const av = filterArchetype.value;
-  const cv = filterCap.value;
-  const sv = searchBox.value.toLowerCase();
-  const filtered = sectorData.filter(d => {
-    if (nv && d.node !== nv) return false;
-    if (av && d.archetype !== av) return false;
-    if (cv && d.marketCap !== cv) return false;
-    if (sv && !d.ticker.toLowerCase().includes(sv) && !d.name.toLowerCase().includes(sv)) return false;
-    return true;
-  });
-  renderGrid(filtered);
-}
+// ═══ ARCHETYPE DEFINITIONS ═══
+const archetypeDefs={
+"Tollbridge":"Monopoly or duopoly positioning with unavoidable spend. Pricing power > volume sensitivity.",
+"Cash Engine":"Mature, high-FCF business returning capital via dividends and buybacks. Growth modest but durable.",
+"Compounder":"Organic growth + disciplined M&A in fragmented markets. Revenue and margin expansion in tandem.",
+"Rule of 40":"High-growth SaaS/platform where revenue growth + FCF margin > 40%. Prioritizing growth over near-term earnings.",
+"Deep Value":"Cyclically depressed or structurally challenged. Cheap on fundamentals with identifiable catalyst needed.",
+"Speculative Growth":"Early-stage or unprofitable with significant optionality. Revenue growth > 25% but path to profitability uncertain.",
+"Turnaround":"Restructuring with improving trajectory. Management change or strategic pivot underway."
+};
 
-filterNode.addEventListener('change', applyFilters);
-filterArchetype.addEventListener('change', applyFilters);
-filterCap.addEventListener('change', applyFilters);
-searchBox.addEventListener('input', applyFilters);
-
-/* Column sort */
-let sortCol = 'ticker', sortAsc = true;
-const capOrder = {Mega:0,Large:1,Mid:2,Small:3,Micro:4};
-document.querySelectorAll('.grid-table thead th').forEach(th => {
-  th.addEventListener('click', () => {
-    const col = th.dataset.sort;
-    if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
-    sectorData.sort((a,b) => {
-      let va = a[col], vb = b[col];
-      if (col === 'marketCap') { va = capOrder[va]; vb = capOrder[vb]; }
-      if (va < vb) return sortAsc ? -1 : 1;
-      if (va > vb) return sortAsc ? 1 : -1;
-      return 0;
-    });
-    applyFilters();
-  });
+// ═══ APPLICATION LOGIC ═══
+const sectorData = itCompanies.filter(c => c.t !== "SPLK");
+sectorData.forEach(d => {
+  d.ticker = d.t; d.name = d.n; d.subIndustry = d.sub;
+  d.marketCap = d.mc; d.archetype = d.arch; d.cyclePosition = d.cyc;
+  d.factorExposures = d.fe; d.description = d.d;
 });
 
-/* Initial render */
-renderGrid(sectorData);
+const briefMap = {};
+itIndustryBriefs.forEach(b => { briefMap[b.title] = b; });
+
+const factorLabels = {ai:'AI Exposure',cyc:'Cyclicality',rec:'Recurring Rev',mar:'Margin Profile',grw:'Growth',moat:'Moat'};
+const capOrder = {Mega:0,Large:1,Mid:2,Small:3,Micro:4};
+const cycleOrder = {expansion:0,'mid-cycle':1,'late-cycle':2,recovery:3,downturn:4};
+
+let sortCol = 'ticker', sortAsc = true, expandedTicker = null;
+let activeFactors = new Set();
+let chartInstances = {};
+
+function destroyCharts() { Object.values(chartInstances).forEach(c => c.destroy()); chartInstances = {}; }
+
+function getTierColor(tier) {
+  if (tier === 'Upstream') return '#4a90d9';
+  if (tier === 'Midstream') return '#9b59b6';
+  return '#27ae60';
+}
+
+function getNodeClass(tier) {
+  if (tier === 'Upstream') return 'node-upstream';
+  if (tier === 'Midstream') return 'node-midstream';
+  return 'node-downstream';
+}
+
+function getArchClass(a) {
+  const m = {'Tollbridge':'arch-tollbridge','Cash Engine':'arch-cashengine','Compounder':'arch-compounder','Rule of 40':'arch-ruleof40','Deep Value':'arch-deepvalue','Speculative Growth':'arch-specgrowth','Turnaround':'arch-turnaround'};
+  return m[a] || '';
+}
+
+function getFactorTint(d) {
+  if (!activeFactors.size || !d.factorExposures) return '';
+  let sum = 0;
+  activeFactors.forEach(f => { sum += (d.factorExposures[f] || 0); });
+  if (sum >= 2) return 'background:rgba(39,174,96,0.12)';
+  if (sum > 0) return 'background:rgba(39,174,96,0.06)';
+  if (sum <= -2) return 'background:rgba(231,76,60,0.12)';
+  if (sum < 0) return 'background:rgba(231,76,60,0.06)';
+  return '';
+}
+
+function populateFilters() {
+  const tF = document.getElementById('tierFilter');
+  const sF = document.getElementById('subIndustryFilter');
+  const aF = document.getElementById('archetypeFilter');
+  const cF = document.getElementById('capFilter');
+  const cyF = document.getElementById('cycleFilter');
+  ['Upstream','Midstream','Downstream'].forEach(v => tF.add(new Option(v,v)));
+  [...new Set(sectorData.map(d=>d.subIndustry))].sort().forEach(v => sF.add(new Option(v,v)));
+  [...new Set(sectorData.map(d=>d.archetype))].sort().forEach(v => aF.add(new Option(v,v)));
+  ['Mega','Large','Mid','Small','Micro'].forEach(v => cF.add(new Option(v,v)));
+  ['expansion','mid-cycle','late-cycle','recovery','downturn'].forEach(v => cyF.add(new Option(v,v)));
+}
+
+function getFiltered() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const tf = document.getElementById('tierFilter').value;
+  const sf = document.getElementById('subIndustryFilter').value;
+  const af = document.getElementById('archetypeFilter').value;
+  const cf = document.getElementById('capFilter').value;
+  const cyf = document.getElementById('cycleFilter').value;
+  return sectorData.filter(d => {
+    if (q && !(d.ticker+' '+d.name+' '+d.subIndustry+' '+(d.description||'')).toLowerCase().includes(q)) return false;
+    if (tf && d.tier !== tf) return false;
+    if (sf && d.subIndustry !== sf) return false;
+    if (af && d.archetype !== af) return false;
+    if (cf && d.marketCap !== cf) return false;
+    if (cyf && d.cyclePosition !== cyf) return false;
+    return true;
+  });
+}
+
+function sortData(data) {
+  return [...data].sort((a,b) => {
+    let av = a[sortCol], bv = b[sortCol];
+    if (sortCol === 'marketCap') { av = capOrder[av]??5; bv = capOrder[bv]??5; }
+    else if (sortCol === 'cyclePosition') { av = cycleOrder[av]??5; bv = cycleOrder[bv]??5; }
+    else { av = (av||'').toString().toLowerCase(); bv = (bv||'').toString().toLowerCase(); }
+    if (av < bv) return sortAsc ? -1 : 1;
+    if (av > bv) return sortAsc ? 1 : -1;
+    return 0;
+  });
+}
+
+function renderRadarChart(canvasId, company) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx || !company.factorExposures) return;
+  const fe = company.factorExposures;
+  const color = getTierColor(company.tier);
+  chartInstances[canvasId] = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: Object.keys(fe).map(k => factorLabels[k] || k),
+      datasets: [{
+        data: Object.values(fe),
+        borderColor: color,
+        backgroundColor: color + '33',
+        borderWidth: 2, pointRadius: 3, pointBackgroundColor: color
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true, animation: false,
+      scales: { r: {
+        min: -2, max: 2,
+        ticks: { stepSize: 1, display: false },
+        grid: { color: 'rgba(255,255,255,0.08)' },
+        angleLines: { color: 'rgba(255,255,255,0.08)' },
+        pointLabels: { font: { family: "'JetBrains Mono'", size: 9 }, color: '#888' }
+      }},
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+function render() {
+  destroyCharts();
+  const filtered = getFiltered();
+  const sorted = sortData(filtered);
+  const gb = document.getElementById('gridBody');
+  let html = '';
+  sorted.forEach(d => {
+    const tint = getFactorTint(d);
+    const nc = getNodeClass(d.tier);
+    const ac = getArchClass(d.archetype);
+    const tc = nc.replace('node-','');
+    html += '<tr onclick="toggleExpand(\''+d.ticker+'\')" style="'+tint+'">';
+    html += '<td class="td-ticker" style="color:var(--'+tc+')">' + d.ticker + '</td>';
+    html += '<td class="td-company">' + d.name + '</td>';
+    html += '<td class="td-industry" onclick="event.stopPropagation();openBriefByTitle(\''+d.subIndustry.replace(/'/g,"\\'")+'\')">' + d.subIndustry + '</td>';
+    html += '<td><span class="node-badge '+nc+'">' + d.tier + '</span></td>';
+    html += '<td><span class="arch-badge '+ac+'">' + d.archetype;
+    if (archetypeDefs[d.archetype]) html += '<span class="tooltip">' + archetypeDefs[d.archetype] + '</span>';
+    html += '</span></td>';
+    html += '<td class="td-cap">' + d.marketCap + '</td>';
+    html += '<td><span class="cycle-badge">' + d.cyclePosition + '</span></td>';
+    html += '</tr>';
+    if (expandedTicker === d.ticker) {
+      const cid = 'radar-' + d.ticker.replace(/[^a-zA-Z0-9]/g,'');
+      html += '<tr class="expanded-row"><td colspan="7"><div class="expanded-content">';
+      html += '<div class="exp-block"><h5>Description</h5><p>' + (d.description||'') + '</p>';
+      html += '<h5 style="margin-top:12px">Cycle Position</h5><p>' + d.cyclePosition + '</p></div>';
+      html += '<div class="exp-block radar-wrap"><h5>Factor Exposures</h5>';
+      html += '<canvas id="'+cid+'" width="200" height="200"></canvas></div>';
+      html += '</div></td></tr>';
+    }
+  });
+  gb.innerHTML = html || '<tr><td colspan="7" class="empty-state">No companies match your filters.</td></tr>';
+  document.getElementById('resultCount').textContent = sorted.length + ' companies';
+  // Update sort headers
+  document.querySelectorAll('.grid-table thead th').forEach(th => {
+    const col = th.dataset.col;
+    th.classList.toggle('sorted', col === sortCol);
+    const arrow = th.querySelector('.sort-arrow');
+    if (arrow) arrow.textContent = col === sortCol ? (sortAsc ? '▲' : '▼') : '';
+  });
+  // Render radar charts after DOM update
+  if (expandedTicker) {
+    const d = sectorData.find(x => x.ticker === expandedTicker);
+    if (d) {
+      const cid = 'radar-' + d.ticker.replace(/[^a-zA-Z0-9]/g,'');
+      setTimeout(() => renderRadarChart(cid, d), 50);
+    }
+  }
+}
+
+function toggleExpand(ticker) {
+  expandedTicker = expandedTicker === ticker ? null : ticker;
+  render();
+}
+
+function navigateToTicker(ticker) {
+  document.getElementById('searchInput').value = ticker;
+  document.getElementById('tierFilter').value = '';
+  document.getElementById('subIndustryFilter').value = '';
+  document.getElementById('archetypeFilter').value = '';
+  document.getElementById('capFilter').value = '';
+  document.getElementById('cycleFilter').value = '';
+  expandedTicker = ticker;
+  render();
+  document.getElementById('gridSection').scrollIntoView({behavior:'smooth'});
+}
+
+// ═══ BRIEF PANEL ═══
+function openBriefByTitle(title) {
+  const brief = briefMap[title];
+  if (!brief) return;
+  renderBrief(brief);
+  document.getElementById('briefOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function openBrief(el) {
+  var key = el.getAttribute('data-brief');
+  if (!key) return;
+  // data-brief uses &amp; in HTML, decode it
+  var decoded = key.replace(/&amp;/g,'&');
+  var brief = briefMap[decoded];
+  if (!brief) {
+    // Try matching by partial title
+    for (var k in briefMap) { if (k.indexOf(decoded) >= 0 || decoded.indexOf(k) >= 0) { brief = briefMap[k]; break; } }
+  }
+  if (!brief) return;
+  renderBrief(brief);
+  document.getElementById('briefOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBrief() {
+  document.getElementById('briefOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('briefOverlay')) closeBrief();
+}
+
+function renderBrief(b) {
+  let h = '<h2>' + b.title + '</h2>';
+  h += '<div class="brief-tier">' + b.tier + ' Sub-Industry</div>';
+  h += '<div class="brief-section-title">Overview</div>';
+  h += '<div class="brief-overview">' + b.overview + '</div>';
+  // Key Dynamics
+  if (b.keyDynamics && b.keyDynamics.length) {
+    h += '<div class="brief-section-title">Key Dynamics</div>';
+    h += '<ul class="dynamics-list">';
+    b.keyDynamics.forEach(d => { h += '<li>' + d + '</li>'; });
+    h += '</ul>';
+  }
+  // Variant Perception
+  if (b.variantPerception) {
+    h += '<div class="brief-section-title">Variant Perception</div>';
+    const vp = b.variantPerception;
+    if (vp.consensus) h += '<div class="consensus-text"><strong>Consensus:</strong> ' + vp.consensus + '</div>';
+    if (vp.bull) h += '<div class="variant-case variant-bull"><div class="variant-label">Bull Case</div>' + vp.bull + '</div>';
+    if (vp.bear) h += '<div class="variant-case variant-bear"><div class="variant-label">Bear Case</div>' + vp.bear + '</div>';
+    if (vp.resolutionSignal) h += '<div class="variant-case variant-signal"><div class="variant-label">Resolution Signal</div>' + vp.resolutionSignal + '</div>';
+  }
+  // Revenue Breakdown
+  if (b.revenueBreakdown) {
+    h += '<div class="brief-section-title">Revenue Breakdown</div>';
+    h += '<div class="brief-rev">' + b.revenueBreakdown + '</div>';
+  }
+  // Anchor Tickers
+  if (b.anchorTickers && b.anchorTickers.length) {
+    h += '<div class="brief-section-title">Anchor Tickers</div>';
+    h += '<div class="anchor-list">';
+    b.anchorTickers.forEach(t => {
+      h += '<span class="anchor-tag" onclick="closeBrief();navigateToTicker(\''+t+'\')">' + t + '</span>';
+    });
+    h += '</div>';
+  }
+  // Key Metrics
+  if (b.keyMetrics && b.keyMetrics.length) {
+    h += '<div class="brief-section-title">Key Metrics</div>';
+    h += '<div class="metrics-list">';
+    b.keyMetrics.forEach(m => { h += '<span class="metric-tag">' + m + '</span>'; });
+    h += '</div>';
+  }
+  // Watchlist
+  if (b.watchlist && b.watchlist.length) {
+    h += '<div class="brief-section-title">Watchlist</div>';
+    b.watchlist.forEach(w => { h += '<div class="watchlist-item">' + w + '</div>'; });
+  }
+  document.getElementById('briefContent').innerHTML = h;
+}
+
+// ═══ SIGNAL CHAINS ═══
+function renderSignalChains() {
+  const container = document.getElementById('chainsContainer');
+  let html = '';
+  itSignalChains.forEach(chain => {
+    html += '<div class="chain-card" onclick="this.classList.toggle(\'open\')">';
+    html += '<div class="chain-header"><div class="chain-name">' + chain.title + '</div><span class="chain-toggle">&#x203A;</span></div>';
+    html += '<div class="chain-trigger">' + chain.trigger + '</div>';
+    html += '<div class="chain-body">';
+    html += '<div class="chain-steps">';
+    chain.chain.forEach((step, i) => {
+      if (i > 0) html += '<div class="chain-step-arrow">&darr;</div>';
+      let dirClass = 'direction-bullish';
+      const dir = (step.direction||'').toLowerCase();
+      if (dir === 'bearish') dirClass = 'direction-bearish';
+      else if (dir === 'mixed') dirClass = 'direction-mixed';
+      else if (dir.includes('mildly')) dirClass = 'direction-mildly';
+      else if (dir.includes('risk')) dirClass = 'direction-risk';
+      else if (dir === 'neutral') dirClass = '';
+      html += '<div class="chain-step ' + dirClass + '">';
+      html += '<span class="chain-step-num">S' + step.step + '</span>';
+      html += '<div class="chain-step-content">';
+      html += '<div class="chain-step-event">' + step.event + '</div>';
+      if (step.detail) html += '<div class="chain-step-detail">' + step.detail + '</div>';
+      if (step.affectedTickers && step.affectedTickers.length) {
+        html += '<div class="chain-step-tickers">';
+        const tagClass = (dir === 'bearish' || dir.includes('risk')) ? 'chain-ticker-tag bearish-tag' : 'chain-ticker-tag';
+        step.affectedTickers.forEach(t => {
+          html += '<span class="'+tagClass+'" onclick="event.stopPropagation();navigateToTicker(\''+t+'\')">' + t + '</span>';
+        });
+        html += '</div>';
+      }
+      html += '</div></div>';
+    });
+    html += '</div>';
+    if (chain.inverseScenario) {
+      html += '<div class="chain-inverse"><strong>Inverse Scenario: </strong>' + chain.inverseScenario + '</div>';
+    }
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+}
+
+// ═══ GLOSSARY ═══
+function renderGlossary(filter) {
+  const grid = document.getElementById('glossaryGrid');
+  const q = (filter || '').toLowerCase().trim();
+  const sorted = [...itGlossary].sort((a,b) => a.term.localeCompare(b.term));
+  let html = '';
+  sorted.forEach(g => {
+    if (q && !g.term.toLowerCase().includes(q) && !g.definition.toLowerCase().includes(q)) return;
+    html += '<div class="glossary-card" onclick="this.classList.toggle(\'open\')">';
+    html += '<div class="glossary-term">' + g.term + '<span class="toggle-icon">&#x203A;</span></div>';
+    html += '<div class="glossary-def">' + g.definition;
+    if (g.relatedTickers && g.relatedTickers.length) {
+      html += '<div class="glossary-tickers">';
+      g.relatedTickers.forEach(t => {
+        html += '<span class="glossary-ticker-tag" onclick="event.stopPropagation();navigateToTicker(\''+t+'\')">' + t + '</span>';
+      });
+      html += '</div>';
+    }
+    html += '</div></div>';
+  });
+  grid.innerHTML = html || '<div class="empty-state">No terms match your search.</div>';
+}
+
+// ═══ EVENT LISTENERS ═══
+document.getElementById('searchInput').addEventListener('input', () => { expandedTicker = null; render(); });
+['tierFilter','subIndustryFilter','archetypeFilter','capFilter','cycleFilter'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => { expandedTicker = null; render(); });
+});
+document.getElementById('clearBtn').addEventListener('click', () => {
+  document.getElementById('searchInput').value = '';
+  ['tierFilter','subIndustryFilter','archetypeFilter','capFilter','cycleFilter'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  activeFactors.clear();
+  document.querySelectorAll('.factor-toggle').forEach(b => b.classList.remove('active'));
+  expandedTicker = null;
+  render();
+});
+document.querySelectorAll('.grid-table thead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (!col) return;
+    if (sortCol === col) { sortAsc = !sortAsc; }
+    else { sortCol = col; sortAsc = true; }
+    render();
+  });
+});
+document.querySelectorAll('.factor-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const f = btn.dataset.factor;
+    if (activeFactors.has(f)) { activeFactors.delete(f); btn.classList.remove('active'); }
+    else { activeFactors.add(f); btn.classList.add('active'); }
+    render();
+  });
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBrief(); });
+document.getElementById('glossarySearch').addEventListener('input', function() { renderGlossary(this.value); });
+
+// ═══ SVG CONNECTION DRAWING ═══
+// Each connection: from, to, xOff (horizontal pixel offset to prevent overlap), color tier, style
+var svgConnections = [
+  // Upstream → Midstream (blue lines)
+  {from:"Semiconductor Equipment",to:"Compute Semiconductors",xOff:-40,color:"#4a90d9",style:"solid",label:"Fab tools"},
+  {from:"Materials & Packaging",to:"Compute Semiconductors",xOff:-15,color:"#4a90d9",style:"solid"},
+  {from:"EDA & Design IP",to:"Compute Semiconductors",xOff:30,color:"#4a90d9",style:"solid",label:"Design IP"},
+  // Midstream intra-tier (purple lines)
+  {from:"Compute Semiconductors",to:"Technology Hardware",xOff:-20,color:"#9b59b6",style:"solid",label:"GPUs & CPUs"},
+  {from:"Compute Semiconductors",to:"Networking & Comms",xOff:20,color:"#9b59b6",style:"dashed"},
+  {from:"Analog & Mixed-Signal",to:"Technology Hardware",xOff:10,color:"#9b59b6",style:"dashed"},
+  // Midstream → Downstream (green lines)
+  {from:"Technology Hardware",to:"Platform & Systems Software",xOff:-30,color:"#27ae60",style:"solid",label:"Cloud infra"},
+  {from:"Networking & Comms",to:"Platform & Systems Software",xOff:15,color:"#27ae60",style:"solid"},
+  {from:"Compute Semiconductors",to:"Data Infrastructure & Analytics",xOff:50,color:"#27ae60",style:"dashed",label:"AI compute"},
+  // Downstream intra-tier (green dashed)
+  {from:"Cybersecurity",to:"Platform & Systems Software",xOff:0,color:"#27ae60",style:"dotted",withinTier:true}
+];
+
+function getNodeRect(name) {
+  var allNodes = document.querySelectorAll('.fc-node');
+  var node = null;
+  for (var i = 0; i < allNodes.length; i++) {
+    var nm = allNodes[i].querySelector('.node-name');
+    if (nm && nm.textContent === name) { node = allNodes[i]; break; }
+  }
+  var wrapper = document.querySelector('.flowchart-wrapper');
+  if (!node || !wrapper) return null;
+  var nr = node.getBoundingClientRect();
+  var wr = wrapper.getBoundingClientRect();
+  return {
+    x: nr.left + nr.width/2 - wr.left,
+    y: nr.top + nr.height/2 - wr.top,
+    top: nr.top - wr.top, bottom: nr.bottom - wr.top,
+    left: nr.left - wr.left, right: nr.right - wr.left,
+    w: nr.width, h: nr.height
+  };
+}
+
+function drawConnections() {
+  var svg = document.getElementById('flowchartSvg');
+  var wrapper = document.querySelector('.flowchart-wrapper');
+  if (!svg || !wrapper) return;
+  var wr = wrapper.getBoundingClientRect();
+  svg.setAttribute('width', wr.width);
+  svg.setAttribute('height', wr.height);
+  svg.setAttribute('viewBox', '0 0 '+wr.width+' '+wr.height);
+  svg.innerHTML = '';
+
+  // Arrow markers per color
+  var defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  var markerColors = {'#4a90d9':1,'#9b59b6':1,'#27ae60':1};
+  Object.keys(markerColors).forEach(function(col) {
+    var id = 'arr-'+col.replace('#','');
+    var m = document.createElementNS('http://www.w3.org/2000/svg','marker');
+    m.setAttribute('id',id); m.setAttribute('viewBox','0 0 8 6');
+    m.setAttribute('refX','8'); m.setAttribute('refY','3');
+    m.setAttribute('markerWidth','6'); m.setAttribute('markerHeight','5');
+    m.setAttribute('orient','auto');
+    var p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d','M0,0.5 L7,3 L0,5.5 Z'); p.setAttribute('fill',col); p.setAttribute('opacity','0.7');
+    m.appendChild(p); defs.appendChild(m);
+  });
+  svg.appendChild(defs);
+
+  svgConnections.forEach(function(c) {
+    var fr = getNodeRect(c.from), tr = getNodeRect(c.to);
+    if (!fr || !tr) return;
+    var col = c.color || '#888';
+    var markerId = 'arr-'+col.replace('#','');
+    var off = c.xOff || 0;
+
+    var path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    var d;
+
+    if (c.withinTier) {
+      // Horizontal curve within same tier
+      var x1 = fr.right + 2, y1 = fr.y, x2 = tr.left - 2, y2 = tr.y;
+      var cx = (x1+x2)/2;
+      d = 'M'+x1+','+y1+' C'+cx+','+y1+' '+cx+','+y2+' '+x2+','+y2;
+    } else {
+      // Vertical curve between tiers with horizontal offset
+      var x1 = fr.x + off, y1 = fr.bottom + 2;
+      var x2 = tr.x + off, y2 = tr.top - 2;
+      var gap = y2 - y1;
+      var cy1 = y1 + gap * 0.35;
+      var cy2 = y2 - gap * 0.35;
+      d = 'M'+x1+','+y1+' C'+x1+','+cy1+' '+x2+','+cy2+' '+x2+','+y2;
+    }
+
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', col);
+
+    if (c.style === 'solid') {
+      path.setAttribute('stroke-width', '1.5'); path.setAttribute('opacity', '0.4');
+    } else if (c.style === 'dashed') {
+      path.setAttribute('stroke-width', '1'); path.setAttribute('stroke-dasharray', '8,5');
+      path.setAttribute('opacity', '0.3');
+    } else {
+      path.setAttribute('stroke-width', '1'); path.setAttribute('stroke-dasharray', '3,4');
+      path.setAttribute('opacity', '0.25');
+    }
+    path.setAttribute('marker-end', 'url(#'+markerId+')');
+    svg.appendChild(path);
+
+    // Only draw label for key connections (reduces clutter)
+    if (c.label) {
+      var mx, my;
+      if (c.withinTier) { mx = (fr.right+tr.left)/2; my = (fr.y+tr.y)/2; }
+      else { mx = (fr.x+tr.x)/2+off; my = (fr.bottom+tr.top)/2; }
+      var tw = c.label.length * 4.8 + 12;
+      var rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      rect.setAttribute('x', mx - tw/2); rect.setAttribute('y', my - 7);
+      rect.setAttribute('width', tw); rect.setAttribute('height', 14);
+      rect.setAttribute('fill', '#0a0a0f'); rect.setAttribute('rx', '4');
+      rect.setAttribute('opacity', '0.9');
+      svg.appendChild(rect);
+      var text = document.createElementNS('http://www.w3.org/2000/svg','text');
+      text.setAttribute('x', mx); text.setAttribute('y', my + 3);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('fill', col); text.setAttribute('opacity', '0.7');
+      text.textContent = c.label;
+      svg.appendChild(text);
+    }
+  });
+}
+
+window.addEventListener('load', function() { setTimeout(drawConnections, 300); });
+var _resizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(drawConnections, 150);
+});
+
+// ═══ INIT ═══
+populateFilters();
+render();
+renderSignalChains();
+renderGlossary('');
 </script>
 </body>
 </html>
