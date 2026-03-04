@@ -3,245 +3,2272 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Consumer Discretionary — GICS Sector Atlas</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<title>Consumer Discretionary &mdash; GICS Sector Visual Atlas</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #0a0a0f;
-    color: #e0e0e0;
-    font-family: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
-    min-height: 100vh;
-    padding: 24px;
-  }
-  .header {
-    text-align: center;
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .header h1 {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #4a90d9, #9b59b6, #27ae60);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 6px;
-  }
-  .header .subtitle {
-    font-size: 12px;
-    color: #888;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  .legend {
-    display: flex;
-    justify-content: center;
-    gap: 28px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-  .legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
-  }
-  .mermaid-container {
-    background: #0e0e16;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    padding: 20px;
-    overflow-x: auto;
-  }
-  .mermaid {
-    display: flex;
-    justify-content: center;
-  }
-  .mermaid svg {
-    max-width: 100%;
-    height: auto;
-  }
-  .tracks {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-top: 24px;
-  }
-  .track-card {
-    border-radius: 10px;
-    padding: 16px;
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-  .track-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
-  .track-card p { font-size: 11px; color: #999; line-height: 1.5; }
-  .track-hard { background: rgba(74,144,217,0.08); border-color: rgba(74,144,217,0.2); }
-  .track-hard h3 { color: #4a90d9; }
-  .track-soft { background: rgba(155,89,182,0.08); border-color: rgba(155,89,182,0.2); }
-  .track-soft h3 { color: #9b59b6; }
-  .track-svc { background: rgba(230,126,34,0.08); border-color: rgba(230,126,34,0.2); }
-  .track-svc h3 { color: #e67e22; }
+:root {
+  --bg: #1a1a2e;
+  --bg-card: #16213e;
+  --bg-hover: #1c2a4a;
+  --border: rgba(255,255,255,0.06);
+  --border-light: rgba(255,255,255,0.1);
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --text-muted: #666;
+  --upstream: #2c5f8a;
+  --upstream-bg: rgba(44,95,138,0.08);
+  --upstream-border: rgba(44,95,138,0.25);
+  --midstream: #c4842d;
+  --midstream-bg: rgba(196,132,45,0.08);
+  --midstream-border: rgba(196,132,45,0.25);
+  --downstream: #2d7d46;
+  --downstream-bg: rgba(45,125,70,0.08);
+  --downstream-border: rgba(45,125,70,0.25);
+  --macro: #e67e22;
+  --macro-bg: rgba(230,126,34,0.08);
+  --macro-border: rgba(230,126,34,0.25);
+  --tollbridge: #00d4aa;
+  --cashengine: #4a9eff;
+  --compounder: #9b59b6;
+  --deepvalue: #e67e22;
+  --specgrowth: #f1c40f;
+  --turnaround: #e74c3c;
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 24px;
+  padding-top: 64px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+.sticky-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+  background: rgba(26,26,46,0.92); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: center; gap: 8px;
+  padding: 10px 20px; flex-wrap: wrap;
+}
+.sticky-nav a {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 500;
+  color: var(--text-dim); text-decoration: none;
+  padding: 6px 14px; border-radius: 6px;
+  border: 1px solid transparent; transition: all 0.2s;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.sticky-nav a:hover { color: var(--text); border-color: var(--border-light); }
+.sticky-nav a.active { color: var(--upstream); border-color: var(--upstream-border); }
+.header {
+  text-align: center;
+  padding: 40px 0 30px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.header h1 {
+  font-size: 2rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--upstream), var(--midstream), var(--downstream));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 8px;
+}
+.header .subtitle {
+  font-family: var(--mono); color: var(--text-dim);
+  font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase;
+}
+.header .tagline {
+  font-size: 0.82rem; color: var(--text-muted); font-style: italic;
+  max-width: 700px; margin: 12px auto 0; line-height: 1.5;
+}
+.header .stats-bar {
+  display: flex; justify-content: center; gap: 24px;
+  margin-top: 16px; flex-wrap: wrap;
+}
+.header .stat-item {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); letter-spacing: 0.5px;
+}
+.header .stat-item strong { color: var(--text); font-weight: 700; }
+.legend {
+  display: flex; justify-content: center; gap: 20px;
+  margin-top: 20px; flex-wrap: wrap;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.78rem; color: var(--text-dim);
+}
+.legend-item::before {
+  content: ''; width: 12px; height: 12px;
+  border-radius: 3px; background: var(--lc); flex-shrink: 0;
+}
+/* Flowchart */
+.flowchart-section { margin-bottom: 48px; }
+.flowchart-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); text-align: center; margin-bottom: 28px;
+}
+.flowchart-wrapper { display: flex; gap: 24px; position: relative; }
+.flowchart-tiers { flex: 1; display: flex; flex-direction: column; gap: 0; }
+.flowchart-svg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: visible;
+}
+.flowchart-svg text { font-family: var(--mono); font-size: 8px; fill: var(--text-muted); }
+.tier { border: 1px solid var(--border); border-radius: 12px; padding: 20px; background: var(--bg-card); position: relative; z-index: 1; }
+.tier-upstream { border-color: var(--upstream-border); background: var(--upstream-bg); }
+.tier-midstream { border-color: var(--midstream-border); background: var(--midstream-bg); }
+.tier-downstream { border-color: var(--downstream-border); background: var(--downstream-bg); }
+.tier-label {
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.tier-upstream .tier-label { color: var(--upstream); }
+.tier-midstream .tier-label { color: var(--midstream); }
+.tier-downstream .tier-label { color: var(--downstream); }
+.tier-body { display: flex; gap: 16px; flex-wrap: wrap; }
+.cluster { flex: 1; min-width: 200px; border: 1px dashed var(--border-light); border-radius: 8px; padding: 12px; }
+.cluster-label {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 10px;
+}
+.cluster-nodes { display: flex; flex-direction: column; gap: 8px; }
+.fc-node {
+  padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-light);
+  background: rgba(0,0,0,0.3); cursor: pointer; transition: all 0.2s ease;
+}
+.fc-node:hover { transform: translateY(-1px); }
+.tier-upstream .fc-node:hover { border-color: var(--upstream); box-shadow: 0 0 12px rgba(44,95,138,0.3); }
+.tier-midstream .fc-node:hover { border-color: var(--midstream); box-shadow: 0 0 12px rgba(196,132,45,0.3); }
+.tier-downstream .fc-node:hover { border-color: var(--downstream); box-shadow: 0 0 12px rgba(45,125,70,0.3); }
+.node-name { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.node-tickers { font-family: var(--mono); font-size: 0.68rem; color: var(--text-dim); letter-spacing: 0.5px; }
+.inter-tier-flow {
+  display: flex; justify-content: center; gap: 32px; padding: 12px 0;
+  position: relative; z-index: 1;
+}
+.inter-tier-flow::before {
+  content: ''; position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 1px; background: linear-gradient(to bottom, var(--border-light), transparent);
+}
+.flow-label {
+  font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted);
+  background: var(--bg); padding: 2px 10px; border-radius: 10px;
+  border: 1px solid var(--border); z-index: 1; white-space: nowrap;
+}
+.macro-drivers-column {
+  width: 160px; display: flex; flex-direction: column;
+  justify-content: space-around; align-items: center; gap: 16px;
+  padding: 20px 0; flex-shrink: 0;
+}
+.macro-circle {
+  width: 130px; height: 130px; border-radius: 50%;
+  border: 2px dashed var(--macro-border); background: var(--macro-bg);
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; font-size: 0.72rem; font-weight: 600;
+  color: var(--macro); padding: 12px; position: relative; line-height: 1.3;
+}
+.macro-circle::before {
+  content: ''; position: absolute; left: -24px; top: 50%;
+  width: 24px; height: 0; border-top: 1px dashed var(--macro-border);
+}
+/* Summary */
+.summary-section { margin-bottom: 48px; }
+.tier-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;
+}
+.summary-card {
+  border-radius: 10px; padding: 20px;
+  border: 1px solid var(--border); background: var(--bg-card);
+}
+.summary-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 10px; }
+.summary-card p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
+.card-upstream { border-color: var(--upstream-border); }
+.card-upstream h3 { color: var(--upstream); }
+.card-midstream { border-color: var(--midstream-border); }
+.card-midstream h3 { color: var(--midstream); }
+.card-downstream { border-color: var(--downstream-border); }
+.card-downstream h3 { color: var(--downstream); }
+.macro-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.macro-card {
+  background: var(--macro-bg); border: 1px solid var(--macro-border);
+  border-radius: 10px; padding: 16px;
+}
+.macro-card h4 { font-size: 0.82rem; font-weight: 700; color: var(--macro); margin-bottom: 8px; }
+.macro-card p { font-size: 0.76rem; color: var(--text-dim); line-height: 1.5; }
+/* Grid */
+.grid-section { margin-bottom: 48px; }
+.grid-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px;
+}
+.grid-section .grid-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 20px; }
+.grid-filters {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px;
+}
+.grid-filters input, .grid-filters select {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  color: var(--text); padding: 8px 12px; border-radius: 6px;
+  font-size: 0.78rem; font-family: var(--font); outline: none; transition: border-color 0.2s;
+}
+.grid-filters input:focus, .grid-filters select:focus { border-color: var(--upstream); }
+.grid-filters input { flex: 1; min-width: 180px; }
+.grid-filters select { min-width: 120px; }
+.filter-meta { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+#resultCount { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); }
+#clearBtn {
+  background: transparent; border: 1px solid var(--border-light);
+  color: var(--text-dim); padding: 6px 14px; border-radius: 6px;
+  font-size: 0.72rem; cursor: pointer; transition: all 0.2s; font-family: var(--font);
+}
+#clearBtn:hover { border-color: var(--text-dim); color: var(--text); }
+.factor-toggles { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.factor-toggle {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  color: var(--text-dim); padding: 7px 16px; border-radius: 20px;
+  font-size: 0.74rem; cursor: pointer; transition: all 0.2s; font-family: var(--font);
+}
+.factor-toggle:hover { border-color: var(--text-muted); }
+.factor-toggle.active {
+  border-color: var(--macro); color: var(--macro);
+  box-shadow: 0 0 8px rgba(230,126,34,0.2); background: var(--macro-bg);
+}
+.grid-table-wrapper { overflow-x: auto; }
+.grid-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.grid-table thead th {
+  text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-muted); font-size: 0.68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  cursor: pointer; user-select: none; white-space: nowrap; transition: color 0.15s;
+}
+.grid-table thead th:hover { color: var(--text); }
+.grid-table thead th.sorted { color: var(--upstream); }
+.grid-table thead th .sort-arrow { font-size: 0.6rem; margin-left: 4px; opacity: 0.5; }
+.grid-table thead th.sorted .sort-arrow { opacity: 1; color: var(--upstream); }
+.grid-table tbody tr {
+  border-bottom: 1px solid var(--border); transition: background 0.15s; cursor: pointer;
+}
+.grid-table tbody tr:hover { background: var(--bg-hover); }
+.grid-table tbody td { padding: 10px 12px; vertical-align: middle; }
+.td-ticker { font-family: var(--mono); font-weight: 600; font-size: 0.8rem; }
+.td-company { font-size: 0.78rem; }
+.td-industry { font-size: 0.74rem; color: var(--text-dim); cursor: pointer; }
+.td-industry:hover { color: var(--upstream); text-decoration: underline; }
+.td-cap { font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); }
+.node-badge, .arch-badge, .cycle-badge {
+  display: inline-block; padding: 2px 10px; border-radius: 10px;
+  font-size: 0.65rem; font-weight: 600; white-space: nowrap;
+}
+.node-upstream { background: var(--upstream-bg); color: var(--upstream); border: 1px solid var(--upstream-border); }
+.node-midstream { background: var(--midstream-bg); color: var(--midstream); border: 1px solid var(--midstream-border); }
+.node-downstream { background: var(--downstream-bg); color: var(--downstream); border: 1px solid var(--downstream-border); }
+.arch-tollbridge { background: rgba(0,212,170,0.1); color: var(--tollbridge); border: 1px solid rgba(0,212,170,0.25); }
+.arch-cashengine { background: rgba(74,158,255,0.1); color: var(--cashengine); border: 1px solid rgba(74,158,255,0.25); }
+.arch-compounder { background: rgba(155,89,182,0.1); color: var(--compounder); border: 1px solid rgba(155,89,182,0.25); }
+.arch-deepvalue { background: rgba(230,126,34,0.1); color: var(--deepvalue); border: 1px solid rgba(230,126,34,0.25); }
+.arch-specgrowth { background: rgba(241,196,15,0.1); color: var(--specgrowth); border: 1px solid rgba(241,196,15,0.25); }
+.arch-turnaround { background: rgba(231,76,60,0.1); color: var(--turnaround); border: 1px solid rgba(231,76,60,0.25); }
+.arch-badge { position: relative; cursor: help; }
+.arch-badge .tooltip {
+  display: none; position: absolute; bottom: calc(100% + 8px); right: 0;
+  background: #16213e; border: 1px solid var(--border-light); border-radius: 8px;
+  padding: 10px 14px; width: 280px; font-size: 0.72rem; font-weight: 400;
+  color: var(--text); line-height: 1.5; white-space: normal; z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: none;
+}
+.arch-badge .tooltip::after {
+  content: ''; position: absolute; top: 100%; right: 20px;
+  border: 6px solid transparent; border-top-color: #16213e;
+}
+.arch-badge:hover .tooltip { display: block; }
+.cycle-badge {
+  font-size: 0.62rem; color: var(--text-muted);
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+}
+/* Expanded row */
+.expanded-row td { padding: 0 !important; border-bottom: 1px solid var(--border-light); }
+.expanded-content {
+  padding: 16px 20px; background: rgba(255,255,255,0.015);
+  display: grid; grid-template-columns: 1fr 240px; gap: 16px;
+}
+.exp-block h5 {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px;
+}
+.exp-block p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+.radar-wrap { display: flex; flex-direction: column; align-items: center; }
+.radar-wrap canvas { max-width: 220px; max-height: 220px; }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.85rem; }
+/* Signal Chains */
+.chains-section { margin-bottom: 48px; }
+.chains-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px;
+}
+.chains-section .chains-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 20px; }
+.chain-card {
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 20px; margin-bottom: 16px; background: var(--bg-card);
+}
+.chain-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.chain-name { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+.chain-toggle { color: var(--text-muted); font-size: 1.2rem; transition: transform 0.2s; }
+.chain-card.open .chain-toggle { transform: rotate(90deg); }
+.chain-trigger {
+  font-size: 0.74rem; color: var(--text-muted); margin: 8px 0 12px; font-style: italic;
+}
+.chain-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.chain-card.open .chain-body { max-height: 3000px; }
+.chain-steps { padding: 8px 0; }
+.chain-step {
+  display: flex; gap: 10px; padding: 10px 12px; margin-bottom: 2px;
+  border-radius: 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+  border-left: 3px solid var(--upstream);
+}
+.chain-step-num {
+  font-family: var(--mono); font-size: 0.65rem; font-weight: 700;
+  color: var(--text-muted); min-width: 24px; padding-top: 2px;
+}
+.chain-step-content { flex: 1; }
+.chain-step-event { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+.chain-step-arrow { text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 2px 0 2px 34px; }
+.chain-tickers-section {
+  margin-top: 12px; padding: 10px 14px;
+  border-left: 3px solid var(--midstream); background: rgba(196,132,45,0.04);
+  border-radius: 0 6px 6px 0;
+}
+.chain-tickers-section strong { color: var(--midstream); font-size: 0.74rem; }
+.chain-monitor-section {
+  margin-top: 8px; padding: 10px 14px;
+  border-left: 3px solid var(--downstream); background: rgba(45,125,70,0.04);
+  border-radius: 0 6px 6px 0;
+}
+.chain-monitor-section strong { color: var(--downstream); font-size: 0.74rem; }
+.chain-monitor-section ul { list-style: none; padding: 0; margin-top: 6px; }
+.chain-monitor-section li { font-size: 0.72rem; color: var(--text-dim); padding: 2px 0; }
+.chain-monitor-section li::before { content: '\203A '; color: var(--text-muted); font-weight: 700; }
+.chain-ticker-tag {
+  font-family: var(--mono); font-size: 0.65rem; padding: 2px 8px;
+  border-radius: 10px; cursor: pointer; transition: all 0.2s;
+  background: rgba(196,132,45,0.1); color: var(--midstream); border: 1px solid rgba(196,132,45,0.25);
+  display: inline-block; margin: 3px 2px;
+}
+.chain-ticker-tag:hover { opacity: 0.8; transform: translateY(-1px); }
+/* Glossary */
+.glossary-section { margin-bottom: 48px; }
+.glossary-section h2 {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px;
+}
+.glossary-section .glossary-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 16px; }
+.glossary-search {
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  color: var(--text); padding: 8px 14px; border-radius: 6px;
+  font-size: 0.78rem; font-family: var(--font); outline: none;
+  width: 100%; max-width: 400px; margin-bottom: 16px; transition: border-color 0.2s;
+}
+.glossary-search:focus { border-color: var(--upstream); }
+.glossary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.glossary-card {
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 16px; background: var(--bg-card); cursor: pointer; transition: all 0.2s;
+}
+.glossary-card:hover { border-color: var(--border-light); }
+.glossary-card.open { border-color: var(--upstream-border); }
+.glossary-term {
+  font-size: 0.8rem; font-weight: 600; color: var(--text);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.glossary-term .toggle-icon { color: var(--text-muted); transition: transform 0.2s; font-size: 1rem; }
+.glossary-card.open .toggle-icon { transform: rotate(90deg); }
+.glossary-def {
+  font-size: 0.76rem; color: var(--text-dim); line-height: 1.55;
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin 0.3s ease; margin-top: 0;
+}
+.glossary-card.open .glossary-def { max-height: 500px; margin-top: 8px; }
+/* Brief Panel */
+.brief-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.brief-overlay.open { opacity: 1; pointer-events: all; }
+.brief-panel {
+  position: fixed; top: 0; right: 0; width: 560px; height: 100vh;
+  background: #111828; border-left: 1px solid var(--border-light);
+  transform: translateX(100%); transition: transform 0.3s ease;
+  z-index: 1001; overflow-y: auto; padding: 32px;
+}
+.brief-overlay.open .brief-panel { transform: translateX(0); }
+.brief-close {
+  position: absolute; top: 16px; right: 20px; background: none;
+  border: 1px solid var(--border-light); color: var(--text-dim);
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.brief-close:hover { border-color: var(--text); color: var(--text); }
+.brief-body h2 { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 4px; margin-right: 40px; }
+.brief-body .brief-tier { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 20px; }
+.brief-section-title {
+  font-family: var(--mono); font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted);
+  margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.brief-overview { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.consensus-text {
+  font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px;
+  padding: 12px 16px; border-left: 3px solid var(--text-muted);
+  background: rgba(255,255,255,0.02); border-radius: 0 6px 6px 0;
+}
+.variant-case {
+  padding: 8px 12px; border-radius: 6px; margin-bottom: 8px;
+  font-size: 0.76rem; color: var(--text-dim); line-height: 1.5;
+}
+.variant-bull { border-left: 3px solid #27ae60; background: rgba(39,174,96,0.04); }
+.variant-bear { border-left: 3px solid #e74c3c; background: rgba(231,76,60,0.04); }
+.variant-signal { border-left: 3px solid #3498db; background: rgba(52,152,219,0.04); }
+.variant-label { font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.variant-bull .variant-label { color: #27ae60; }
+.variant-bear .variant-label { color: #e74c3c; }
+.variant-signal .variant-label { color: #3498db; }
+.dynamics-list { list-style: none; padding: 0; }
+.dynamics-list li {
+  font-size: 0.78rem; color: var(--text-dim); line-height: 1.55;
+  padding: 6px 0 6px 16px; border-bottom: 1px solid var(--border); position: relative;
+}
+.dynamics-list li:last-child { border-bottom: none; }
+.dynamics-list li::before { content: '\203A'; position: absolute; left: 0; color: var(--text-muted); font-weight: 700; }
+.brief-rev { font-size: 0.78rem; color: var(--text-dim); line-height: 1.6; }
+.anchor-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.anchor-tag {
+  font-family: var(--mono); font-weight: 600; font-size: 0.75rem;
+  color: var(--upstream); padding: 4px 12px; border: 1px solid var(--upstream-border);
+  border-radius: 6px; background: var(--upstream-bg); cursor: pointer; transition: all 0.2s;
+}
+.anchor-tag:hover { background: rgba(44,95,138,0.15); transform: translateY(-1px); }
+.metrics-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.metric-tag {
+  font-family: var(--mono); font-size: 0.68rem; padding: 4px 12px;
+  border-radius: 12px; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); color: var(--text-dim);
+}
+.watchlist-item {
+  font-size: 0.76rem; color: var(--text-dim); line-height: 1.5;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.watchlist-item:last-child { border-bottom: none; }
+/* Responsive */
+@media (max-width: 768px) {
+  body { padding: 12px; padding-top: 64px; }
+  .flowchart-wrapper { flex-direction: column; }
+  .macro-drivers-column { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .macro-circle::before { display: none; }
+  .tier-body { flex-direction: column; }
+  .tier-cards { grid-template-columns: 1fr; }
+  .macro-cards { grid-template-columns: 1fr; }
+  .grid-filters { flex-direction: column; }
+  .grid-filters input, .grid-filters select { width: 100%; }
+  .filter-meta { margin-left: 0; width: 100%; justify-content: space-between; }
+  .expanded-content { grid-template-columns: 1fr; }
+  .brief-panel { width: 100%; }
+  .glossary-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>Consumer Discretionary — GICS Sector Visual Atlas</h1>
-  <div class="subtitle">Upstream → Midstream → Downstream Value Chain</div>
-</div>
+<nav class="sticky-nav">
+  <a href="index.html">&larr; Atlas</a>
+  <a href="#heroSection">Hero</a>
+  <a href="#flowchartSection">Map</a>
+  <a href="#gridSection">Grid</a>
+  <a href="#chainsSection">Signals</a>
+  <a href="#glossarySection">Glossary</a>
+</nav>
 
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#4a90d9;"></div>Upstream — Inputs</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#9b59b6;"></div>Midstream — IP Owners</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#27ae60;"></div>Downstream — Distribution</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#e67e22;"></div>Macro Drivers</div>
-</div>
-
-<div class="mermaid-container">
-<pre class="mermaid">
-graph TD
-
-subgraph UPSTREAM["🔧 UPSTREAM — Inputs & Component Mfrs"]
-    direction LR
-    subgraph UP_H[" "]
-        AC["Auto Components<br>APTV, BWA, LEA"]
-        DM["Appliance &amp; Durables Mfrs<br>WHR, SWK"]
-        BM["Building Products<br>MAS, FBHS"]
-    end
-    subgraph UP_S[" "]
-        TX["Textile Sourcing<br>HBI, PVH supply"]
-        FW["Footwear Components<br>SKX supply, CROX"]
-    end
-    subgraph UP_V[" "]
-        FS["Food &amp; Bev Supply<br>PFGC, USFD"]
-        TE["Travel Tech / GDS<br>SABR, TRVG"]
-    end
-end
-
-subgraph MIDSTREAM["🏛️ MIDSTREAM — IP Owners, Brands & Operators"]
-    direction LR
-    subgraph MH["Hardlines / Big-Ticket"]
-        OEM["Automotive OEMs<br>TSLA, GM, F"]
-        HB["Homebuilders<br>DHI, LEN, PHM"]
-        DA["Durables &amp; Appliances<br>WHR, POOL"]
-    end
-    subgraph MS["Softlines / Brand IP"]
-        ATH["Athletic &amp; Athleisure<br>NKE, LULU, UAA"]
-        LUX["Luxury &amp; Premium<br>TPR, RL, CPRI"]
-        SPB["Toys &amp; Leisure<br>HAS, MAT"]
-    end
-    subgraph MV["Services / Experiences"]
-        QSR["Restaurants &amp; QSRs<br>MCD, CMG, YUM"]
-        HOT["Hotels &amp; Resorts<br>MAR, HLT"]
-        CRZ["Cruises &amp; Live<br>RCL, CCL, LYV"]
-    end
-end
-
-subgraph DOWNSTREAM["🛒 DOWNSTREAM — Distribution & Aggregators"]
-    direction LR
-    subgraph DH["Hardlines Retail"]
-        HIR["Home Improvement<br>HD, LOW"]
-        APR["Auto Parts Retail<br>ORLY, AZO"]
-    end
-    subgraph DS["Softlines Retail"]
-        SPR["Specialty / Off-Price<br>TJX, ROST, BURL"]
-        DTC["DTC &amp; Marketplaces<br>ETSY, W"]
-    end
-    subgraph DV["Services Aggregation"]
-        OTA["OTAs<br>BKNG, ABNB, EXPE"]
-        BEC["Broadline E-Comm<br>AMZN"]
-    end
-end
-
-AC -->|"Components"| OEM
-BM -->|"Materials"| HB
-DM -->|"Appliances"| DA
-TX -->|"Textiles"| ATH
-TX -->|"Textiles"| LUX
-FW -->|"Footwear"| ATH
-FS -->|"Food Supply"| QSR
-TE -->|"Booking Infra"| OTA
-
-OEM -->|"Vehicles"| APR
-HB -->|"Housing Spend"| HIR
-DA -->|"Durables"| HIR
-ATH -->|"Branded Product"| SPR
-ATH -->|"DTC"| DTC
-LUX -->|"Wholesale"| SPR
-SPB -->|"Toys"| BEC
-QSR -->|"Franchise"| BEC
-HOT -->|"Inventory"| OTA
-CRZ -->|"Inventory"| OTA
-
-RATES(("💰 Interest Rates"))
-SENT(("📊 Consumer Sentiment"))
-EMPL(("👷 Employment / Wages"))
-
-RATES -.->|"Rate-Sensitive"| MH
-SENT -.->|"Trend-Sensitive"| MS
-EMPL -.->|"Income-Sensitive"| MV
-
-classDef upstream fill:#1e3a5f,stroke:#4a90d9,stroke-width:2px,color:#e8f0fe,rx:8,ry:8
-classDef midstream fill:#2d1b4e,stroke:#9b59b6,stroke-width:2px,color:#f0e6ff,rx:8,ry:8
-classDef downstream fill:#1a3c2a,stroke:#27ae60,stroke-width:2px,color:#e8f8f0,rx:8,ry:8
-classDef macrodriver fill:#4a3728,stroke:#e67e22,stroke-width:2px,color:#fdebd0,rx:8,ry:8
-
-class AC,DM,BM,TX,FW,FS,TE upstream
-class OEM,HB,DA,ATH,LUX,SPB,QSR,HOT,CRZ midstream
-class HIR,APR,SPR,DTC,OTA,BEC downstream
-class RATES,SENT,EMPL macrodriver
-
-style UPSTREAM fill:#0d1f33,stroke:#4a90d9,stroke-width:3px,color:#4a90d9,rx:12,ry:12
-style MIDSTREAM fill:#1a0e2e,stroke:#9b59b6,stroke-width:3px,color:#9b59b6,rx:12,ry:12
-style DOWNSTREAM fill:#0e261a,stroke:#27ae60,stroke-width:3px,color:#27ae60,rx:12,ry:12
-</pre>
-</div>
-
-<div class="tracks">
-  <div class="track-card track-hard">
-    <h3>💰 Hardlines / Big-Ticket</h3>
-    <p>Rate-sensitive. Autos, housing, durables. Flows from auto components & building products through OEMs/homebuilders to home improvement & auto parts retail.</p>
+<header class="header" id="heroSection">
+  <h1>Consumer Discretionary Sector Visual Atlas</h1>
+  <p class="subtitle">Brand to Basket &mdash; The Discretionary Pricing Power Chain</p>
+  <p class="tagline">Consumer Discretionary businesses compete for the most contestable dollar in household budgets. Strongest businesses convert brand equity, format innovation, or experience design into pricing power that captures wallet share even when consumers trade down.</p>
+  <div class="stats-bar">
+    <span class="stat-item"><strong>115</strong> companies</span>
+    <span class="stat-item"><strong>14</strong> sub-industries</span>
+    <span class="stat-item"><strong>8</strong> signal chains</span>
+    <span class="stat-item"><strong>36</strong> glossary terms</span>
   </div>
-  <div class="track-card track-soft">
-    <h3>📊 Softlines / Brand IP</h3>
-    <p>Sentiment-sensitive. Apparel, luxury, toys. Flows from textile sourcing through branded IP owners to specialty/off-price retail and DTC channels.</p>
+  <div class="legend">
+    <span class="legend-item" style="--lc: var(--upstream)">Tier 1: Product Creators &amp; Brand Owners</span>
+    <span class="legend-item" style="--lc: var(--midstream)">Tier 2: Experience &amp; Service Operators</span>
+    <span class="legend-item" style="--lc: var(--downstream)">Tier 3: Distributors &amp; Retailers</span>
+    <span class="legend-item" style="--lc: var(--macro)">Macro Drivers</span>
   </div>
-  <div class="track-card track-svc">
-    <h3>🟠 Services / Experiences</h3>
-    <p>Employment/wage-sensitive. Dining, travel, leisure. Flows from food supply & travel tech through restaurants/hotels/cruise lines to OTAs and e-commerce.</p>
+</header>
+
+<section class="flowchart-section" id="flowchartSection">
+  <h2>Value Chain Architecture</h2>
+  <div class="flowchart-wrapper">
+    <svg class="flowchart-svg" id="flowchartSvg"></svg>
+    <div class="flowchart-tiers">
+
+      <div class="tier tier-upstream">
+        <div class="tier-label">Tier 1 &mdash; Product Creators &amp; Brand Owners</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">Automotive</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Automobile Manufacturers" onclick="openBrief(this)">
+                <div class="node-name">Automobile Manufacturers</div>
+                <div class="node-tickers">TSLA &middot; GM &middot; F &middot; RIVN &middot; LCID &middot; HOG</div>
+              </div>
+              <div class="fc-node" data-brief="Auto Parts &amp; Components" onclick="openBrief(this)">
+                <div class="node-name">Auto Parts &amp; Components</div>
+                <div class="node-tickers">APTV &middot; BWA &middot; ALV &middot; VC &middot; GNTX &middot; THRM</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Goods &amp; Brands</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Apparel, Accessories &amp; Luxury Goods" onclick="openBrief(this)">
+                <div class="node-name">Apparel &amp; Luxury</div>
+                <div class="node-tickers">NKE &middot; LULU &middot; TJX &middot; DECK &middot; RL &middot; CROX</div>
+              </div>
+              <div class="fc-node" data-brief="Homebuilders &amp; Household Durables" onclick="openBrief(this)">
+                <div class="node-name">Homebuilders &amp; Durables</div>
+                <div class="node-tickers">DHI &middot; LEN &middot; NVR &middot; TREX &middot; WHR</div>
+              </div>
+              <div class="fc-node" data-brief="Leisure Products &amp; Toys" onclick="openBrief(this)">
+                <div class="node-name">Leisure Products &amp; Toys</div>
+                <div class="node-tickers">POOL &middot; HAS &middot; MAT &middot; YETI &middot; BC</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inter-tier-flow">
+        <span class="flow-label">Branded product &darr;</span>
+        <span class="flow-label">Franchise fees &darr;</span>
+        <span class="flow-label">Wholesale &darr;</span>
+      </div>
+
+      <div class="tier tier-midstream">
+        <div class="tier-label">Tier 2 &mdash; Experience &amp; Service Operators</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">Travel &amp; Hospitality</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Hotels, Resorts &amp; Cruise Lines" onclick="openBrief(this)">
+                <div class="node-name">Hotels &amp; Cruises</div>
+                <div class="node-tickers">MAR &middot; HLT &middot; BKNG &middot; ABNB &middot; RCL &middot; CCL</div>
+              </div>
+              <div class="fc-node" data-brief="Casinos &amp; Gaming" onclick="openBrief(this)">
+                <div class="node-name">Casinos &amp; Gaming</div>
+                <div class="node-tickers">LVS &middot; MGM &middot; WYNN &middot; DKNG &middot; FLUT</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Dining &amp; Services</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Restaurants" onclick="openBrief(this)">
+                <div class="node-name">Restaurants</div>
+                <div class="node-tickers">MCD &middot; SBUX &middot; CMG &middot; YUM &middot; TXRH &middot; WING</div>
+              </div>
+              <div class="fc-node" data-brief="Education &amp; Specialized Consumer Services" onclick="openBrief(this)">
+                <div class="node-name">Education &amp; Services</div>
+                <div class="node-tickers">LOPE &middot; LRN &middot; HRB &middot; BFAM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inter-tier-flow">
+        <span class="flow-label">Consumer access &darr;</span>
+        <span class="flow-label">Last mile &darr;</span>
+        <span class="flow-label">Digital channel &darr;</span>
+      </div>
+
+      <div class="tier tier-downstream">
+        <div class="tier-label">Tier 3 &mdash; Distributors &amp; Retailers</div>
+        <div class="tier-body">
+          <div class="cluster">
+            <div class="cluster-label">E-Commerce &amp; Home</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Broadline &amp; E-Commerce Retail" onclick="openBrief(this)">
+                <div class="node-name">Broadline &amp; E-Commerce</div>
+                <div class="node-tickers">AMZN &middot; EBAY &middot; ETSY &middot; CHWY &middot; W</div>
+              </div>
+              <div class="fc-node" data-brief="Home Improvement Retail" onclick="openBrief(this)">
+                <div class="node-name">Home Improvement</div>
+                <div class="node-tickers">HD &middot; LOW</div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster">
+            <div class="cluster-label">Specialty &amp; Auto</div>
+            <div class="cluster-nodes">
+              <div class="fc-node" data-brief="Specialty Retail" onclick="openBrief(this)">
+                <div class="node-name">Specialty Retail</div>
+                <div class="node-tickers">ULTA &middot; TSCO &middot; DKS &middot; BURL &middot; WSM &middot; BBY</div>
+              </div>
+              <div class="fc-node" data-brief="Automotive Retail &amp; Dealerships" onclick="openBrief(this)">
+                <div class="node-name">Auto Retail &amp; Dealers</div>
+                <div class="node-tickers">AZO &middot; ORLY &middot; KMX &middot; CVNA</div>
+              </div>
+              <div class="fc-node" data-brief="Consumer Distributors" onclick="openBrief(this)">
+                <div class="node-name">Consumer Distributors</div>
+                <div class="node-tickers">GPC &middot; LKQ &middot; SITE</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="macro-drivers-column">
+      <div class="macro-circle">Consumer Confidence</div>
+      <div class="macro-circle">Interest Rates / Housing</div>
+      <div class="macro-circle">Employment &amp; Wages</div>
+    </div>
+  </div>
+</section>
+
+<section class="summary-section">
+  <div class="tier-cards">
+    <div class="summary-card card-upstream">
+      <h3>Tier 1 &mdash; Product Creators &amp; Brand Owners</h3>
+      <p>Design, engineer, manufacture, and brand. Auto OEMs, parts suppliers, apparel/luxury brands, homebuilders, and leisure product makers. Pricing power comes from brand equity, IP, and manufacturing scale. Most capital-intensive tier with highest input cost sensitivity.</p>
+    </div>
+    <div class="summary-card card-midstream">
+      <h3>Tier 2 &mdash; Experience &amp; Service Operators</h3>
+      <p>Hotels, casinos, restaurants, and education services. Asset-light franchise models (MCD, MAR, HLT) are the highest-quality businesses. Experience economy beneficiary tier. Tollbridge franchisors earn royalties on system sales with minimal capex.</p>
+    </div>
+    <div class="summary-card card-downstream">
+      <h3>Tier 3 &mdash; Distributors &amp; Retailers</h3>
+      <p>Last mile to consumer: e-commerce platforms, home improvement, specialty retail, auto parts, and distributors. Off-price (TJX, ROST, BURL) wins in all environments. Auto parts (AZO, ORLY) benefit from aging vehicle fleet. Amazon dominates broadline e-commerce.</p>
+    </div>
+  </div>
+  <div class="macro-cards">
+    <div class="macro-card">
+      <h4>Consumer Confidence</h4>
+      <p>Conference Board and Michigan sentiment indices drive discretionary spending willingness. When confidence drops below 80, high-discretionary categories contract first while value retailers gain share.</p>
+    </div>
+    <div class="macro-card">
+      <h4>Interest Rates / Housing</h4>
+      <p>Fed funds rate, mortgage rates, and housing turnover cascade through homebuilders, home improvement, household durables, and auto financing. Rate cuts unlock the lock-in effect and stimulate big-ticket spending.</p>
+    </div>
+    <div class="macro-card">
+      <h4>Employment &amp; Wages</h4>
+      <p>Non-farm payrolls, unemployment rate, and real wage growth determine the consumer's ability to spend. Restaurant traffic, travel bookings, and retail comps all correlate with employment strength.</p>
+    </div>
+  </div>
+</section>
+
+<section class="grid-section" id="gridSection">
+  <h2>Discovery Grid &mdash; CD Company Registry</h2>
+  <p class="grid-subtitle">Filterable, searchable registry of 115 Consumer Discretionary companies across the Brand-to-Basket value chain</p>
+  <div class="grid-filters">
+    <input type="text" id="searchInput" placeholder="Search ticker or company...">
+    <select id="tierFilter"><option value="">All Tiers</option></select>
+    <select id="subIndustryFilter"><option value="">All Sub-Industries</option></select>
+    <select id="archetypeFilter"><option value="">All Archetypes</option></select>
+    <select id="capFilter"><option value="">All Market Caps</option></select>
+    <select id="cycleFilter"><option value="">All Cycles</option></select>
+    <div class="filter-meta">
+      <span id="resultCount">115 companies</span>
+      <button id="clearBtn">Clear Filters</button>
+    </div>
+  </div>
+  <div class="factor-toggles">
+    <button class="factor-toggle" data-factor="consumerCyclicality">Consumer Cyclicality</button>
+    <button class="factor-toggle" data-factor="brandPremium">Brand Premium</button>
+    <button class="factor-toggle" data-factor="eCommerceExposure">E-Commerce</button>
+    <button class="factor-toggle" data-factor="inputCostSensitivity">Input Cost</button>
+    <button class="factor-toggle" data-factor="discretionaryRisk">Discretionary Risk</button>
+  </div>
+  <div class="grid-table-wrapper">
+    <table class="grid-table">
+      <thead><tr>
+        <th data-col="ticker">Ticker <span class="sort-arrow"></span></th>
+        <th data-col="name">Company <span class="sort-arrow"></span></th>
+        <th data-col="subIndustry">Industry <span class="sort-arrow"></span></th>
+        <th data-col="tier">Tier <span class="sort-arrow"></span></th>
+        <th data-col="archetype">Archetype <span class="sort-arrow"></span></th>
+        <th data-col="marketCap">Mkt Cap <span class="sort-arrow"></span></th>
+        <th data-col="cyclePosition">Cycle <span class="sort-arrow"></span></th>
+      </tr></thead>
+      <tbody id="gridBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="chains-section" id="chainsSection">
+  <h2>Signal Chains &mdash; Causal Logic Flows</h2>
+  <p class="chains-subtitle">8 interconnected chains showing how macro drivers propagate through the Consumer Discretionary value chain</p>
+  <div id="chainsContainer"></div>
+</section>
+
+<section class="glossary-section" id="glossarySection">
+  <h2>Glossary &mdash; Key Terms &amp; Definitions</h2>
+  <p class="glossary-subtitle">36 sector-specific terms used throughout this atlas</p>
+  <input type="text" class="glossary-search" id="glossarySearch" placeholder="Search glossary terms...">
+  <div class="glossary-grid" id="glossaryGrid"></div>
+</section>
+
+<div id="briefOverlay" class="brief-overlay" onclick="handleOverlayClick(event)">
+  <div id="briefPanel" class="brief-panel">
+    <button class="brief-close" onclick="closeBrief()">&#x2715;</button>
+    <div id="briefContent" class="brief-body"></div>
   </div>
 </div>
 
 <script>
-  mermaid.initialize({
-    startOnLoad: true,
-    theme: 'dark',
-    flowchart: {
-      useMaxWidth: true,
-      htmlLabels: true,
-      curve: 'basis',
-      nodeSpacing: 30,
-      rankSpacing: 60,
-      padding: 12
-    },
-    themeVariables: {
-      darkMode: true,
-      background: '#0e0e16',
-      primaryColor: '#2d1b4e',
-      primaryTextColor: '#e0e0e0',
-      lineColor: '#555',
-      fontSize: '12px'
+// Consumer Discretionary Sector — sectorData.js (Part 1 of 2)
+// Lens: "Brand to Basket — The Discretionary Pricing Power Chain"
+// Covers: Tier 1 (Product Creators & Brand Owners) + Tier 2 partial (Hotels, Casinos/Gaming)
+// Factor exposures: consumerCyclicality, brandPremium, eCommerceExposure, inputCostSensitivity, discretionaryRisk (each −2 to +2)
+// M&A validated as of Mar 2026. Removed: SKX (3G take-private Sep 2025), FL (acquired by DKS Sep 2025), DENN (take-private), OLO (Thoma Bravo take-private), SHCO (MCR Hotels)
+
+const sectorData = [
+
+// ══════════════════════════════════════════════════════════════════
+// TIER 1: PRODUCT CREATORS & BRAND OWNERS
+// ══════════════════════════════════════════════════════════════════
+
+// ── AUTOMOBILE MANUFACTURERS ──────────────────────────────────────
+{t:"TSLA",n:"Tesla",tier:1,sub:"Automobile Manufacturers",mc:"$800B",
+a:"SpeculativeGrowth",cp:"expansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Vertically integrated EV manufacturer. Energy storage, solar, and autonomous driving (FSD) optionality. Direct-to-consumer sales model bypasses dealer network. Brand polarization is both asset and liability. Margin compression from price cuts offset by manufacturing scale. Robotaxi and Optimus humanoid robot are venture-stage call options."},
+
+{t:"GM",n:"General Motors",tier:1,sub:"Automobile Manufacturers",mc:"$55B",
+a:"DeepValue",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:-1,inputCostSensitivity:2,discretionaryRisk:1},
+d:"Full-line OEM: Chevrolet, GMC, Buick, Cadillac. Largest US market share. Heavy truck/SUV mix drives rich ASPs. GM Financial captive lending arm. Cruise autonomous unit wound down. EV transition via Ultium platform. Strong buyback cadence supports EPS despite cyclicality."},
+
+{t:"F",n:"Ford Motor",tier:1,sub:"Automobile Manufacturers",mc:"$42B",
+a:"DeepValue",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:-1,inputCostSensitivity:2,discretionaryRisk:1},
+d:"Full-line OEM: Ford, Lincoln. F-Series is America's best-selling vehicle franchise. Ford Pro commercial fleet division is highest-margin segment. EV losses via Model e segment are well-documented drag. Dividend yield story for value investors. Tariff sensitivity on Mexico/Canada supply chain."},
+
+{t:"RIVN",n:"Rivian Automotive",tier:1,sub:"Automobile Manufacturers",mc:"$15B",
+a:"SpeculativeGrowth",cp:"earlyExpansion",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:2},
+d:"Pure-play EV: R1T truck, R1S SUV, commercial delivery vans (Amazon partnership). Normal, Illinois plant + Georgia expansion. Volkswagen JV for electrical architecture and software. Path to gross margin positive is the key debate. Cash burn trajectory is the existential question."},
+
+{t:"LCID",n:"Lucid Group",tier:1,sub:"Automobile Manufacturers",mc:"$8B",
+a:"SpeculativeGrowth",cp:"earlyExpansion",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:2},
+d:"Luxury EV sedan and SUV (Air, Gravity). Industry-leading powertrain efficiency. Saudi PIF is majority shareholder and strategic backstop. Arizona manufacturing. Volume ramp is well behind plan. Technology licensing to other OEMs as alternative monetization path."},
+
+{t:"HOG",n:"Harley-Davidson",tier:1,sub:"Automobile Manufacturers",mc:"$5B",
+a:"DeepValue",cp:"lateCycle",
+fe:{consumerCyclicality:2,brandPremium:2,eCommerceExposure:-1,inputCostSensitivity:1,discretionaryRisk:2},
+d:"Iconic motorcycle brand. Core demographic aging creates secular headwind. LiveWire EV motorcycle spin-off. HDFS captive finance unit generates substantial earnings. Share count reduction via aggressive buybacks. Brand licensing revenue."},
+
+// ── AUTO PARTS & COMPONENTS ───────────────────────────────────────
+{t:"APTV",n:"Aptiv",tier:1,sub:"Auto Parts & Components",mc:"$16B",
+a:"Compounder",cp:"midCycle",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Tier 1 auto supplier: electrical architecture, advanced safety, and connected vehicle technology. Signal and Power Solutions + Advanced Safety segments. ADAS and autonomous driving systems supplier. Wind River software subsidiary for edge computing. Global customer base across all major OEMs."},
+
+{t:"BWA",n:"BorgWarner",tier:1,sub:"Auto Parts & Components",mc:"$7B",
+a:"DeepValue",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Powertrain components supplier spanning ICE and EV. Turbochargers, eDrive motors, battery systems, thermal management. Charging Forward strategy pivoting portfolio to EV. Acquired Hubei Surpass Sun Electric in 2023 for Chinese EV market access."},
+
+{t:"ALV",n:"Autoliv",tier:1,sub:"Auto Parts & Components",mc:"$8B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Global #1 in automotive safety systems: airbags, seatbelts, steering wheels. Duopoly with ZF/TRW. Content per vehicle grows with regulatory mandates (side-curtain, pedestrian). Recession-resistant backlog given 3–5 year OEM program cycles. Swedish-listed but heavy US operations."},
+
+{t:"VC",n:"Visteon",tier:1,sub:"Auto Parts & Components",mc:"$5B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Cockpit electronics pure play: digital instrument clusters, infotainment displays, SmartCore domain controllers. Beneficiary of vehicle digitization megatrend. Content per vehicle expanding as screens multiply. OEM customer diversification improving."},
+
+{t:"LEA",n:"Lear Corporation",tier:1,sub:"Auto Parts & Components",mc:"$6B",
+a:"DeepValue",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Seating systems and E-Systems (electrical distribution, connectors, power management). Global scale with every major OEM. E-Systems segment growing faster as vehicle electrification increases wiring content. Margin compression from OEM pricing pressure."},
+
+{t:"GNTX",n:"Gentex",tier:1,sub:"Auto Parts & Components",mc:"$8B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Dominant in auto-dimming mirrors (~94% global share). Expanding into full display mirrors, dimmable glass, and driver monitoring systems. High-margin, low-capex model. Content per vehicle growth via HomeLink and biometric features."},
+
+{t:"THRM",n:"Gentherm",tier:1,sub:"Auto Parts & Components",mc:"$2B",
+a:"Compounder",cp:"midCycle",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Thermal management for automotive: heated/cooled/ventilated seats, steering wheels, battery thermal systems. EV battery thermal management is secular growth driver. Niche market leader with limited direct competition."},
+
+// ── APPAREL, ACCESSORIES & LUXURY GOODS ───────────────────────────
+{t:"NKE",n:"Nike",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$115B",
+a:"Compounder",cp:"recovery",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Global #1 athletic footwear and apparel brand. Nike, Jordan, Converse. DTC pivot overshoot being corrected — re-engaging wholesale partners. Innovation pipeline (Air Max DN, Pegasus Premium) is turnaround catalyst. China recovery and global macro are swing factors. Elliott Hill CEO reset underway."},
+
+{t:"LULU",n:"Lululemon Athletica",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$40B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Premium athletic apparel. Category creator in athleisure. 70%+ women's mix. International expansion (especially China) is primary growth vector. Mirror/LULU Studio pivot largely abandoned. Gross margins ~58% reflect brand power. Men's and footwear categories expanding TAM."},
+
+{t:"TJX",n:"TJX Companies",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$140B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:-1,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Global off-price retail leader: TJ Maxx, Marshalls, HomeGoods, Sierra, HomeSense. Treasure-hunt model thrives in both strong and weak economies. Opportunistic buying from 21,000+ vendors. Minimal e-commerce — physical stores are the competitive moat. International growth via TK Maxx in Europe/Australia."},
+
+{t:"ROST",n:"Ross Stores",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$50B",
+a:"CashEngine",cp:"expansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:-1,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Off-price retailer: Ross Dress for Less, dd's DISCOUNTS. Targets middle-income value-seeking consumers. No e-commerce strategy — physical-only model. Dense store footprint in Sun Belt states. Consistently strong execution, steady unit growth. Packaway inventory model enables opportunistic buying."},
+
+{t:"DECK",n:"Deckers Outdoor",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$25B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Brand portfolio: HOKA (performance running, explosive growth), UGG (lifestyle/comfort), Teva. HOKA is the growth engine — taking share from NKE and ADDYY in performance running. DTC mix expanding. UGG provides stable cash flow base."},
+
+{t:"ONON",n:"On Holding",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$18B",
+a:"SpeculativeGrowth",cp:"earlyExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Swiss premium performance running brand. CloudTec cushioning platform. Roger Federer co-ownership drives brand visibility. DTC channel growing rapidly. Apparel category expansion beyond footwear. Global wholesale + DTC distribution. Path to Rule of 40 economics as scale builds."},
+
+{t:"TPR",n:"Tapestry",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$15B",
+a:"CashEngine",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Accessible luxury house: Coach (cash cow), Kate Spade, Stuart Weitzman. Coach brand revitalization under creative director Stuart Vevers driving outsized handbag growth. Capri Holdings acquisition blocked by FTC in 2024. China and Japan are key international markets."},
+
+{t:"CPRI",n:"Capri Holdings",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$3B",
+a:"Turnaround",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Luxury portfolio: Versace, Jimmy Choo, Michael Kors. Post-Tapestry merger collapse, standalone turnaround required. Michael Kors brand fatigue is core challenge — overexposure and discounting diluted positioning. Versace and Jimmy Choo have more brand headroom but smaller scale."},
+
+{t:"RL",n:"Ralph Lauren",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$15B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Global lifestyle luxury brand. Brand elevation strategy: cutting off-price distribution, raising ASPs, winning younger consumers. DTC channel mix exceeding 60%. Europe and Asia driving growth. High single-digit revenue growth with margin expansion — rare combo in luxury."},
+
+{t:"PVH",n:"PVH Corp",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$5B",
+a:"DeepValue",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Calvin Klein and Tommy Hilfiger parent. PVH+ Plan: cut low-quality revenue, improve full-price selling, elevate brand positioning. Europe is strongest region. Wholesale channel management improving. Heritage Brands divested to focus portfolio."},
+
+{t:"GOOS",n:"Canada Goose",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$3B",
+a:"SpeculativeGrowth",cp:"recovery",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:2},
+d:"Premium performance luxury outerwear brand. Expanding beyond parkas into knitwear, rainwear, footwear. DTC-heavy model. China growth story. Brand heat fading vs. peak — need to prove lifestyle extension beyond winter. Vertical manufacturing in Canada."},
+
+{t:"VFC",n:"VF Corporation",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$5B",
+a:"Turnaround",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Brand portfolio: The North Face, Vans, Timberland, Dickies. Supreme divested. Vans turnaround is the key swing — brand lost relevance with youth consumers. North Face performing well. Balance sheet leverage elevated post-acquisition spree. New CEO Bracken Darrell executing reset."},
+
+{t:"HBI",n:"Hanesbrands",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$2B",
+a:"Turnaround",cp:"recovery",
+fe:{consumerCyclicality:1,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:2,discretionaryRisk:0},
+d:"Innerwear and activewear: Hanes, Bonds, Champion (sold to Authentic Brands Group). Core business is basic replenishment underwear/socks — low cyclicality but also low growth. Debt reduction is primary focus post-Champion sale. Cost restructuring underway."},
+
+{t:"CROX",n:"Crocs",tier:1,sub:"Apparel, Accessories & Luxury Goods",mc:"$10B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Casual footwear: Crocs (clogs, sandals) and HEYDUDE brands. Crocs brand has sustained cultural relevance through collaborations and customization (Jibbitz charms). HEYDUDE integration is the execution question — growth decelerated post-acquisition. Asset-light mfg model drives high margins."},
+
+// ── HOMEBUILDERS & HOUSEHOLD DURABLES ─────────────────────────────
+{t:"DHI",n:"D.R. Horton",tier:1,sub:"Homebuilders & Household Durables",mc:"$52B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:2,discretionaryRisk:1},
+d:"America's largest homebuilder by volume. Entry-level and move-up segments. Forestar lot development subsidiary. DHI Mortgage captive finance. Geographic diversification across Sun Belt. Rate buydown incentives to manage affordability. Scale manufacturing and land pipeline are moats."},
+
+{t:"LEN",n:"Lennar",tier:1,sub:"Homebuilders & Household Durables",mc:"$38B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:2,discretionaryRisk:1},
+d:"Second-largest US homebuilder. Asset-light pivot: spinning off land/development into separate entity (Millrose Properties). Lennar Mortgage financial services. Multifamily and built-to-rent diversification. Everything's Included pricing model simplifies buyer decision."},
+
+{t:"PHM",n:"PulteGroup",tier:1,sub:"Homebuilders & Household Durables",mc:"$26B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:2,discretionaryRisk:1},
+d:"National homebuilder: Pulte Homes (move-up), Del Webb (active adult/55+), Centex (entry-level). Active adult segment is structural differentiator — demographic tailwind from Baby Boomers. Strong returns on equity. Disciplined land strategy."},
+
+{t:"NVR",n:"NVR Inc",tier:1,sub:"Homebuilders & Household Durables",mc:"$25B",
+a:"Compounder",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Homebuilder with unique asset-light lot option model — does not own raw land. Ryan Homes, NVHomes, Heartland Homes. Highest ROIC in homebuilding due to capital-light structure. Consistently buys back stock. East Coast/Mid-Atlantic focused."},
+
+{t:"TOL",n:"Toll Brothers",tier:1,sub:"Homebuilders & Household Durables",mc:"$14B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:2,discretionaryRisk:2},
+d:"Luxury homebuilder: higher ASPs ($900K+) targeting affluent move-up and second-home buyers. Toll Brothers Apartment Living and City Living divisions. Less rate-sensitive given buyer demographics but more discretionary. Urban, suburban, and resort communities."},
+
+{t:"KBH",n:"KB Home",tier:1,sub:"Homebuilders & Household Durables",mc:"$5B",
+a:"DeepValue",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:2,discretionaryRisk:1},
+d:"Entry-level and first move-up homebuilder. Built-to-order model with design studios. West Coast and Texas heavy. ENERGY STAR certified homes. Lower gross margins than peers but improving execution. Rate sensitivity high given buyer income profile."},
+
+{t:"MHO",n:"M/I Homes",tier:1,sub:"Homebuilders & Household Durables",mc:"$4B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:2,discretionaryRisk:1},
+d:"Regional homebuilder: Midwest and Southeast. Entry-level through luxury. M/I Financial mortgage subsidiary. Strong returns on equity with disciplined land management. Smart Series (entry-level) driving volume growth."},
+
+{t:"TMHC",n:"Taylor Morrison",tier:1,sub:"Homebuilders & Household Durables",mc:"$6B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:2,discretionaryRisk:1},
+d:"National homebuilder: Arizona, California, Colorado, Florida, Texas, Southeast. Move-up and resort lifestyle communities. Taylor Morrison Home Funding mortgage arm. Urban form development capabilities."},
+
+{t:"WHR",n:"Whirlpool",tier:1,sub:"Homebuilders & Household Durables",mc:"$5B",
+a:"DeepValue",cp:"trough",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:2,discretionaryRisk:1},
+d:"Global #1 home appliance manufacturer: Whirlpool, Maytag, KitchenAid, Amana. Sold InSinkErator to focus on core. Housing market weakness suppresses replacement demand. Raw material and tariff headwinds. European business divestiture. Deep value play on housing recovery."},
+
+{t:"LESL",n:"Leslie's",tier:1,sub:"Homebuilders & Household Durables",mc:"$500M",
+a:"Turnaround",cp:"trough",
+fe:{consumerCyclicality:1,brandPremium:0,eCommerceExposure:-1,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Largest direct-to-consumer pool and spa care brand. ~1,000 locations. Recurring consumable revenue (chemicals, maintenance). Residential and commercial. Leveraged balance sheet from PE ownership. Weather-dependent demand. Turnaround under new management."},
+
+{t:"TREX",n:"Trex Company",tier:1,sub:"Homebuilders & Household Durables",mc:"$10B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:1},
+d:"#1 composite decking and railing brand. 50%+ market share in composite category. Converting demand from wood decking — secular penetration story. Recycled materials (polyethylene film, wood fiber) create cost advantage. Asset-light channel model through lumber dealers. High ROIC."},
+
+// ── LEISURE PRODUCTS & TOYS ───────────────────────────────────────
+{t:"POOL",n:"Pool Corporation",tier:1,sub:"Leisure Products & Toys",mc:"$13B",
+a:"Tollbridge",cp:"midCycle",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Largest wholesale distributor of swimming pool supplies, equipment, and related leisure products. 400+ sales centers in North America, Europe, Australia. ~60% of revenue is non-discretionary maintenance/repair. Tollbridge position between manufacturers and 120K+ pool professional customers."},
+
+{t:"YETI",n:"YETI Holdings",tier:1,sub:"Leisure Products & Toys",mc:"$4B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Premium outdoor and recreation brand: coolers, drinkware, bags, apparel. Brand commands significant price premium over mass-market alternatives. DTC growing. International expansion is next growth chapter (Europe, Asia). Category extension into bags, outdoor furniture."},
+
+{t:"HAS",n:"Hasbro",tier:1,sub:"Leisure Products & Toys",mc:"$9B",
+a:"CashEngine",cp:"recovery",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Entertainment and toy company: Transformers, Monopoly, Play-Doh, Nerf, Peppa Pig, Dungeons & Dragons. Wizards of the Coast (Magic: The Gathering, D&D) is crown jewel — high-margin digital gaming and licensing. Entertainment One (eOne) content production. Blueprint 2.0 transformation cutting costs."},
+
+{t:"MAT",n:"Mattel",tier:1,sub:"Leisure Products & Toys",mc:"$7B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Global toy leader: Barbie (revitalized post-film), Hot Wheels, Fisher-Price, American Girl, UNO, Thomas & Friends. IP monetization through film, TV, digital gaming — Barbie movie proved the model. Margin expansion from cost restructuring. Licensing and entertainment revenue growing."},
+
+{t:"BC",n:"Brunswick Corp",tier:1,sub:"Leisure Products & Toys",mc:"$5B",
+a:"CashEngine",cp:"trough",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:2},
+d:"Marine propulsion, boats, and fitness equipment. Mercury Marine propulsion is dominant franchise (~50% global outboard share). Boat brands: Boston Whaler, Sea Ray, Bayliner. Life Fitness (fitness equipment). Marine cycle is deep in correction — dealer inventory destocking. Mercury aftermarket is the ballast."},
+
+{t:"FOXF",n:"Fox Factory",tier:1,sub:"Leisure Products & Toys",mc:"$3B",
+a:"Compounder",cp:"trough",
+fe:{consumerCyclicality:2,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Premium suspension and performance products: mountain bikes, off-road vehicles, powersports, trucks/SUVs. Powered Vehicles Group (PVG) and Aftermarket Applications Group (AAG). Technology leader in active suspension. Cyclical downturn in powersports/bike end markets suppressing near-term."},
+
+{t:"PTON",n:"Peloton Interactive",tier:1,sub:"Leisure Products & Toys",mc:"$5B",
+a:"Turnaround",cp:"recovery",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Connected fitness platform: Bike, Tread, Row, Guide hardware + subscription content. 6M+ connected fitness subscribers. Hardware sales declining but subscription retention strong. Cost restructuring underway. FaaS (Fitness-as-a-Service) rental model. Profitability inflection is the debate."},
+
+// ══════════════════════════════════════════════════════════════════
+// TIER 2: EXPERIENCE & SERVICE OPERATORS (partial — Hotels, Casinos)
+// ══════════════════════════════════════════════════════════════════
+
+// ── HOTELS, RESORTS & CRUISE LINES ────────────────────────────────
+{t:"MAR",n:"Marriott International",tier:2,sub:"Hotels, Resorts & Cruise Lines",mc:"$80B",
+a:"Tollbridge",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:1},
+d:"World's largest hotel company: 9,000+ properties, 30+ brands (Marriott, Ritz-Carlton, W, St. Regis, Westin, Sheraton, Courtyard). ~97% asset-light (managed/franchised). Bonvoy loyalty ecosystem with 200M+ members. Fee-based model generates recurring revenue with minimal capex. Global pipeline 550K+ rooms."},
+
+{t:"HLT",n:"Hilton Worldwide",tier:2,sub:"Hotels, Resorts & Cruise Lines",mc:"$60B",
+a:"Tollbridge",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Global hotel franchisor: 7,500+ properties, 23 brands (Hilton, Waldorf Astoria, Conrad, DoubleTree, Hampton, Tru, Hilton Garden Inn). Near 100% asset-light model — essentially a brand/tech/loyalty platform. Hilton Honors 190M+ members. Industry-leading net unit growth ~7%."},
+
+{t:"H",n:"Hyatt Hotels",tier:2,sub:"Hotels, Resorts & Cruise Lines",mc:"$16B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Global hospitality: Park Hyatt, Grand Hyatt, Andaz, Thompson, Hyatt Regency, Hyatt Place, Hyatt House. Asset-light transformation ongoing — selling owned hotels, retaining management contracts. World of Hyatt loyalty program. Acquired Apple Leisure Group for all-inclusive resort exposure. Luxury/lifestyle weighting higher than peers."},
+
+{t:"WH",n:"Wyndham Hotels",tier:2,sub:"Hotels, Resorts & Cruise Lines",mc:"$8B",
+a:"CashEngine",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"World's largest hotel franchisor by property count: 9,200+ hotels, 25 brands (Wyndham, Ramada, Days Inn, Super 8, La Quinta). Economy/midscale focused — more recession-resilient than luxury. Nearly 100% franchised model. International growth via EMEA and APAC. Wyndham Rewards loyalty program."},
+
+{t:"IHG",n:"InterContinental Hotels",tier:2,sub:"Hotels, Resorts & Cruise Lines",mc:"$18B",
+a:"Tollbridge",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Global hotel group: InterContinental, Kimpton, Crowne Plaza, Holiday Inn, Holiday Inn Express, Regent. Asset-light franchise/management model. IHG One Rewards loyalty. Strong pipeline in Greater China. London-listed but significant US operations and investor base."},
+
+{t:"BKNG",n:"Booking Holdings",tier:2,sub:"Hotels, Resorts & Cruise Lines",mc:"$175B",
+a:"Tollbridge",cp:"expansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Online travel platform: Booking.com, Priceline, Agoda, KAYAK, OpenTable. #1 global OTA by room nights. Agency and merchant models. Connected Trip vision: AI-powered end-to-end travel planning. 40%+ EBITDA margins. Performance marketing spend efficiency improving as direct/app traffic grows."},
+
+{t:"EXPE",n:"Expedia Group",tier:2,sub:"Hotels, Resorts & Cruise Lines",mc:"$20B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:1},
+d:"OTA platform: Expedia, Hotels.com, Vrbo, Orbitz, Travelocity. B2B (Expedia Partner Solutions) powers third-party travel sites. Vrbo vacation rental platform competes with Airbnb. Tech platform unification completed. Margin expansion story. One Key loyalty program unifying brands."},
+
+{t:"ABNB",n:"Airbnb",tier:2,sub:"Hotels, Resorts & Cruise Lines",mc:"$90B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Global vacation rental and experiences marketplace. 8M+ active listings. Asset-light platform model: ~21% take rate on GBV. Supply acquisition is self-reinforcing (hosts attract guests attract hosts). Expanding into Experiences, luxury (Icons), and AI trip planning. 40%+ free cash flow margins."},
+
+{t:"CCL",n:"Carnival Corporation",tier:2,sub:"Hotels, Resorts & Cruise Lines",mc:"$30B",
+a:"DeepValue",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:2,discretionaryRisk:2},
+d:"World's largest cruise operator: Carnival, Princess, Holland America, Costa, AIDA, Cunard, P&O, Seabourn. Post-COVID demand surge driving record bookings and pricing. Massive debt overhang from pandemic ($28B+). Yield improvement and debt reduction define the investment case. Fleet renewal capex."},
+
+{t:"RCL",n:"Royal Caribbean",tier:2,sub:"Hotels, Resorts & Cruise Lines",mc:"$55B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:2,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:2},
+d:"Cruise operator: Royal Caribbean, Celebrity, Silversea. Icon-class ships (Icon of the Seas) are game-changers — driving yields to record levels. Perfect Day at CocoCay private island model. Debt paydown accelerating. Strong yield environment post-COVID. Outperforming CCL on execution."},
+
+{t:"NCLH",n:"Norwegian Cruise Line",tier:2,sub:"Hotels, Resorts & Cruise Lines",mc:"$12B",
+a:"DeepValue",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:2,discretionaryRisk:2},
+d:"Cruise operator: Norwegian, Oceania, Regent Seven Seas. Three-brand strategy spanning contemporary to ultra-luxury. Highest leverage of the big three cruise lines. Yield recovery underway but lagging RCL. New CEO appointed 2024. Free-at-sea all-inclusive model."},
+
+// ── CASINOS & GAMING ──────────────────────────────────────────────
+{t:"LVS",n:"Las Vegas Sands",tier:2,sub:"Casinos & Gaming",mc:"$35B",
+a:"CashEngine",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Asia-focused integrated resort operator: Marina Bay Sands (Singapore), The Londoner/Venetian/Parisian/Four Seasons (Macao). Sold Las Vegas Venetian in 2021. Macao mass gaming recovery is the investment thesis. Singapore IR expansion underway. Zero US gaming exposure."},
+
+{t:"MGM",n:"MGM Resorts",tier:2,sub:"Casinos & Gaming",mc:"$14B",
+a:"CashEngine",cp:"midExpansion",
+fe:{consumerCyclicality:2,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Integrated resort operator: Bellagio, MGM Grand, Aria, Mandalay Bay (Las Vegas Strip). BetMGM iGaming/sports betting JV with Entain. MGM China (Macao). Asset-light transformation via VICI Properties REIT sale-leasebacks. Osaka IR license (Japan). Convention and entertainment revenue diversification."},
+
+{t:"WYNN",n:"Wynn Resorts",tier:2,sub:"Casinos & Gaming",mc:"$11B",
+a:"CashEngine",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Luxury integrated resort operator: Wynn/Encore Las Vegas, Wynn Palace/Wynn Macao. Ultra-luxury positioning commands highest RevPAR in Las Vegas. Macao concession renewed through 2033. UAE (Wynn Al Marjan Island, Ras Al Khaimah) is major growth catalyst — first casino in UAE. WynnBET digital scaling back."},
+
+{t:"CZR",n:"Caesars Entertainment",tier:2,sub:"Casinos & Gaming",mc:"$8B",
+a:"DeepValue",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Largest US gaming footprint: 50+ casinos. Caesars Palace, Harrah's, Horseshoe, Flamingo. Caesars Sportsbook and iCasino. Massive debt load from legacy leveraged buyout. Debt paydown is the primary catalyst. Caesars Rewards ~65M members — largest casino loyalty database. Asset-light via VICI/GLPI leases."},
+
+{t:"DKNG",n:"DraftKings",tier:2,sub:"Casinos & Gaming",mc:"$22B",
+a:"SpeculativeGrowth",cp:"earlyExpansion",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Online sports betting and iGaming pure play. #1 or #2 market share in most legal US states. Vertically integrated technology stack (post-SBTech acquisition). Path to sustained profitability emerging. State-by-state legalization cadence is the TAM expansion driver. Handle growth + hold rate improvement."},
+
+{t:"FLUT",n:"Flutter Entertainment",tier:2,sub:"Casinos & Gaming",mc:"$45B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Global online betting and gaming: FanDuel (#1 US sportsbook), Paddy Power, Betfair, PokerStars, Sky Bet. NYSE-listed (moved from LSE). FanDuel dominates US market with ~45% share. International diversification provides stability. Technology platform economies of scale across brands."},
+
+{t:"PENN",n:"Penn Entertainment",tier:2,sub:"Casinos & Gaming",mc:"$3B",
+a:"Turnaround",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Regional casino operator + ESPN Bet online sports betting (via ESPN brand license from Disney). 43 gaming properties across 20 states. ESPN Bet launch in Nov 2023 — high customer acquisition costs, market share building. Dual thesis: regional casino cash flow + digital optionality. Asset-light via GLPI lease."},
+
+{t:"BYD",n:"Boyd Gaming",tier:2,sub:"Casinos & Gaming",mc:"$6B",
+a:"CashEngine",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Regional casino operator: Las Vegas locals market (key moat), Midwest, South, online. B Connected loyalty program. Las Vegas locals segment benefits from population growth, not tourist cycle. Consistent capital return via dividends and buybacks. Online segment growing."},
+
+{t:"MLCO",n:"Melco Resorts",tier:2,sub:"Casinos & Gaming",mc:"$3B",
+a:"DeepValue",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Macao-focused integrated resort developer/operator: City of Dreams, Studio City, Altira. Premium mass gaming recovery play. City of Dreams Mediterranean (Cyprus) expansion. Lawrence Ho-controlled. Higher leverage than LVS/Wynn Macao operations."},
+
+// ── END OF PART 1 ─────────────────────────────────────────────────
+// Part 2 will cover:
+
+// ══════════════════════════════════════════════════════════════════
+// TIER 2: EXPERIENCE & SERVICE OPERATORS (continued)
+// ══════════════════════════════════════════════════════════════════
+
+// ── RESTAURANTS ───────────────────────────────────────────────────
+{t:"MCD",n:"McDonald's",tier:2,sub:"Restaurants",mc:"$220B",
+a:"Tollbridge",cp:"expansion",
+fe:{consumerCyclicality:0,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Global #1 QSR. ~95% franchised — essentially a real estate and brand licensing company collecting royalties on $130B+ system sales. Accelerating the Arches strategy: digital, drive-thru, delivery, development. MyMcDonald's Rewards 180M+ members. Value menu strategy recaptures trade-down traffic. 40,000+ restaurants in 100+ countries."},
+
+{t:"SBUX",n:"Starbucks",tier:2,sub:"Restaurants",mc:"$110B",
+a:"Compounder",cp:"recovery",
+fe:{consumerCyclicality:0,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Global #1 specialty coffee. 38,000+ stores. Brian Niccol CEO turnaround: simplifying menu, reducing mobile order bottlenecks, restoring 'third place' experience. China segment pressured by Luckin competition. Starbucks Rewards 75M+ members. Licensed store model growing. Cold beverages now >50% of mix."},
+
+{t:"CMG",n:"Chipotle Mexican Grill",tier:2,sub:"Restaurants",mc:"$49B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:0,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Fast-casual Mexican: company-owned model (no franchising). Throughput optimization, Chipotlane drive-thru expansion, and digital order mix ~35%. Post-50:1 stock split. New CEO Scott Boatwright executing on unit growth to 7,000+ North American restaurants. Restaurant-level margins ~27%. Food with Integrity sourcing."},
+
+{t:"YUM",n:"Yum! Brands",tier:2,sub:"Restaurants",mc:"$45B",
+a:"Tollbridge",cp:"expansion",
+fe:{consumerCyclicality:0,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Global franchisor: KFC, Taco Bell, Pizza Hut, Habit Burger. ~98% franchised. 59,000+ restaurants in 155+ countries. Taco Bell is US growth engine — innovation cadence (Cantina, live más). KFC dominant in emerging markets. Digital sales 50%+ of system. Asset-light, fee-based model with minimal capex."},
+
+{t:"QSR",n:"Restaurant Brands International",tier:2,sub:"Restaurants",mc:"$33B",
+a:"Tollbridge",cp:"midExpansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Multi-brand QSR franchisor: Burger King (Reclaim the Flame turnaround), Tim Hortons (Canada dominance), Popeyes (chicken wars winner), Firehouse Subs. 3G Capital-backed. International development pipeline strong. Burger King US modernization is the key execution test."},
+
+{t:"DPZ",n:"Domino's Pizza",tier:2,sub:"Restaurants",mc:"$14B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:2,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Global #1 pizza delivery. Tech-forward: proprietary ordering platform, GPS delivery tracking, AI ordering. ~99% franchised. Uber Eats partnership expanded delivery reach. Fortressing strategy: dense store footprint reduces delivery times and raises order frequency. 20,000+ stores globally."},
+
+{t:"DRI",n:"Darden Restaurants",tier:2,sub:"Restaurants",mc:"$25B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:-1,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Full-service restaurant portfolio: Olive Garden (cash cow, value positioning), LongHorn Steakhouse (growth engine), Ruth's Chris (fine dining), Yard House, Cheddar's, Seasons 52, Capital Grille. Scale advantages in procurement, real estate, and marketing. Never-ending promotions at Olive Garden drive traffic."},
+
+{t:"TXRH",n:"Texas Roadhouse",tier:2,sub:"Restaurants",mc:"$13B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:-1,inputCostSensitivity:2,discretionaryRisk:1},
+d:"Casual dining outperformer: Texas Roadhouse, Bubba's 33, Jaggers. Company-operated model. Fresh-baked bread, hand-cut steaks. Consistently positive traffic when peers are declining — brand strength is remarkable. Labor-intensive model with in-house meat cutting. Beef cost sensitivity is primary margin risk."},
+
+{t:"WING",n:"Wingstop",tier:2,sub:"Restaurants",mc:"$10B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:0,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Fast-casual chicken wings. ~98% franchised, asset-light model. Digital-first: ~65% digital sales mix. Unit growth accelerating — 2,500+ global restaurants targeting 7,000+ long-term. Delivery-optimized format. Chicken wing cost deflation tailwind. Same-store sales growth consistently industry-leading."},
+
+{t:"CAVA",n:"CAVA Group",tier:2,sub:"Restaurants",mc:"$9B",
+a:"SpeculativeGrowth",cp:"earlyExpansion",
+fe:{consumerCyclicality:0,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Mediterranean fast-casual — often called 'the next Chipotle.' 340+ company-owned restaurants. Assembly-line format with customizable bowls, pitas. Strong unit economics: AUV $2.8M+. Rapid unit growth into new markets. Central kitchen model (CAVA Foods CPG line). Whitespace for 1,000+ locations long-term."},
+
+{t:"SHAK",n:"Shake Shack",tier:2,sub:"Restaurants",mc:"$4B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Premium fast-casual burger chain. Company-operated US + licensed international model. Urban/suburban infill strategy. Kiosk ordering and drive-thru expansion improving throughput. Restaurant-level margins recovering post-COVID. Premium positioning commands higher check but narrows addressable market."},
+
+{t:"BROS",n:"Dutch Bros",tier:2,sub:"Restaurants",mc:"$9B",
+a:"SpeculativeGrowth",cp:"earlyExpansion",
+fe:{consumerCyclicality:0,brandPremium:2,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Drive-thru-only coffee and beverage chain. Cult brand with energetic service culture. 900+ shops, targeting 4,000+ long-term. Dutch Rewards loyalty program. Company-owned model transitioning from franchised. Beverage-only format drives high margins. Expanding east from Pacific Northwest base."},
+
+{t:"WEN",n:"Wendy's",tier:2,sub:"Restaurants",mc:"$3B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:0},
+d:"QSR burger chain. ~95% franchised. Fresh never frozen beef positioning. Breakfast daypart expansion. Digital sales growing via app and delivery. Value menu competitive with MCD. International growth underpenetrated vs. peers. Peltz-linked board. Image activation remodel program."},
+
+{t:"JACK",n:"Jack in the Box",tier:2,sub:"Restaurants",mc:"$1B",
+a:"DeepValue",cp:"trough",
+fe:{consumerCyclicality:1,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:0},
+d:"QSR chain: Jack in the Box and Del Taco brands. ~95% franchised. West Coast and Sun Belt focused. Late-night daypart strength. Integration of Del Taco acquisition ongoing. Elevated leverage. Franchisee profitability challenges in high-cost California markets."},
+
+{t:"EAT",n:"Brinker International",tier:2,sub:"Restaurants",mc:"$7B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Casual dining: Chili's (dominant brand, virtual brands), Maggiano's. Chili's turnaround is one of the best restaurant stories: value positioning ($10.99 Big Smasher, 3 for Me) driving massive traffic gains when peers lose share. Digital and delivery capabilities. Company-owned and franchised mix."},
+
+{t:"PZZA",n:"Papa John's",tier:2,sub:"Restaurants",mc:"$2B",
+a:"DeepValue",cp:"recovery",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Pizza delivery/carryout chain. ~90% franchised. 'Better Ingredients, Better Pizza' positioning. North America comp sales pressured — value competition from DPZ intensifying. International growth is bright spot. Loyalty program and digital ordering. Delivery aggregator partnerships."},
+
+// ── EDUCATION & SPECIALIZED CONSUMER SERVICES ─────────────────────
+{t:"LOPE",n:"Grand Canyon Education",tier:2,sub:"Education & Specialized Consumer Services",mc:"$5B",
+a:"CashEngine",cp:"expansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Education services company providing technology, counseling, and marketing to Grand Canyon University and other partners. Hybrid online/campus model. Tuition revenue sharing arrangements. Strong free cash flow generation. Enrollment growth driven by online programs."},
+
+{t:"LRN",n:"Stride Inc",tier:2,sub:"Education & Specialized Consumer Services",mc:"$5B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:0},
+d:"K-12 online education provider. Virtual school programs for public school students. Career learning programs in high-demand fields (IT, healthcare). COVID accelerated adoption of virtual learning. Enrollment growth strong even post-pandemic. Recurring per-pupil funding model."},
+
+{t:"HRB",n:"H&R Block",tier:2,sub:"Education & Specialized Consumer Services",mc:"$9B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Tax preparation services: retail offices, DIY software, and virtual tax prep. Block Horizons strategy shifting to year-round financial services. Spruce mobile banking platform. Wave small business financial services. Highly seasonal (Jan–Apr) but strong cash generation. Share count declining via buybacks."},
+
+{t:"BFAM",n:"Bright Horizons",tier:2,sub:"Education & Specialized Consumer Services",mc:"$4B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Employer-sponsored childcare and early education provider. 1,000+ centers globally. Back-up care, EdAssist tuition assistance, and college coaching. B2B model — corporate clients pay for employee childcare benefits. Occupancy recovery post-COVID. High retention rates. Labor availability is key constraint."},
+
+// ══════════════════════════════════════════════════════════════════
+// TIER 3: DISTRIBUTORS & RETAILERS
+// ══════════════════════════════════════════════════════════════════
+
+// ── BROADLINE & E-COMMERCE RETAIL ─────────────────────────────────
+{t:"AMZN",n:"Amazon.com",tier:3,sub:"Broadline & E-Commerce Retail",mc:"$2.3T",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Global e-commerce and cloud computing leader. Retail marketplace + AWS + advertising triad. 200M+ Prime members globally. Third-party marketplace ~60% of units sold. Same-day/next-day delivery network is a structural moat. Advertising business ($50B+ run rate) is the margin expansion story. Classified as Consumer Discretionary in S&P 500."},
+
+{t:"EBAY",n:"eBay",tier:3,sub:"Broadline & E-Commerce Retail",mc:"$30B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Global online marketplace for used, refurbished, and collectible goods. Focus categories: collectibles, luxury (Authenticity Guarantee), auto parts, refurbished electronics. ~$75B GMV. Advertising and payments (managed payments) growing as monetization layers. Steady buyback cadence."},
+
+{t:"ETSY",n:"Etsy",tier:3,sub:"Broadline & E-Commerce Retail",mc:"$7B",
+a:"CashEngine",cp:"lateCycle",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Marketplace for handmade, vintage, and unique goods. 90M+ active buyers. Etsy, Reverb (musical instruments), Depop (Gen Z fashion resale). Take rate ~22%. Post-COVID normalization has pressured GMS. Differentiated positioning: non-commoditized, artisan goods. Seller ecosystem loyalty is the moat."},
+
+{t:"W",n:"Wayfair",tier:3,sub:"Broadline & E-Commerce Retail",mc:"$5B",
+a:"Turnaround",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:2,inputCostSensitivity:1,discretionaryRisk:2},
+d:"Online furniture and home goods retailer. Asset-light marketplace model (drop-ship). CastleGate fulfillment network. Physical retail expansion (first large-format store). Profitability turnaround underway — cost cuts + revenue stabilization. Housing market weakness suppresses big-ticket home spending. Wayfair Professional (B2B) growing."},
+
+{t:"CHWY",n:"Chewy",tier:3,sub:"Broadline & E-Commerce Retail",mc:"$12B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Online pet food and supplies retailer. Autoship subscription model (~78% of sales) drives high retention and visibility. Expanding into pet health (Chewy Health, compounding pharmacy), sponsored ads, and insurance. 20M+ active customers. Pet spend is largely non-discretionary. First-mover advantage in e-commerce pet."},
+
+// ── HOME IMPROVEMENT RETAIL ───────────────────────────────────────
+{t:"HD",n:"Home Depot",tier:3,sub:"Home Improvement Retail",mc:"$380B",
+a:"Tollbridge",cp:"midCycle",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:1},
+d:"World's largest home improvement retailer. 2,300+ stores. ~50% of revenue from Pro contractors. SRS Distribution acquisition massively expands Pro supply chain. Interconnected retail (online + physical). Housing market turnover drives big-ticket remodel projects — pent-up demand thesis as rates normalize. $150B+ annual revenue."},
+
+{t:"LOW",n:"Lowe's",tier:3,sub:"Home Improvement Retail",mc:"$145B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:1},
+d:"#2 home improvement retailer. 1,700+ stores. Total Home strategy: strengthen Pro, accelerate online, elevate DIY experience. More DIY-skewed than HD creates margin headwind but also opportunity. Loyalty program launch. Rural/suburban store base is structural advantage. Market share gains in Pro segment."},
+
+// ── SPECIALTY RETAIL ──────────────────────────────────────────────
+{t:"ULTA",n:"Ulta Beauty",tier:3,sub:"Specialty Retail",mc:"$22B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:0,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Largest US specialty beauty retailer. 1,400+ stores offering prestige and mass beauty under one roof + salon services. Ultamate Rewards 44M+ members. Target shop-in-shop partnership. E-commerce and digital engagement accelerating. Beauty category is resilient — 'lipstick effect' in downturns."},
+
+{t:"BBY",n:"Best Buy",tier:3,sub:"Specialty Retail",mc:"$18B",
+a:"CashEngine",cp:"trough",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:2},
+d:"Consumer electronics retailer. 1,000+ stores. Geek Squad services, Totaltech membership. Vendor partnerships (Samsung, Apple experience zones). PC/TV/appliance replacement cycle is key revenue driver. Housing market weakness suppresses appliance demand. Best Buy Health (remote patient monitoring) is diversification play."},
+
+{t:"TSCO",n:"Tractor Supply Co",tier:3,sub:"Specialty Retail",mc:"$30B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Rural lifestyle retailer: livestock feed, pet food, farm equipment, outdoor apparel, tools. 2,200+ stores. Needs-based demand (~50% consumable/pet) creates resilience. Neighbor's Club loyalty 37M+ members. Petsense by Tractor Supply growing. Life Out Here strategy. Underappreciated defensive compounder."},
+
+{t:"WSM",n:"Williams-Sonoma",tier:3,sub:"Specialty Retail",mc:"$20B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:2,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:2},
+d:"Premium home furnishings: Pottery Barn, Williams-Sonoma, West Elm, Rejuvenation, Mark and Graham. ~65% e-commerce penetration — highest in specialty retail. Design and sourcing IP creates brand differentiation. B2B (Williams-Sonoma Business) growing. Operating margins industry-leading at 17%+."},
+
+{t:"RH",n:"RH (Restoration Hardware)",tier:3,sub:"Specialty Retail",mc:"$8B",
+a:"SpeculativeGrowth",cp:"recovery",
+fe:{consumerCyclicality:2,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:2},
+d:"Luxury home furnishings and lifestyle brand. Gallery format stores as experiential destinations. RH Guest House (hospitality), RH Yacht, RH Jet — aspirational lifestyle brand extension. Membership model ($175/year for 25% discount). Highly levered to housing cycle and affluent consumer. International expansion (Europe) beginning."},
+
+{t:"DKS",n:"DICK'S Sporting Goods",tier:3,sub:"Specialty Retail",mc:"$18B",
+a:"CashEngine",cp:"midExpansion",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Largest US sporting goods retailer. 850+ stores including House of Sport experiential format. Acquired Foot Locker (Sep 2025), now operating 3,200+ stores globally with Foot Locker brands continuing as standalone. Vertical brands (DSG, CALIA, VRST) growing margin mix. Athletic participation trends are secular tailwind."},
+
+{t:"BURL",n:"Burlington Stores",tier:3,sub:"Specialty Retail",mc:"$18B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:-1,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Off-price retailer. No e-commerce — physical-only model. 1,000+ stores with long runway to 2,000+. Smaller-format stores improving unit economics. Treasure hunt model similar to TJX/ROST. Trade-down beneficiary in weak consumer environments. Inventory management improvements driving margin expansion."},
+
+{t:"GAP",n:"Gap Inc",tier:3,sub:"Specialty Retail",mc:"$10B",
+a:"Turnaround",cp:"recovery",
+fe:{consumerCyclicality:1,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Brand portfolio: Old Navy (value, largest brand), Gap, Banana Republic, Athleta. CEO Richard Dickson (ex-Mattel Barbie) executing brand revitalization. Old Navy re-engaging value consumer. Gap brand culturally relevant again. Athleta positioned in athleisure. Portfolio simplification and cost discipline."},
+
+{t:"ANF",n:"Abercrombie & Fitch",tier:3,sub:"Specialty Retail",mc:"$7B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:1,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Brand portfolio: Abercrombie & Fitch (adult lifestyle), Hollister (teen). Remarkable brand turnaround — repositioned from exclusionary teen brand to inclusive adult lifestyle. Abercrombie driving growth with wedding, getaway, and YPB activewear categories. Hollister stabilizing. Digital-first with optimized store fleet."},
+
+{t:"FIVE",n:"Five Below",tier:3,sub:"Specialty Retail",mc:"$8B",
+a:"Compounder",cp:"midExpansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:-1,inputCostSensitivity:1,discretionaryRisk:0},
+d:"Extreme value retailer targeting tweens, teens, and young adults. Most items $1–$5, Five Beyond section up to $25. 1,700+ stores with runway to 3,500+. Treasure hunt model. Minimal e-commerce. Discretionary products (toys, tech accessories, room décor) at non-discretionary price points. High store growth algorithm."},
+
+{t:"BBWI",n:"Bath & Body Works",tier:3,sub:"Specialty Retail",mc:"$8B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:0,brandPremium:2,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Specialty retailer: body care, home fragrance, soaps, sanitizers. #1 US market share in home fragrance and body care. 1,800+ stores. Semi-annual sales events drive traffic. Loyalty program 40M+ members. Affordable luxury positioning ($15–$30 price points). International licensing expansion. Post L Brands spin-off."},
+
+{t:"OLLI",n:"Ollie's Bargain Outlet",tier:3,sub:"Specialty Retail",mc:"$6B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:0,brandPremium:0,eCommerceExposure:-1,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Extreme closeout retailer — buys manufacturer overstock, package changes, and closeouts at deep discounts. 500+ stores. No e-commerce. Treasure hunt model attracts deal-seeking consumers. Store growth runway to 1,050+ locations. Good Times/Bad Times model: supply of deals increases when economy weakens."},
+
+// ── AUTOMOTIVE RETAIL & DEALERSHIPS ───────────────────────────────
+{t:"AZO",n:"AutoZone",tier:3,sub:"Automotive Retail & Dealerships",mc:"$55B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"#1 auto parts retailer: 7,000+ stores (US, Mexico, Brazil). DIY and growing commercial (DIFM) segments. Mega-Hub distribution strategy enables 100K+ SKU availability. Duralast owned brand. Aging vehicle fleet is secular tailwind (avg US vehicle age 13+ years). Legendary capital allocation — share count down ~70% over 20 years."},
+
+{t:"ORLY",n:"O'Reilly Automotive",tier:3,sub:"Automotive Retail & Dealerships",mc:"$75B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Auto parts retailer: 6,200+ stores. Dual DIY/commercial model with industry-leading commercial DIFM execution. Same-day delivery to professional installers. Distribution network with 30+ regional DCs. Consistent double-digit EPS growth. Aggressive share buyback program. Expansion into Mexico."},
+
+{t:"AAP",n:"Advance Auto Parts",tier:3,sub:"Automotive Retail & Dealerships",mc:"$3B",
+a:"Turnaround",cp:"trough",
+fe:{consumerCyclicality:0,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Auto parts retailer: Advance Auto Parts and Carquest brands. 4,000+ stores. Worldpac divested. Significant execution gap vs. AZO/ORLY — turnaround underway with new management, store optimization, and sourcing improvements. Comp sales growth turning positive. Margin recovery from trough levels is the thesis."},
+
+{t:"KMX",n:"CarMax",tier:3,sub:"Automotive Retail & Dealerships",mc:"$14B",
+a:"Compounder",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Largest US used car retailer. 240+ stores. Omnichannel platform: buy online/in-store, home delivery, trade-in. CarMax Auto Finance (CAF) captive lending provides ~25% of gross profit. Wholesale auction business. Transparent no-haggle pricing model. Used car price normalization post-pandemic."},
+
+{t:"CVNA",n:"Carvana",tier:3,sub:"Automotive Retail & Dealerships",mc:"$45B",
+a:"Compounder",cp:"expansion",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:2,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Online used car retailer. E-commerce platform with vending machine branding. ADESA wholesale auction network acquired. Remarkable turnaround from near-bankruptcy to record profitability. GPU (gross profit per unit) expansion driving operating leverage. Vertically integrated reconditioning, logistics, and financing."},
+
+{t:"AN",n:"AutoNation",tier:3,sub:"Automotive Retail & Dealerships",mc:"$7B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Largest US auto dealership group. 300+ dealerships across premium luxury, import, and domestic. AutoNation USA used-car-only stores. Parts and service (fixed operations) provides stable, high-margin recurring revenue. Digital retailing tools. Aggressive share buyback cadence."},
+
+{t:"LAD",n:"Lithia Motors",tier:3,sub:"Automotive Retail & Dealerships",mc:"$10B",
+a:"Compounder",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:0,eCommerceExposure:1,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Largest US auto dealership group by revenue. 300+ locations. Driveway.com digital platform for nationwide online vehicle sales. Aggressive M&A roll-up strategy. GreenCars EV marketplace. UK expansion via Pendragon acquisition. Diversified brand portfolio across all price points."},
+
+{t:"PAG",n:"Penske Automotive",tier:3,sub:"Automotive Retail & Dealerships",mc:"$10B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:2,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:1},
+d:"Diversified auto retailer: premium/luxury dealerships (US and UK), Penske Truck Leasing (26% ownership of PAG). 340+ dealerships. Premium brand mix (BMW, Mercedes, Audi, Porsche, Toyota) skews toward wealthier buyer — less rate-sensitive. Commercial truck dealerships add diversification."},
+
+// ── CONSUMER DISTRIBUTORS ─────────────────────────────────────────
+{t:"GPC",n:"Genuine Parts",tier:3,sub:"Consumer Distributors",mc:"$18B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:0,brandPremium:1,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Auto parts and industrial parts distributor. NAPA Auto Parts brand — 6,000+ stores (company-owned + independent). Global automotive (US, Europe, Australasia) and Motion Industries (industrial distribution). Aging vehicle fleet tailwind. Recurring maintenance demand. Dividend Aristocrat with 68+ years of consecutive increases."},
+
+{t:"LKQ",n:"LKQ Corporation",tier:3,sub:"Consumer Distributors",mc:"$10B",
+a:"CashEngine",cp:"midCycle",
+fe:{consumerCyclicality:0,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:0,discretionaryRisk:0},
+d:"Alternative auto parts distributor: recycled/salvage, aftermarket, and remanufactured parts. Largest global distributor in category. North America + European operations (Euro Car Parts). Self-service pick-your-part yards. Non-OEM parts save 20–50% vs. dealer parts. Collision repair and mechanical aftermarket demand."},
+
+{t:"SITE",n:"SiteOne Landscape Supply",tier:3,sub:"Consumer Distributors",mc:"$8B",
+a:"Compounder",cp:"midCycle",
+fe:{consumerCyclicality:1,brandPremium:0,eCommerceExposure:0,inputCostSensitivity:1,discretionaryRisk:1},
+d:"Largest US wholesale distributor of landscape supplies: irrigation, hardscapes, nursery, outdoor lighting, agronomics. 700+ branches. Roll-up acquisition strategy in fragmented market. Commercial + residential end markets. Seasonal business weighted to spring/summer. Professional contractor customer base."}
+
+// ── END OF PART 2 ─────────────────────────────────────────────────
+];
+
+
+// Consumer Discretionary — industryBriefs.js
+// 14 sub-industries × 9 fields each
+
+const industryBriefs = [
+
+// ══════════════════════════════════════════════════════════════════
+// TIER 1: PRODUCT CREATORS & BRAND OWNERS
+// ══════════════════════════════════════════════════════════════════
+
+{
+title:"Automobile Manufacturers",
+tier:1,
+overview:"OEMs design, engineer, and assemble passenger vehicles spanning ICE, hybrid, and battery-electric powertrains. Capital-intensive with 3–5 year product development cycles. Industry undergoing generational transition from combustion to electrification, software-defined vehicles, and autonomous driving. Scale manufacturing, dealer networks, and brand portfolios are traditional moats; EV entrants compete on technology, vertical integration, and DTC distribution. Captive finance arms (GM Financial, Ford Credit) are material earnings contributors. Tariff sensitivity is elevated given global supply chains spanning US, Mexico, Canada, Europe, and Asia.",
+keyDynamics:["ICE-to-EV transition investment cycle and timeline uncertainty","Tariff/trade policy impact on cross-border supply chains (USMCA compliance)","Average selling price (ASP) mix shift toward trucks, SUVs, and crossovers","Autonomous driving technology and regulatory timeline","Chinese EV competition in global markets (BYD, NIO)","Captive finance credit quality through economic cycles"],
+variantPerception:{
+consensus:"EV transition is inevitable but slower than 2021 projections; legacy OEMs will survive via hybrid bridge strategies and truck/SUV dominance",
+bull:"Legacy OEMs trade at trough multiples while generating massive FCF from ICE franchise; EV capex peaks and declines, unlocking FCF inflection; autonomous driving creates software-like revenue streams",
+bear:"EV transition destroys legacy cost structures without generating adequate returns; Chinese OEMs commoditize the global EV market; autonomous driving remains perpetually 5 years away; tariffs permanently raise input costs",
+resolutionSignal:"GM/F EV unit profitability milestones; Chinese OEM market share in Europe; TSLA FSD regulatory approvals; US tariff policy stabilization"
+},
+revenueBreakdown:"Vehicle sales ~85–90%, financial services ~8–12%, parts/accessories ~2–5%",
+anchorTickers:["TSLA","GM","F"],
+keyMetrics:["Units delivered","Average transaction price (ATP)","Incentive spending as % MSRP","Days supply (inventory)","EV mix %","SAAR (seasonally adjusted annual rate)"],
+watchlist:["Monthly SAAR data","Fed rate trajectory (auto loan rates)","UAW labor negotiations","USMCA tariff exemptions","Battery raw material pricing (lithium, nickel)"]
+},
+
+{
+title:"Auto Parts & Components",
+tier:1,
+overview:"Tier 1 and Tier 2 suppliers providing powertrain, safety, electronics, thermal management, and structural components to global OEMs. Revenue is tied to global light vehicle production (SAAR) with 3–5 year program visibility via OEM platforms. Content per vehicle is the secular growth lever — vehicles are becoming more electronic, more connected, and more autonomous, driving higher dollar content regardless of unit volumes. EV transition is a tailwind for electrical architecture, thermal management, and cockpit electronics suppliers, but a headwind for ICE-specific powertrain components. OEM pricing pressure is persistent.",
+keyDynamics:["Content per vehicle growth from electrification, ADAS, and connectivity","Global light vehicle production cadence and regional mix","OEM pricing pressure and annual cost-down negotiations","EV powertrain component shift (motors, inverters, battery thermal)","Semiconductor supply chain normalization","China localization requirements for foreign suppliers"],
+variantPerception:{
+consensus:"Content per vehicle grows 3–5% annually as vehicles electrify and add technology; suppliers with EV-agnostic products (safety, cockpit) outperform",
+bull:"ADAS content inflection (L2+ to L3) creates step-function demand for sensors, compute, and wiring; EV thermal management becomes as critical as ICE powertrain",
+bear:"OEM pricing pressure intensifies as EV margins compress; Chinese suppliers undercut Western Tier 1s on cost; ICE content declines faster than EV content ramps",
+resolutionSignal:"ADAS penetration rates by level; EV battery thermal management attach rates; Chinese supplier market share in Western OEM programs"
+},
+revenueBreakdown:"OEM direct supply ~80–85%, aftermarket ~10–15%, other ~5%",
+anchorTickers:["APTV","ALV","GNTX"],
+keyMetrics:["Content per vehicle","Book-to-bill ratio","Organic revenue growth vs. production","EBITDA margin","Backlog value","Platform wins"],
+watchlist:["IHS/S&P Global light vehicle production forecasts","OEM program launches and delays","ADAS regulatory mandates (Euro NCAP, NHTSA)","EV platform architectures (400V vs. 800V)"]
+},
+
+{
+title:"Apparel, Accessories & Luxury Goods",
+tier:1,
+overview:"Brand owners designing, sourcing, and marketing footwear, athletic apparel, luxury accessories, and lifestyle fashion. Moat is brand equity — the ability to command price premiums and resist commoditization. Business models span vertically integrated DTC (LULU, NKE), off-price treasure hunt (TJX, ROST), and accessible luxury houses (TPR, RL). Key tension is wholesale channel management vs. DTC margin capture. Athletic/performance segment (NKE, DECK, ONON) is structurally growing on health/wellness megatrend. Off-price is structurally advantaged as trade-down beneficiary and excess inventory clearing mechanism.",
+keyDynamics:["DTC vs. wholesale channel mix and margin implications","Brand heat cycles — relevance with Gen Z and millennial consumers","Athletic/performance vs. fashion/lifestyle positioning","Off-price channel as structural winner in value-seeking environment","China consumer recovery trajectory and geopolitical risk","Inventory management discipline post-2022 excess cycle"],
+variantPerception:{
+consensus:"Athletic/performance brands win long-term; off-price thrives in all environments; luxury accessible brands face most competitive pressure from both ends",
+bull:"Brand elevation strategies (RL, NKE, PVH) drive ASP and margin expansion simultaneously; off-price benefits permanently from trade-down behavior established during inflation era",
+bear:"DTC channel fatigue sets in as customer acquisition costs rise; Chinese consumers permanently trade down from Western luxury; SHEIN/Temu price deflation commoditizes fast fashion",
+resolutionSignal:"NKE marketplace partner re-engagement success; China luxury spend recovery; SHEIN/Temu regulatory treatment (de minimis tariff)"
+},
+revenueBreakdown:"DTC (owned stores + e-commerce) ~40–65%, wholesale ~25–45%, licensing ~5–10%",
+anchorTickers:["NKE","TJX","LULU","DECK"],
+keyMetrics:["Comparable store sales","DTC penetration %","Gross margin","Inventory turns","Brand awareness/consideration scores","ASP trends"],
+watchlist:["Consumer confidence index","China retail sales","Cotton/synthetic input prices","De minimis tariff legislation (SHEIN/Temu)","Sneaker culture and collaboration calendar"]
+},
+
+{
+title:"Homebuilders & Household Durables",
+tier:1,
+overview:"Residential homebuilders construct single-family and multi-family homes across entry-level, move-up, active adult, and luxury segments. Revenue is f(units closed × ASP). Business is acutely sensitive to mortgage rates, housing affordability, and employment. Structural US housing shortage (~3–4M units) provides long-duration demand backstop. Household durables include appliances (WHR), decking/outdoor living (TREX), and pool care (LESL). Builder moats are land pipeline, local market knowledge, and scale purchasing. NVR's asset-light lot option model is the standout capital structure.",
+keyDynamics:["Mortgage rate trajectory and housing affordability","Structural housing undersupply vs. cyclical demand volatility","Land bank management and lot pipeline strategies","Entry-level vs. luxury exposure and rate sensitivity","Input cost inflation (lumber, concrete, labor)","Incentive strategies (rate buydowns, closing cost assistance)"],
+variantPerception:{
+consensus:"Structural undersupply supports demand floor; rates are the swing factor; entry-level builders benefit most from rate cuts",
+bull:"Rate normalization unleashes pent-up move-up demand (lock-in effect reversal); Millennial household formation wave sustains decade-long cycle; NVR-style asset-light models re-rate higher",
+bear:"Affordability permanently impaired at current rate/price combo; builders over-earned in 2021–2023 and margins mean-revert; tariff-driven input cost inflation squeezes margins",
+resolutionSignal:"30-year mortgage rate trajectory; existing home inventory months-of-supply; builder cancellation rates; lumber futures"
+},
+revenueBreakdown:"Home closings ~85–90%, financial services (mortgage) ~5–8%, land sales/other ~3–5%",
+anchorTickers:["DHI","LEN","NVR","TREX"],
+keyMetrics:["Orders and backlog","Cancellation rate","ASP","Gross margin","Community count","Months of supply"],
+watchlist:["Freddie Mac 30-year rate","Housing starts and permits","Existing home sales","Builder confidence (NAHB/Wells Fargo HMI)","Lumber futures"]
+},
+
+{
+title:"Leisure Products & Toys",
+tier:1,
+overview:"Manufacturers of recreational goods, toys, sporting equipment, and connected fitness products. Demand is highly discretionary and cyclical — leisure spend is among the first cut in downturns. Toy companies (HAS, MAT) are evolving into IP monetization platforms (film, TV, gaming, licensing). Marine (BC) and powersports (FOXF) are deep-cycle businesses with multi-year inventory correction cycles. Pool (POOL) is the tollbridge — ~60% of revenue is non-discretionary maintenance. Brand, innovation cadence, and IP portfolios are the moats.",
+keyDynamics:["IP monetization beyond physical product (film, gaming, licensing)","Inventory cycle management (dealer destocking in marine/powersports)","Connected fitness category maturation post-COVID","Pool installed base growth and maintenance spend","Toy industry concentration and licensed IP competition","Outdoor recreation participation trends"],
+variantPerception:{
+consensus:"IP-rich toy companies re-rate as entertainment platforms; marine/powersports in prolonged downturn; pool maintenance is defensive",
+bull:"HAS Wizards of the Coast (Magic/D&D) is a digital gaming asset trapped in a toy company; Barbie film proves Mattel's IP library is massively undermonetized; marine cycle trough creates generational buying opportunity",
+bear:"Physical toy demand structurally declining as kids shift to screens/gaming earlier; connected fitness (PTON) faces existential challenge from free alternatives; marine/powersports oversupply persists longer than expected",
+resolutionSignal:"HAS Wizards digital gaming revenue growth; MAT film slate monetization; BC dealer inventory normalization; PTON subscriber churn rates"
+},
+revenueBreakdown:"Varies widely — toys: product sales ~70–80%, licensing/entertainment ~10–20%; marine: boats ~50%, propulsion ~30%, P&A ~20%; pool: maintenance/chemicals ~60%, equipment ~25%, construction ~15%",
+anchorTickers:["POOL","HAS","MAT","BC"],
+keyMetrics:["POS (point-of-sale) sell-through","Dealer inventory levels","Licensing revenue","Digital engagement (MAU, DAU for gaming)","Installed base size (pool, fitness)"],
+watchlist:["Holiday toy sales data (NPD/Circana)","Marine dealer inventory-to-sales ratio","Film/TV IP release calendar","Interest rates (big-ticket leisure financing)"]
+},
+
+// ══════════════════════════════════════════════════════════════════
+// TIER 2: EXPERIENCE & SERVICE OPERATORS
+// ══════════════════════════════════════════════════════════════════
+
+{
+title:"Hotels, Resorts & Cruise Lines",
+tier:2,
+overview:"Lodging and travel companies spanning hotel franchisors (MAR, HLT, WH), OTAs (BKNG, ABNB, EXPE), and cruise operators (CCL, RCL, NCLH). Hotel industry has asset-light franchised model — brand owners earn fees on system RevPAR with minimal capital at risk. OTAs are marketplace platforms earning take rates on GBV. Cruise operators are capital-intensive with long asset lives, high fixed costs, and massive debt loads from COVID era. Lodging loyalty programs (Bonvoy 200M+, Hilton Honors 190M+) are enormous direct booking moats that reduce OTA dependency.",
+keyDynamics:["RevPAR growth: rate vs. occupancy decomposition","Asset-light franchise model conversion continues","OTA vs. direct booking channel competition","Cruise demand surge and yield recovery post-COVID","Cruise industry deleveraging pace","Alternative accommodation (Airbnb, Vrbo) market share"],
+variantPerception:{
+consensus:"Hotel franchisors are high-quality compounders; OTAs face share shift to direct booking; cruise demand is strong but balance sheets remain stressed",
+bull:"Global travel spend is structurally higher post-COVID (experience economy); hotel net unit growth accelerates in underpenetrated international markets; cruise yields permanently re-rate higher as industry consolidates capacity",
+bear:"Business travel permanently impaired by hybrid work; Airbnb regulatory crackdowns in key cities suppress supply; cruise balance sheet leverage limits shareholder returns for years",
+resolutionSignal:"Business transient RevPAR recovery rate; Airbnb regulatory outcomes in NYC, Barcelona, etc.; CCL/RCL debt-to-EBITDA deleveraging milestones"
+},
+revenueBreakdown:"Hotels: franchise/management fees ~70%, owned/leased ~20%, other ~10%; OTAs: agency commissions + merchant margins on GBV; Cruises: passenger ticket ~65%, onboard spend ~35%",
+anchorTickers:["MAR","HLT","BKNG","ABNB","RCL"],
+keyMetrics:["RevPAR (revenue per available room)","Net unit growth (NUG)","GBV (gross booking value)","Net yield per cruise day","Loyalty program members","Pipeline rooms"],
+watchlist:["TSA throughput data","STR weekly hotel data","Cruise booking curve and pricing","Airbnb regulatory actions by city","Corporate travel budget surveys"]
+},
+
+{
+title:"Casinos & Gaming",
+tier:2,
+overview:"Land-based integrated resort operators, regional casinos, and online sports betting/iGaming platforms. Las Vegas Strip properties (MGM, CZR, WYNN) are experience-driven with gaming revenue increasingly supplemented by non-gaming (entertainment, dining, convention). Regional casinos (BYD, PENN) serve local/drive-to markets with more gaming-centric economics. Online sports betting (DKNG, FLUT) is a secular growth category with state-by-state legalization expanding TAM. Macao concession holders (LVS, WYNN, MLCO) are Asia recovery plays. Asset-light transformation via REIT sale-leasebacks (VICI, GLPI) has changed capital structure.",
+keyDynamics:["Las Vegas Strip non-gaming revenue diversification","Macao mass gaming recovery vs. VIP contraction","Online sports betting profitability inflection","State-by-state iGaming legalization cadence","REIT sale-leaseback capital structure transformation","Sports betting handle growth vs. hold rate normalization"],
+variantPerception:{
+consensus:"Las Vegas is structurally stronger post-COVID; online betting consolidates to 2–3 winners; Macao recovers but VIP segment permanently smaller",
+bull:"UAE opening (WYNN Al Marjan Island) creates new global gaming destination; iGaming (online casino) legalization wave follows sports betting; regional casino operators generate stable FCF at trough multiples",
+bear:"Online betting customer acquisition costs remain destructive; Macao regulatory risk re-emerges; CZR/PENN leverage limits upside; regional gaming saturated",
+resolutionSignal:"DKNG/FLUT sustained profitability; iGaming state legalization count; UAE casino opening timeline; Macao GGR recovery to 2019 levels"
+},
+revenueBreakdown:"Casino/gaming ~50–65%, hotel ~15–20%, F&B ~10%, entertainment/convention ~5–10%, online ~5–15% (varies by operator)",
+anchorTickers:["LVS","MGM","DKNG","FLUT"],
+keyMetrics:["GGR (gross gaming revenue)","RevPAR (hotel)","Handle and hold % (online)","EBITDAR margin","Monthly active users (online)","Macao market share"],
+watchlist:["Las Vegas visitor volume and convention calendar","Macao monthly GGR data","State sports betting/iGaming legislation tracker","NFL/NBA/MLB season schedules (handle correlation)","UAE regulatory developments"]
+},
+
+{
+title:"Restaurants",
+tier:2,
+overview:"QSR (quick-service), fast-casual, and casual dining operators. Dominant business model is asset-light franchising — the franchisor earns royalties (4–6% of system sales) plus rent on sub-leased properties with minimal capex. MCD, YUM, QSR, DPZ are essentially brand/real estate/technology platforms. Company-operated models (CMG, TXRH, CAVA) capture higher unit economics but carry more operating leverage. Key success factors: menu innovation cadence, digital/loyalty engagement, drive-thru throughput, and franchisee unit economics. Labor inflation and food costs are the two persistent margin pressures.",
+keyDynamics:["Franchised vs. company-operated model economics","Digital ordering and loyalty program penetration","Value menu wars and traffic vs. ticket trade-offs","Labor cost inflation (minimum wage, tip credit policy)","Fast-casual category expansion (CAVA, SHAK, BROS)","Delivery aggregator economics and margin impact"],
+variantPerception:{
+consensus:"QSR franchisors are best-in-class compounders; fast-casual is the structural growth category; casual dining continues to lose share except standout operators (TXRH, EAT)",
+bull:"Digital loyalty platforms transform QSR into recurring-revenue businesses; fast-casual unit economics enable massive whitespace; value positioning captures permanent trade-down from casual dining",
+bear:"Labor cost inflation structurally compresses restaurant margins; delivery aggregator fees erode unit economics; consumer spending pullback hits traffic across all segments",
+resolutionSignal:"Same-store sales decomposition (traffic vs. ticket); CAVA/BROS unit growth execution; MCD/YUM digital sales mix; minimum wage legislation"
+},
+revenueBreakdown:"Franchised: royalty fees + property income ~60%, company-operated sales ~30%, other ~10%; Company-operated: restaurant revenue ~95%, other ~5%",
+anchorTickers:["MCD","CMG","YUM","TXRH","WING"],
+keyMetrics:["Same-store sales (comps)","Traffic vs. ticket decomposition","Restaurant-level margin","Net new unit openings","Digital sales %","AUV (average unit volume)"],
+watchlist:["Consumer confidence and spending data","Food-at-home vs. food-away-from-home CPI","Minimum wage legislation by state","Beef, chicken, dairy commodity prices","Delivery platform (DoorDash, Uber Eats) take rates"]
+},
+
+{
+title:"Education & Specialized Consumer Services",
+tier:2,
+overview:"Education services providers (online K-12, higher ed services), tax preparation, and employer-sponsored childcare. Unified by service delivery models with recurring or highly predictable revenue. Online education (LRN, LOPE) benefits from structural shift toward virtual learning and career-focused credentials. Tax preparation (HRB) has captive seasonal demand. Childcare (BFAM) is a B2B model tied to employer retention strategies. These businesses tend to be lower cyclicality than broader Consumer Discretionary given needs-based demand characteristics.",
+keyDynamics:["Online education enrollment growth and regulatory environment","Tax code complexity driving preparation demand","Employer-sponsored childcare as retention/recruitment tool","AI disruption potential in tax preparation","Virtual learning acceptance and hybrid model evolution","For-profit education regulatory scrutiny"],
+variantPerception:{
+consensus:"Online education is secularly growing; tax prep is a stable cash cow; childcare occupancy normalizes post-COVID",
+bull:"AI-enhanced tax prep expands TAM by making complex returns accessible to software; online career credentials displace traditional higher ed; employer childcare benefits become standard",
+bear:"IRS Direct File program threatens commercial tax prep; for-profit education faces renewed regulatory scrutiny; childcare labor shortage permanently constrains capacity",
+resolutionSignal:"IRS Direct File adoption rates; LRN/LOPE enrollment trends; BFAM occupancy recovery to pre-COVID levels; HRB virtual/DIY adoption"
+},
+revenueBreakdown:"Education: tuition/enrollment fees ~85%, ancillary ~15%; Tax prep: retail office ~40%, DIY software ~30%, financial products ~15%, other ~15%; Childcare: employer-sponsored ~70%, back-up care ~20%, other ~10%",
+anchorTickers:["HRB","LRN","BFAM"],
+keyMetrics:["Enrollment growth","Tax returns filed (DIY vs. assisted)","Center occupancy rates","Revenue per student/client","Retention rates"],
+watchlist:["Department of Education regulatory actions","IRS filing season data","Corporate benefits survey trends","K-12 virtual school legislation by state"]
+},
+
+// ══════════════════════════════════════════════════════════════════
+// TIER 3: DISTRIBUTORS & RETAILERS
+// ══════════════════════════════════════════════════════════════════
+
+{
+title:"Broadline & E-Commerce Retail",
+tier:3,
+overview:"Online marketplaces and broadline retailers selling across multiple product categories. AMZN dominates with 40%+ US e-commerce share, Prime membership flywheel, and AWS/advertising profit engines subsidizing retail margin. Marketplace models (EBAY, ETSY) earn take rates on GMV with asset-light P&Ls. Category-specific e-commerce (W for furniture, CHWY for pet) competes on specialization, curation, and vertical expertise. Key competitive dynamics are fulfillment speed, selection breadth, and customer acquisition cost. Physical retail is re-emerging as a complementary channel.",
+keyDynamics:["Amazon marketplace dominance and third-party seller ecosystem","E-commerce penetration normalization post-COVID pull-forward","Advertising as the high-margin monetization layer for marketplaces","Category-killer specialists vs. broadline generalists","Fulfillment cost optimization and same-day delivery","Subscription/membership models (Prime, autoship) driving retention"],
+variantPerception:{
+consensus:"Amazon maintains e-commerce dominance; niche marketplaces survive via differentiation; advertising monetization is the margin story",
+bull:"Amazon advertising becomes a $100B+ business rivaling Google/Meta; CHWY autoship model makes pet spend the most predictable e-commerce category; Etsy's unique supply is a permanent moat against Amazon",
+bear:"Amazon retail margins permanently compressed by competition and fulfillment costs; SHEIN/Temu steal share from all e-commerce players on price; category specialists lose relevance as Amazon expands",
+resolutionSignal:"Amazon advertising revenue growth rate; CHWY active customer trends; Etsy GMS reacceleration; SHEIN/Temu US regulatory treatment"
+},
+revenueBreakdown:"Amazon: online stores ~40%, third-party services ~25%, AWS ~17%, advertising ~9%, subscriptions ~7%; Marketplaces: take rate on GMV (typically 12–25%)",
+anchorTickers:["AMZN","EBAY","CHWY"],
+keyMetrics:["GMV/GMS","Revenue per active buyer","Take rate","Fulfillment cost per unit","Active buyers/subscribers","Advertising revenue"],
+watchlist:["US Census e-commerce penetration data","Amazon Prime Day and holiday metrics","Subscription retention rates","Temu/SHEIN market share tracking","Last-mile delivery cost trends"]
+},
+
+{
+title:"Home Improvement Retail",
+tier:3,
+overview:"HD and LOW operate a near-duopoly in US home improvement retail, collectively commanding ~30% of the $900B+ home improvement market. Both serve DIY homeowners and professional contractors. HD skews more Pro (~50% of sales) while LOW is more DIY-weighted. Revenue is tied to home price appreciation, existing home turnover, and aging housing stock. Pro customer acquisition (HD's SRS Distribution, HD Pro ecosystem) is the current battleground. Housing market turnover drives big-ticket remodel projects, while small-ticket maintenance/repair is more resilient.",
+keyDynamics:["Housing turnover and existing home sales trajectory","Pro vs. DIY customer mix and wallet share capture","Aging housing stock drives maintenance and repair demand","Mortgage rate impact on move-related remodeling spend","HD SRS Distribution acquisition integration and Pro supply chain","Interconnected retail: online order, in-store pickup, Pro delivery"],
+variantPerception:{
+consensus:"Home improvement is a secular growth category underpinned by aging housing stock; HD has structural Pro advantage; both benefit when rates normalize",
+bull:"Rate normalization unlocks massive pent-up remodel demand from homeowners locked in at low rates; HD SRS Distribution creates an unassailable Pro supply chain; aging Millennial homeowner cohort enters peak renovation spending",
+bear:"Elevated rates suppress housing turnover for longer; DIY consumer pulls back on big-ticket projects; HD/LOW pricing power erodes in deflationary materials environment",
+resolutionSignal:"Existing home sales recovery pace; HD Pro sales growth and SRS integration metrics; LIRA (Leading Indicator of Remodeling Activity); mortgage rate trajectory"
+},
+revenueBreakdown:"HD: Pro ~50%, DIY ~50%; LOW: Pro ~25%, DIY ~75%",
+anchorTickers:["HD","LOW"],
+keyMetrics:["Comparable store sales","Transactions vs. average ticket","Pro sales growth","Big-ticket (>$1,000) transaction count","Online penetration","Sales per square foot"],
+watchlist:["LIRA (Leading Indicator of Remodeling Activity)","Existing home sales","Housing turnover rate","Lumber, copper, PVC commodity prices","Hurricane/disaster rebuild demand"]
+},
+
+{
+title:"Specialty Retail",
+tier:3,
+overview:"Focused retailers operating in specific categories: beauty (ULTA), consumer electronics (BBY), rural lifestyle (TSCO), premium home (WSM, RH), off-price/value (BURL, FIVE, OLLI), sporting goods (DKS), and apparel (GAP, ANF). Category expertise, curation, and customer experience are the moats. Off-price and value retailers are structurally advantaged — they benefit from excess inventory in good times and trade-down behavior in bad times. Category-specific loyalty programs and experiential retail formats create switching costs. E-commerce penetration varies dramatically by category.",
+keyDynamics:["Off-price/value as structural winner across macro environments","Category-specific demand drivers (beauty lipstick effect, electronics replacement cycle)","Experiential retail formats vs. transactional shopping","Private label and owned brand margin contribution","Store fleet optimization: closures, relocations, new formats","Consumer bifurcation: luxury resilience vs. value-seeking mass market"],
+variantPerception:{
+consensus:"Off-price wins in all environments; beauty is resilient; consumer electronics is cyclically challenged; experiential formats justify physical retail",
+bull:"ULTA's beauty category proves permanently resilient (lipstick effect is real); TSCO rural lifestyle is a secular growth story with massive whitespace; DKS + FL creates a sporting goods powerhouse",
+bear:"Consumer electronics replacement cycles lengthen permanently; experiential retail formats have higher build costs without commensurate returns; discount retailers face margin pressure from import tariffs on cheap goods",
+resolutionSignal:"ULTA comp sales durability through downturn; TSCO new store productivity; BBY PC/TV replacement cycle timing; BURL/FIVE unit growth execution"
+},
+revenueBreakdown:"Product sales ~90–95%, services (salon, Geek Squad, installation) ~5–10%",
+anchorTickers:["ULTA","TSCO","WSM","DKS","BURL"],
+keyMetrics:["Comparable store sales","Traffic vs. conversion vs. basket","Gross margin","New store openings and productivity","E-commerce penetration","Loyalty program membership"],
+watchlist:["Consumer confidence by income cohort","Housing market (home furnishings correlation)","Beauty category sell-through (Circana data)","Consumer electronics installed base age","Tariff impact on sourced goods (China, Southeast Asia)"]
+},
+
+{
+title:"Automotive Retail & Dealerships",
+tier:3,
+overview:"Auto parts retailers (AZO, ORLY, AAP, GPC) and vehicle dealership groups (KMX, CVNA, AN, LAD, PAG). Auto parts retail benefits from one of the strongest secular tailwinds in retail: the average US vehicle age of 13+ years creates sustained demand for replacement parts and maintenance. AZO and ORLY are among the highest-quality retailers in any sector — dominant distribution, pricing power, and legendary capital allocation. Dealership groups are consolidating a fragmented industry. Used car platforms (CVNA, KMX) compete on digital experience. Fixed operations (parts and service) at dealerships provide recurring, high-margin revenue.",
+keyDynamics:["Aging vehicle fleet (avg 13+ years) drives aftermarket parts demand","DIY vs. DIFM (do-it-for-me/commercial) channel mix shift","Used vehicle price normalization post-pandemic","Dealership consolidation and digital retailing adoption","EV long-term impact on aftermarket parts TAM","Auto parts retail share buyback-driven EPS growth"],
+variantPerception:{
+consensus:"Auto parts retail is a secular growth category; AZO/ORLY are best-in-class; dealership consolidation continues; EV impact is 10+ years away",
+bull:"Aging fleet + deferred maintenance creates multi-year demand wave; AZO commercial expansion closes gap with ORLY; CVNA proves e-commerce used car model works at scale",
+bear:"EV adoption accelerates, shrinking the ICE parts addressable market; used car price deflation compresses dealership GPU; AAP turnaround fails and share shifts to AZO/ORLY",
+resolutionSignal:"Average vehicle age trajectory; AZO commercial same-store sales growth; CVNA GPU sustainability; EV penetration rate vs. ICE fleet longevity"
+},
+revenueBreakdown:"Auto parts: DIY ~55%, commercial/DIFM ~45%; Dealers: new vehicles ~50%, used vehicles ~30%, parts/service ~15%, F&I ~5%",
+anchorTickers:["AZO","ORLY","CVNA","KMX"],
+keyMetrics:["Same-store sales","Commercial sales growth","Gross profit per unit (GPU) for dealers","Parts availability %","Share count reduction (buybacks)","Inventory turns"],
+watchlist:["Average vehicle age (IHS Markit)","Used vehicle price indices (Manheim, Black Book)","Miles driven data (FHWA)","New vehicle SAAR","EV registration share by state"]
+},
+
+{
+title:"Consumer Distributors",
+tier:3,
+overview:"Wholesale distributors of auto parts (GPC, LKQ), landscape supplies (SITE), and other discretionary goods to professional end users. These are B2B businesses with tollbridge-like characteristics — they sit between manufacturers and fragmented professional customers, providing logistics, inventory management, and technical support. NAPA (GPC) is the iconic auto parts distribution brand with company-owned and independent affiliate stores. LKQ is the alternative/recycled parts specialist. SITE is rolling up the fragmented landscape supply market. Recurring maintenance and repair demand provides resilience.",
+keyDynamics:["Fragmented market consolidation via M&A roll-up strategies","Aftermarket auto parts demand tied to vehicle age and miles driven","Landscape industry labor availability and housing construction activity","Private label/owned brand margin expansion","Digital ordering and B2B e-commerce platforms","International expansion (GPC in Europe/Australasia, LKQ in Europe)"],
+variantPerception:{
+consensus:"Auto parts distribution is a steady, defensive business; landscape supply is an attractive roll-up; GPC's NAPA brand is a durable moat",
+bull:"GPC's NAPA network is irreplaceable — independent affiliates are deeply loyal; LKQ alternative parts gain share as insurance companies push lower-cost repairs; SITE becomes the HD of landscape supply",
+bear:"Amazon Business and other B2B platforms disintermediate traditional distribution; LKQ faces ADAS complexity reducing repairable vehicle pool; GPC international margins lag North America",
+resolutionSignal:"GPC NAPA same-store sales trends; LKQ aftermarket parts vs. OEM price gap; SITE acquisition pipeline and integration execution; Amazon Business penetration in specialty distribution"
+},
+revenueBreakdown:"GPC: automotive ~65%, industrial (Motion) ~35%; LKQ: North America ~50%, Europe ~45%, other ~5%; SITE: landscape products ~80%, agronomics ~10%, other ~10%",
+anchorTickers:["GPC","LKQ","SITE"],
+keyMetrics:["Same-store sales","Gross margin","Acquisition cadence and integration ROIC","Revenue per branch","Customer count growth","Working capital efficiency"],
+watchlist:["Vehicle miles traveled","Insurance industry repair cost trends","Housing starts (landscape demand)","Commodity prices (recycled auto parts, landscape materials)","Amazon Business B2B penetration"]
+}
+
+];
+
+
+// Consumer Discretionary — glossary.js
+// ~35 sector-specific terms
+
+const glossary = [
+{term:"RevPAR",definition:"Revenue Per Available Room. Calculated as occupancy rate × average daily rate (ADR). The primary performance metric for hotel operators, capturing both pricing power and demand. Rising RevPAR from rate (vs. occupancy) signals stronger pricing power."},
+{term:"Same-Store Sales (Comps)",definition:"Year-over-year revenue growth at locations open for at least 12–13 months. Decomposes into traffic (customer count) and ticket (average transaction size). Traffic-driven comps are higher quality than price/ticket-driven comps. The single most important operating metric for restaurants and retailers."},
+{term:"AUV (Average Unit Volume)",definition:"Average annual revenue per restaurant location. Measures unit-level productivity and is the foundation of franchise economics. Higher AUV supports better franchisee returns and enables faster unit growth."},
+{term:"Franchise Royalty Rate",definition:"Percentage of gross sales that franchisees pay to the franchisor (typically 4–6% for QSR). Combined with advertising fund contributions and property rent, this creates the franchisor's recurring fee stream. The economic beauty of franchising: revenue scales with system sales at near-zero marginal cost."},
+{term:"System Sales",definition:"Total revenue generated across all franchised and company-owned locations in a restaurant or hotel system. Franchisors earn royalties as a percentage of system sales. MCD system sales exceed $130B despite reporting ~$25B in corporate revenue."},
+{term:"SAAR",definition:"Seasonally Adjusted Annual Rate. Used for auto sales to normalize monthly data into an annualized figure. US SAAR typically runs 15–17M units. A key macro indicator for OEM production planning and supplier revenue forecasts."},
+{term:"ASP (Average Selling Price)",definition:"Average transaction price for a vehicle (OEM) or product (retail). Rising ASPs from mix shift (more trucks/SUVs, fewer sedans) have driven OEM revenue growth even as unit volumes flatten. Also used in apparel/retail to track pricing power."},
+{term:"Content Per Vehicle",definition:"Dollar value of a supplier's components in each vehicle produced. The secular growth lever for auto parts companies — as vehicles add more electronics, sensors, and wiring, content per vehicle rises regardless of unit production volumes. ADAS, EV powertrains, and connected features all increase content."},
+{term:"GPU (Gross Profit Per Unit)",definition:"Gross profit earned per vehicle transaction at a dealership or used car platform. Decomposes into front-end (vehicle margin) and back-end (F&I products, warranties). CVNA's turnaround is defined by GPU expansion from ~$3K to $7K+."},
+{term:"F&I (Finance & Insurance)",definition:"Dealership profit center where customers purchase financing, extended warranties, GAP insurance, and protection products at vehicle delivery. High-margin, high-attachment-rate revenue stream. F&I per unit typically $2,000–$3,000 for dealership groups."},
+{term:"GBV / GMS",definition:"Gross Booking Value (travel) or Gross Merchandise Sales (e-commerce). Total transaction value processed through a marketplace platform before deducting cancellations and returns. The platform's take rate applied to GBV/GMS determines net revenue. BKNG GBV exceeds $150B annually."},
+{term:"Take Rate",definition:"Percentage of GMV/GBV that a marketplace retains as net revenue. Varies by platform: ABNB ~14%, BKNG ~15%, ETSY ~22%, EBAY ~14%. Take rate expansion (via advertising, payments, fulfillment services) is the key margin lever for marketplace businesses."},
+{term:"Net Unit Growth (NUG)",definition:"Net new hotel rooms or restaurant units opened minus closures, expressed as a percentage of the existing base. Hotel franchisors target 4–7% NUG. Higher NUG compounds fee revenue without incremental capital investment by the franchisor."},
+{term:"Pipeline Rooms",definition:"Hotel rooms under construction or in approved development that will open in future periods. A leading indicator of future fee revenue growth for hotel franchisors. MAR, HLT, and IHG each have 500K+ pipeline rooms globally."},
+{term:"Occupancy Rate",definition:"Percentage of available rooms sold in a given period. Combines with ADR to produce RevPAR. Post-COVID occupancy recovery has been uneven: leisure recovered first, business transient slower, group/convention last."},
+{term:"ADR (Average Daily Rate)",definition:"Average room rate charged per occupied room night. Pricing power metric for hotels. Post-COVID ADR gains have exceeded pre-pandemic levels even as occupancy hasn't fully recovered, demonstrating pricing power in constrained supply environments."},
+{term:"GGR (Gross Gaming Revenue)",definition:"Total amount wagered minus winnings returned to players. The top-line revenue metric for casinos. Macao publishes monthly GGR data, which moves gaming stocks. Decomposed into mass market (walk-in) and VIP (junket-driven)."},
+{term:"Handle",definition:"Total dollar amount wagered on a sports betting or gaming platform. Distinguished from revenue (hold), which is the platform's net retention after payouts. US sports betting handle exceeds $100B annually. Hold rate typically 7–10% for sportsbooks."},
+{term:"Hold Rate",definition:"Percentage of handle retained by a sportsbook as gross revenue. A 10% hold rate means the platform keeps $10 for every $100 wagered. Structural hold rate for sports betting is ~7–10%; iGaming (online casino) hold rates are higher at 3–5% per session but compound over play time."},
+{term:"iGaming",definition:"Online casino gaming (slots, table games, live dealer) accessed via mobile apps or web browsers. Currently legal in only ~7 US states. iGaming is significantly more profitable per user than sports betting due to higher hold rates and session frequency. State-by-state legalization is the TAM expansion catalyst for DKNG, FLUT."},
+{term:"DTC (Direct-to-Consumer)",definition:"Sales channel where brands sell directly to consumers via owned stores, websites, and apps, bypassing wholesale intermediaries. Higher gross margins but higher fixed costs (rent, marketing, fulfillment). NKE's DTC overcorrection and wholesale re-engagement is the cautionary tale of DTC maximalism."},
+{term:"Off-Price Retail",definition:"Retail format selling branded merchandise at 20–60% below department store prices by purchasing excess inventory, closeouts, and overruns. TJX, ROST, BURL operate this model. Structural winner: benefits from excess inventory in strong economies and trade-down behavior in weak ones. No e-commerce — physical stores are the moat."},
+{term:"Treasure Hunt",definition:"Retail merchandising strategy where product assortment changes frequently and unpredictably, creating urgency to visit stores regularly. Core to off-price (TJX, ROST, BURL), extreme value (FIVE, OLLI), and dollar stores. Cannot be replicated online — the unpredictability IS the experience."},
+{term:"Autoship / Subscription",definition:"Recurring automatic delivery model where customers schedule regular shipments of consumable products. CHWY autoship is ~78% of sales, providing high revenue visibility and strong retention. Subscription models in retail create predictable revenue streams and reduce customer acquisition costs."},
+{term:"Lipstick Effect",definition:"Consumer behavior theory that small affordable luxuries (cosmetics, beauty, fragrance) remain resilient or even increase during economic downturns as consumers trade down from expensive indulgences to small treats. Underpins the investment thesis for ULTA and prestige beauty."},
+{term:"Rate Buydown",definition:"Homebuilder incentive where the builder pays mortgage points to reduce the buyer's effective interest rate, typically for the first 1–3 years. A key affordability tool when prevailing mortgage rates are high. DHI, LEN use buydowns to maintain sales pace without reducing home prices."},
+{term:"Lock-in Effect",definition:"Phenomenon where existing homeowners with low-rate mortgages (sub-4% from 2020–2021) are reluctant to sell and re-buy at current higher rates. Suppresses existing home inventory and housing turnover. Creates pent-up demand for remodeling (HD, LOW) as homeowners invest in current homes instead of moving."},
+{term:"Cancellation Rate",definition:"Percentage of homebuyer contracts that cancel before closing. An early warning signal for demand softening. Normal cancellation rates are 10–15%; elevated rates (>20%) signal affordability stress or buyer hesitation. DHI, LEN report cancellation rates quarterly."},
+{term:"Community Count",definition:"Number of active selling communities for a homebuilder. A leading indicator of future order growth — more communities = more potential sales. Opening new communities requires land acquisition, entitlement, and development 12–24 months in advance."},
+{term:"Asset-Light Model",definition:"Business structure where the company earns fees on assets it doesn't own. Hotel franchisors (MAR, HLT) collect management/franchise fees on properties owned by third-party real estate investors. Restaurant franchisors (MCD, YUM) collect royalties and rent from franchisee-operated locations. Generates high ROIC with minimal capex."},
+{term:"EBITDAR",definition:"Earnings Before Interest, Taxes, Depreciation, Amortization, and Rent. The standard profitability metric for casinos and restaurants that have converted to sale-leaseback structures. Adds back rent expense to compare operators regardless of whether they own or lease their real estate."},
+{term:"Sale-Leaseback",definition:"Transaction where a casino or restaurant operator sells its real estate to a REIT (VICI Properties, Gaming & Leisure Properties) and simultaneously signs a long-term lease to continue operating the property. Monetizes real estate value, reduces balance sheet assets, but creates a fixed lease obligation. MGM, CZR, PENN have all executed significant sale-leasebacks."},
+{term:"Mega-Hub",definition:"AutoZone's large-format distribution center carrying 100,000+ unique SKUs that serves as a hub for rapid delivery to surrounding satellite stores. Enables local stores to offer vastly more parts availability than their physical shelf space allows. AZO targets 200+ Mega-Hubs nationally."},
+{term:"Fortressing",definition:"Domino's strategy of opening new stores in close proximity to existing ones, deliberately cannibalizing same-store delivery radius to reduce delivery times and increase delivery frequency. Counter-intuitive: system-level sales grow even as individual store volumes may dip initially."},
+{term:"Pricing Power Gradient",definition:"The spectrum from commodity/price-taker businesses (whose revenue breaks first when consumers retrench) to brand-premium businesses (whose pricing power persists through downturns). The core analytical lens for Consumer Discretionary: when the consumer has one less dollar, whose revenue breaks first?"}
+];
+
+
+// Consumer Discretionary — signalChains.js
+// 8 causal signal chains
+
+const signalChains = [
+
+{
+id:"sc1",
+title:"The Rate-to-Remodel Chain",
+trigger:"Federal Reserve cuts → mortgage rates decline → existing home sales recover",
+chain:[
+"Fed funds rate cuts flow through to 30-year mortgage rates with a 2–6 month lag",
+"Lower rates break the 'lock-in effect' — homeowners with sub-4% mortgages begin listing",
+"Existing home inventory rises → housing turnover increases → transaction volumes recover",
+"Buyers of existing homes spend $10K–$30K on remodeling within first 12 months of purchase",
+"HD and LOW see big-ticket (>$1,000) transaction count inflect positively",
+"Homebuilder orders recover as move-up buyers enter the market (PHM Del Webb, TOL luxury)",
+"Household durables demand improves: appliances (WHR), decking (TREX), pool (POOL)",
+"The full chain from rate cut to retailer comp recovery takes 6–12 months"
+],
+affectedTickers:["HD","LOW","DHI","LEN","PHM","NVR","TOL","WHR","TREX","POOL"],
+monitoringSignals:["Fed funds rate and forward guidance","Freddie Mac 30-year mortgage rate","Existing home sales (NAR monthly)","LIRA (Leading Indicator of Remodeling Activity)","HD/LOW big-ticket transaction count"]
+},
+
+{
+id:"sc2",
+title:"The Consumer Confidence Cascade",
+trigger:"Employment weakens → consumer confidence drops → discretionary spend contracts",
+chain:[
+"Non-farm payrolls decelerate or turn negative; unemployment rate rises above 4.5%",
+"Consumer confidence indices (Conference Board, Michigan) drop below 80",
+"High-discretionary spend is first to retrench: luxury goods, dining out, travel, leisure vehicles",
+"Casual dining traffic declines (DRI, EAT comp traffic negative); QSR benefits from trade-down (MCD, WEN)",
+"Off-price retail (TJX, ROST, BURL) gains share as consumers seek value; full-price apparel weakens",
+"Big-ticket deferrals: auto purchases (GM, F SAAR declines), home furnishings (RH, WSM), boats (BC)",
+"Hotels see business transient RevPAR weaken; cruise pricing softens on forward bookings (CCL, RCL)",
+"Auto parts retailers (AZO, ORLY) outperform as consumers repair rather than replace vehicles",
+"Value-oriented and needs-based businesses (TSCO, CHWY, POOL maintenance) demonstrate defensive characteristics"
+],
+affectedTickers:["MCD","TJX","ROST","AZO","ORLY","TSCO","DRI","RH","BC","CCL"],
+monitoringSignals:["Non-farm payrolls and unemployment rate","Consumer confidence (Conference Board)","University of Michigan sentiment","Restaurant same-store traffic trends","Off-price comp sales relative to full-price retail"]
+},
+
+{
+id:"sc3",
+title:"The Sports Betting Legalization Wave",
+trigger:"State legislatures legalize online sports betting and/or iGaming",
+chain:[
+"Political pressure for tax revenue drives state-by-state legalization (currently ~38 states for sports betting)",
+"New state launches trigger customer acquisition spend wars — promotional incentives, deposit matches",
+"DKNG and FLUT (FanDuel) compete for market share; first-mover advantage in each state is sticky",
+"Sports betting handle grows but hold rates normalize to 7–10% structural level",
+"iGaming (online casino) legalization follows in select states — far fewer (~7 states currently) but higher revenue per user",
+"Land-based casino operators (MGM, CZR, PENN) leverage physical loyalty databases for online conversion",
+"Promotional spend rationalizes as market matures → DKNG/FLUT profitability inflects",
+"Legacy regional casinos (BYD) see modest cannibalization from online but maintain locals market strength",
+"Media companies monetize through licensing deals (ESPN Bet via PENN, potential others)"
+],
+affectedTickers:["DKNG","FLUT","MGM","CZR","PENN","BYD"],
+monitoringSignals:["State legislative calendars for sports betting/iGaming bills","Monthly state-level handle and revenue reports","DKNG/FLUT customer acquisition cost trends","Hold rate normalization","iGaming state count progression"]
+},
+
+{
+id:"sc4",
+title:"The EV Transition Aftermarket Disruption (Long-Dated)",
+trigger:"EV penetration reaches critical mass → ICE vehicle parts addressable market begins to contract",
+chain:[
+"EV new vehicle sales reach 15–20% of US market (currently ~9%), creating meaningful fleet mix shift",
+"ICE-specific parts demand (spark plugs, oil filters, exhaust, transmission) begins declining",
+"However, average ICE vehicle age continues to INCREASE as owners keep cars longer — extending the maintenance tail",
+"Auto parts retailers (AZO, ORLY, GPC) face declining ICE parts TAM offset by longer vehicle life and higher content per repair",
+"EV-specific aftermarket emerges: battery diagnostics, thermal management, tire wear (EVs are heavier, wear tires faster)",
+"Tier 1 suppliers (APTV, BWA) pivot R&D to EV components; ICE-only suppliers face secular decline",
+"Collision repair complexity increases (ADAS sensor recalibration, battery damage assessment) — benefits LKQ",
+"Net impact on auto parts retail is muted for 10+ years due to offsetting forces; EV aftermarket opportunity emerges",
+"Timeline: structural impact begins ~2030–2035 as early EVs age into 'sweet spot' repair years (6–14 years old)"
+],
+affectedTickers:["AZO","ORLY","GPC","LKQ","APTV","BWA"],
+monitoringSignals:["Monthly EV registration data by state","Average vehicle age (IHS Markit annual)","ICE parts category sales trends at AZO/ORLY","EV aftermarket parts availability","Tire replacement frequency data (EVs vs. ICE)"]
+},
+
+{
+id:"sc5",
+title:"The Macao Mass Gaming Recovery",
+trigger:"China economic recovery → outbound travel normalizes → Macao GGR rebounds",
+chain:[
+"Chinese consumer confidence and savings rates improve as property sector stabilizes",
+"Outbound Chinese tourism recovers — flight capacity to Macao/Hong Kong normalizes",
+"Macao monthly GGR data inflects toward pre-COVID levels (~$3B/month in 2019)",
+"Mass gaming (walk-in, premium mass) recovers strongly; VIP/junket segment permanently smaller post-crackdown",
+"LVS (Marina Bay Sands + 5 Macao properties) and WYNN (Wynn Palace, Wynn Macao) are primary beneficiaries",
+"MLCO (City of Dreams, Studio City) benefits but higher leverage amplifies both upside and downside",
+"Non-gaming revenue (hotel, retail, entertainment, MICE) recovers as integrated resort model matures",
+"Singapore (LVS Marina Bay Sands expansion) benefits from broader Asia travel recovery",
+"New concession terms (10-year licenses from 2023) provide long-term visibility but require investment commitments"
+],
+affectedTickers:["LVS","WYNN","MLCO","MGM"],
+monitoringSignals:["Macao monthly GGR data (DICJ)","China outbound travel statistics","China property sector indicators","Macao hotel occupancy and visitation","Premium mass vs. VIP GGR mix"]
+},
+
+{
+id:"sc6",
+title:"The Fast-Casual Unit Growth Multiplier",
+trigger:"Proven unit economics → accelerated store openings → revenue and margin compounding",
+chain:[
+"Fast-casual concept proves strong AUV ($2.5M+), restaurant margins (>20%), and payback (<3 years)",
+"Existing market saturation is low — demonstrated whitespace for 3–5x current store count",
+"Management commits to accelerated unit growth: 15–20% annual new store openings",
+"New stores initially dilute margins (pre-opening costs, ramp period) before reaching mature-store economics",
+"Same-store sales growth + new unit growth compound to 20–30% total revenue growth",
+"Brand awareness builds non-linearly as store density increases — marketing efficiency improves",
+"Supply chain and commissary kitchen scale creates procurement advantages",
+"Franchising optionality emerges once company-owned model is proven (WING transitioned to asset-light)",
+"The chain compounds until whitespace narrows or execution falters — CAVA, BROS, WING are in this phase"
+],
+affectedTickers:["CAVA","BROS","WING","SHAK","CMG"],
+monitoringSignals:["New unit openings and development pipeline","New store AUV ramp curves vs. mature stores","Same-store sales at stores open 2+ years","Restaurant-level margin trends","Real estate pipeline and site selection metrics"]
+},
+
+{
+id:"sc7",
+title:"The Tariff-to-Consumer Price Chain",
+trigger:"New import tariffs imposed → input costs rise → consumer prices adjust with lag",
+chain:[
+"Tariff announcement on key trading partners (China, Mexico, Canada, Southeast Asia, Europe)",
+"Apparel/footwear brands (NKE, LULU, HBI, VFC) face immediate COGS increase — most source from Vietnam, China, Indonesia",
+"Homebuilders (DHI, LEN) face lumber (Canada), steel, and building material cost increases",
+"Auto OEMs (GM, F) face parts cost increases on cross-border supply chains; pass-through to MSRPs with 6–12 month lag",
+"Retailers absorb initial cost increase, then gradually raise prices — margin compression precedes price recovery",
+"Extreme value and off-price retailers (FIVE, OLLI, TJX) benefit from increased closeout/excess inventory availability",
+"Consumer demand elasticity varies by category: auto parts (inelastic, repair is necessary), luxury goods (elastic), food (mixed)",
+"Companies with pricing power and brand premium (NKE, LULU, TSLA) pass through more effectively than commodity players",
+"Net effect: margin compression → price increases → demand destruction in most elastic categories → trade-down to value"
+],
+affectedTickers:["NKE","DHI","GM","F","TJX","FIVE","OLLI","HBI","VFC","LULU"],
+monitoringSignals:["US tariff schedule updates by country and product category","Container shipping rates (proxy for trade volumes)","Gross margin guidance from import-heavy companies","Consumer price indices by category","Off-price inventory availability commentary"]
+},
+
+{
+id:"sc8",
+title:"The Experience Economy Reallocation",
+trigger:"Consumer preference shifts from goods to experiences → travel, dining, entertainment outperform physical retail",
+chain:[
+"Post-COVID behavioral shift: consumers permanently reallocate spend toward travel, dining, and live events",
+"'Experiences over things' mantra drives restaurant traffic (CMG, TXRH), hotel demand (MAR, HLT), and cruise bookings (RCL)",
+"Social media amplification creates FOMO cycle — travel and dining are 'shareable' in ways physical goods aren't",
+"Hotels and cruises achieve pricing power as demand exceeds supply growth (new hotel/ship supply is capital-intensive and slow)",
+"Physical goods retailers face structural headwind: apparel, consumer electronics, home goods lose share of wallet",
+"Experiential retail formats (DKS House of Sport, RH Gallery) attempt to bridge the gap by making shopping an experience",
+"QSR and fast-casual benefit from affordable experience positioning — dining out as accessible leisure",
+"Casinos and entertainment venues (LVS, MGM) invest in non-gaming experiences to capture broader consumer spend",
+"Counter-force: economic downturn reverses the trend as experiences (discretionary) are cut before goods (more necessary)"
+],
+affectedTickers:["MAR","HLT","BKNG","ABNB","RCL","CMG","TXRH","MGM","DKS","BBY"],
+monitoringSignals:["BEA personal consumption expenditure data (goods vs. services split)","Restaurant same-store traffic trends","Hotel RevPAR growth vs. retail comp sales","Cruise booking curve and yield trends","Live event and entertainment ticket sales data"]
+}
+
+];
+
+
+
+// ═══ ARCHETYPE DEFINITIONS ═══
+const archetypeDefs={
+  "Tollbridge":"Fee-based platforms earning recurring revenue on assets they don't own. Franchise royalties, management fees, platform take rates.",
+  "Cash Engine":"Mature, high-FCF business returning capital via dividends and buybacks. Growth modest but durable.",
+  "Compounder":"Durable growth businesses reinvesting at high ROIC. Organic growth + disciplined M&A in tandem.",
+  "Deep Value":"Cyclically depressed or structurally challenged, trading below intrinsic value with identifiable catalyst needed.",
+  "Speculative Growth":"Pre-profit or early-stage with large TAM optionality. Revenue growth >25% but path to profitability uncertain.",
+  "Turnaround":"Businesses executing strategic resets from distressed positions. Management change or strategic pivot underway."
+};
+
+// ═══ NORMALIZATION MAPS ═══
+const archLabels={"Tollbridge":"Tollbridge","CashEngine":"Cash Engine","Compounder":"Compounder","DeepValue":"Deep Value","SpeculativeGrowth":"Speculative Growth","Turnaround":"Turnaround"};
+const cpLabels={"earlyExpansion":"Early Expansion","expansion":"Expansion","midExpansion":"Mid-Expansion","midCycle":"Mid-Cycle","lateCycle":"Late-Cycle","recovery":"Recovery","trough":"Trough","downturn":"Downturn"};
+const tierNames={1:"Product & Brand",2:"Experience & Service",3:"Retail & Distribution"};
+const tierCSS={1:"upstream",2:"midstream",3:"downstream"};
+
+const factorLabels={consumerCyclicality:'Cyclicality',brandPremium:'Brand Premium',eCommerceExposure:'E-Commerce',inputCostSensitivity:'Input Cost',discretionaryRisk:'Discretionary Risk'};
+const factorKeys=Object.keys(factorLabels);
+
+function parseMc(s){
+  if(!s)return 0;s=s.replace('$','').trim();
+  if(s.endsWith('T'))return parseFloat(s)*1000;
+  if(s.endsWith('B'))return parseFloat(s);
+  if(s.endsWith('M'))return parseFloat(s)/1000;
+  return 0;
+}
+function mcBucket(v){
+  if(v>=200)return'Mega';if(v>=20)return'Large';if(v>=5)return'Mid';if(v>=1)return'Small';return'Micro';
+}
+
+const cycleOrder={"Early Expansion":0,"Expansion":1,"Mid-Expansion":2,"Mid-Cycle":3,"Late-Cycle":4,"Recovery":5,"Trough":6,"Downturn":7};
+const capOrder={Mega:0,Large:1,Mid:2,Small:3,Micro:4};
+
+// ═══ NORMALIZE DATA ═══
+sectorData.forEach(d=>{
+  d.ticker=d.t;d.name=d.n;d.subIndustry=d.sub;
+  d.marketCap=d.mc;d.mcVal=parseMc(d.mc);d.mcBucket=mcBucket(parseMc(d.mc));
+  d.archetype=archLabels[d.a]||d.a;
+  d.cyclePosition=cpLabels[d.cp]||d.cp;
+  d.tierNum=d.tier;d.tierLabel=tierNames[d.tier];d.tierCss=tierCSS[d.tier];
+  d.factorExposures=d.fe;d.description=d.d;
+});
+
+const briefMap={};
+industryBriefs.forEach(b=>{briefMap[b.title]=b;});
+
+let sortCol='ticker',sortAsc=true,expandedTicker=null;
+let activeFactors=new Set();
+let chartInstances={};
+
+// ═══ UTILITY FUNCTIONS ═══
+function destroyCharts(){Object.values(chartInstances).forEach(c=>c.destroy());chartInstances={};}
+
+function getTierColor(d){
+  if(d.tierNum===1)return'#2c5f8a';
+  if(d.tierNum===2)return'#c4842d';
+  return'#2d7d46';
+}
+function getNodeClass(d){
+  if(d.tierNum===1)return'node-upstream';
+  if(d.tierNum===2)return'node-midstream';
+  return'node-downstream';
+}
+function getArchClass(a){
+  var m={'Tollbridge':'arch-tollbridge','Cash Engine':'arch-cashengine','Compounder':'arch-compounder',
+         'Deep Value':'arch-deepvalue','Speculative Growth':'arch-specgrowth','Turnaround':'arch-turnaround'};
+  return m[a]||'';
+}
+function getFactorTint(d){
+  if(!activeFactors.size||!d.factorExposures)return'';
+  var sum=0;
+  activeFactors.forEach(f=>{sum+=(d.factorExposures[f]||0);});
+  if(sum>=2)return'background:rgba(39,174,96,0.12)';
+  if(sum>0)return'background:rgba(39,174,96,0.06)';
+  if(sum<=-2)return'background:rgba(231,76,60,0.12)';
+  if(sum<0)return'background:rgba(231,76,60,0.06)';
+  return'';
+}
+
+// ═══ FILTERS ═══
+function populateFilters(){
+  var tF=document.getElementById('tierFilter');
+  var sF=document.getElementById('subIndustryFilter');
+  var aF=document.getElementById('archetypeFilter');
+  var cF=document.getElementById('capFilter');
+  var cyF=document.getElementById('cycleFilter');
+  [['Product & Brand',1],['Experience & Service',2],['Retail & Distribution',3]].forEach(v=>tF.add(new Option(v[0],v[1])));
+  [...new Set(sectorData.map(d=>d.subIndustry))].sort().forEach(v=>sF.add(new Option(v,v)));
+  [...new Set(sectorData.map(d=>d.archetype))].sort().forEach(v=>aF.add(new Option(v,v)));
+  ['Mega','Large','Mid','Small','Micro'].forEach(v=>cF.add(new Option(v,v)));
+  [...new Set(sectorData.map(d=>d.cyclePosition))].sort((a,b)=>(cycleOrder[a]||9)-(cycleOrder[b]||9)).forEach(v=>cyF.add(new Option(v,v)));
+}
+
+function getFiltered(){
+  var q=document.getElementById('searchInput').value.toLowerCase().trim();
+  var tf=document.getElementById('tierFilter').value;
+  var sf=document.getElementById('subIndustryFilter').value;
+  var af=document.getElementById('archetypeFilter').value;
+  var cf=document.getElementById('capFilter').value;
+  var cyf=document.getElementById('cycleFilter').value;
+  return sectorData.filter(d=>{
+    if(q&&!(d.ticker+' '+d.name+' '+d.subIndustry+' '+(d.description||'')).toLowerCase().includes(q))return false;
+    if(tf&&d.tierNum!=tf)return false;
+    if(sf&&d.subIndustry!==sf)return false;
+    if(af&&d.archetype!==af)return false;
+    if(cf&&d.mcBucket!==cf)return false;
+    if(cyf&&d.cyclePosition!==cyf)return false;
+    return true;
+  });
+}
+
+// ═══ SORTING ═══
+function sortData(data){
+  return[...data].sort((a,b)=>{
+    var av,bv;
+    if(sortCol==='marketCap'){av=a.mcVal;bv=b.mcVal;return sortAsc?bv-av:av-bv;}
+    if(sortCol==='cyclePosition'){av=cycleOrder[a.cyclePosition]||9;bv=cycleOrder[b.cyclePosition]||9;}
+    else if(sortCol==='tier'){av=a.tierNum;bv=b.tierNum;}
+    else{av=(a[sortCol]||'').toString().toLowerCase();bv=(b[sortCol]||'').toString().toLowerCase();}
+    if(av<bv)return sortAsc?-1:1;
+    if(av>bv)return sortAsc?1:-1;
+    return 0;
+  });
+}
+
+// ═══ RADAR CHART ═══
+function renderRadarChart(canvasId,company){
+  var ctx=document.getElementById(canvasId);
+  if(!ctx||!company.factorExposures)return;
+  var fe=company.factorExposures;
+  var color=getTierColor(company);
+  var labels=factorKeys.map(k=>factorLabels[k]||k);
+  var values=factorKeys.map(k=>fe[k]||0);
+  chartInstances[canvasId]=new Chart(ctx,{
+    type:'radar',
+    data:{labels:labels,datasets:[{data:values,borderColor:color,backgroundColor:color+'33',borderWidth:2,pointRadius:3,pointBackgroundColor:color}]},
+    options:{responsive:true,maintainAspectRatio:true,animation:false,
+      scales:{r:{min:-2,max:2,ticks:{stepSize:1,display:false},grid:{color:'rgba(255,255,255,0.08)'},angleLines:{color:'rgba(255,255,255,0.08)'},pointLabels:{font:{family:"'JetBrains Mono'",size:9},color:'#888'}}},
+      plugins:{legend:{display:false}}}
+  });
+}
+
+// ═══ MAIN RENDER ═══
+function render(){
+  destroyCharts();
+  var filtered=getFiltered();
+  var sorted=sortData(filtered);
+  var gb=document.getElementById('gridBody');
+  var html='';
+  sorted.forEach(d=>{
+    var tint=getFactorTint(d);
+    var nc=getNodeClass(d);
+    var ac=getArchClass(d.archetype);
+    var tc=d.tierCss;
+    html+='<tr onclick="toggleExpand(\''+d.ticker+'\')" style="'+tint+'">';
+    html+='<td class="td-ticker" style="color:var(--'+tc+')">' + d.ticker + '</td>';
+    html+='<td class="td-company">' + d.name + '</td>';
+    html+='<td class="td-industry" onclick="event.stopPropagation();openBriefByTitle(\''+d.subIndustry.replace(/'/g,"\\'")+'\')">' + d.subIndustry + '</td>';
+    html+='<td><span class="node-badge '+nc+'">' + d.tierLabel + '</span></td>';
+    html+='<td><span class="arch-badge '+ac+'">' + d.archetype;
+    if(archetypeDefs[d.archetype])html+='<span class="tooltip">'+archetypeDefs[d.archetype]+'</span>';
+    html+='</span></td>';
+    html+='<td class="td-cap">' + d.marketCap + '</td>';
+    html+='<td><span class="cycle-badge">' + d.cyclePosition + '</span></td>';
+    html+='</tr>';
+    if(expandedTicker===d.ticker){
+      var cid='radar-'+d.ticker.replace(/[^a-zA-Z0-9]/g,'');
+      html+='<tr class="expanded-row"><td colspan="7"><div class="expanded-content">';
+      html+='<div class="exp-block"><h5>Description</h5><p>'+(d.description||'')+'</p>';
+      html+='<h5 style="margin-top:12px">Cycle Position</h5><p>'+d.cyclePosition+'</p></div>';
+      html+='<div class="exp-block radar-wrap"><h5>Factor Exposures</h5>';
+      html+='<canvas id="'+cid+'" width="200" height="200"></canvas></div>';
+      html+='</div></td></tr>';
     }
   });
+  gb.innerHTML=html||'<tr><td colspan="7" class="empty-state">No companies match your filters.</td></tr>';
+  document.getElementById('resultCount').textContent=sorted.length+' companies';
+  document.querySelectorAll('.grid-table thead th').forEach(th=>{
+    var col=th.dataset.col;
+    th.classList.toggle('sorted',col===sortCol);
+    var arrow=th.querySelector('.sort-arrow');
+    if(arrow)arrow.textContent=col===sortCol?(sortAsc?'▲':'▼'):'';
+  });
+  if(expandedTicker){
+    var d=sectorData.find(x=>x.ticker===expandedTicker);
+    if(d){
+      var cid='radar-'+d.ticker.replace(/[^a-zA-Z0-9]/g,'');
+      setTimeout(()=>renderRadarChart(cid,d),50);
+    }
+  }
+}
+
+function toggleExpand(ticker){expandedTicker=expandedTicker===ticker?null:ticker;render();}
+
+function navigateToTicker(ticker){
+  document.getElementById('searchInput').value=ticker;
+  ['tierFilter','subIndustryFilter','archetypeFilter','capFilter','cycleFilter'].forEach(id=>{document.getElementById(id).value='';});
+  expandedTicker=ticker;render();
+  document.getElementById('gridSection').scrollIntoView({behavior:'smooth'});
+}
+
+// ═══ BRIEF PANEL ═══
+function openBriefByTitle(title){
+  var brief=briefMap[title];
+  if(!brief)return;
+  renderBrief(brief);
+  document.getElementById('briefOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function openBrief(el){
+  var key=el.getAttribute('data-brief');
+  if(!key)return;
+  var decoded=key.replace(/&amp;/g,'&');
+  var brief=briefMap[decoded];
+  if(!brief){for(var k in briefMap){if(k.indexOf(decoded)>=0||decoded.indexOf(k)>=0){brief=briefMap[k];break;}}}
+  if(!brief)return;
+  renderBrief(brief);
+  document.getElementById('briefOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeBrief(){
+  document.getElementById('briefOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function handleOverlayClick(e){if(e.target===document.getElementById('briefOverlay'))closeBrief();}
+
+function renderBrief(b){
+  var tl=tierNames[b.tier]||'';
+  var h='<h2>'+b.title+'</h2>';
+  h+='<div class="brief-tier">'+tl+' Sub-Industry</div>';
+  h+='<div class="brief-section-title">Overview</div>';
+  h+='<div class="brief-overview">'+b.overview+'</div>';
+  if(b.keyDynamics&&b.keyDynamics.length){
+    h+='<div class="brief-section-title">Key Dynamics</div><ul class="dynamics-list">';
+    b.keyDynamics.forEach(d=>{h+='<li>'+d+'</li>';});
+    h+='</ul>';
+  }
+  if(b.variantPerception){
+    h+='<div class="brief-section-title">Variant Perception</div>';
+    var vp=b.variantPerception;
+    if(vp.consensus)h+='<div class="consensus-text"><strong>Consensus:</strong> '+vp.consensus+'</div>';
+    if(vp.bull)h+='<div class="variant-case variant-bull"><div class="variant-label">Bull Case</div>'+vp.bull+'</div>';
+    if(vp.bear)h+='<div class="variant-case variant-bear"><div class="variant-label">Bear Case</div>'+vp.bear+'</div>';
+    if(vp.resolutionSignal)h+='<div class="variant-case variant-signal"><div class="variant-label">Resolution Signal</div>'+vp.resolutionSignal+'</div>';
+  }
+  if(b.revenueBreakdown){
+    h+='<div class="brief-section-title">Revenue Breakdown</div>';
+    h+='<div class="brief-rev">'+b.revenueBreakdown+'</div>';
+  }
+  if(b.anchorTickers&&b.anchorTickers.length){
+    h+='<div class="brief-section-title">Anchor Tickers</div><div class="anchor-list">';
+    b.anchorTickers.forEach(t=>{h+='<span class="anchor-tag" onclick="closeBrief();navigateToTicker(\''+t+'\')">'+t+'</span>';});
+    h+='</div>';
+  }
+  if(b.keyMetrics&&b.keyMetrics.length){
+    h+='<div class="brief-section-title">Key Metrics</div><div class="metrics-list">';
+    b.keyMetrics.forEach(m=>{h+='<span class="metric-tag">'+m+'</span>';});
+    h+='</div>';
+  }
+  if(b.watchlist&&b.watchlist.length){
+    h+='<div class="brief-section-title">Watchlist</div>';
+    b.watchlist.forEach(w=>{h+='<div class="watchlist-item">'+w+'</div>';});
+  }
+  document.getElementById('briefContent').innerHTML=h;
+}
+
+// ═══ SIGNAL CHAINS ═══
+function renderSignalChains(){
+  var container=document.getElementById('chainsContainer');
+  var html='';
+  signalChains.forEach(chain=>{
+    html+='<div class="chain-card" onclick="this.classList.toggle(\'open\')">';
+    html+='<div class="chain-header"><div class="chain-name">'+chain.title+'</div><span class="chain-toggle">&#x203A;</span></div>';
+    html+='<div class="chain-trigger">'+chain.trigger+'</div>';
+    html+='<div class="chain-body"><div class="chain-steps">';
+    chain.chain.forEach((step,i)=>{
+      if(i>0)html+='<div class="chain-step-arrow">&darr;</div>';
+      html+='<div class="chain-step"><span class="chain-step-num">S'+(i+1)+'</span>';
+      html+='<div class="chain-step-content"><div class="chain-step-event">'+step+'</div></div></div>';
+    });
+    html+='</div>';
+    if(chain.affectedTickers&&chain.affectedTickers.length){
+      html+='<div class="chain-tickers-section"><strong>Affected Tickers</strong><div style="margin-top:6px">';
+      chain.affectedTickers.forEach(t=>{
+        html+='<span class="chain-ticker-tag" onclick="event.stopPropagation();navigateToTicker(\''+t+'\')">'+t+'</span>';
+      });
+      html+='</div></div>';
+    }
+    if(chain.monitoringSignals&&chain.monitoringSignals.length){
+      html+='<div class="chain-monitor-section"><strong>Monitoring Signals</strong><ul>';
+      chain.monitoringSignals.forEach(s=>{html+='<li>'+s+'</li>';});
+      html+='</ul></div>';
+    }
+    html+='</div></div>';
+  });
+  container.innerHTML=html;
+}
+
+// ═══ GLOSSARY ═══
+function renderGlossary(filter){
+  var grid=document.getElementById('glossaryGrid');
+  var q=(filter||'').toLowerCase().trim();
+  var sorted=[...glossary].sort((a,b)=>a.term.localeCompare(b.term));
+  var html='';
+  sorted.forEach(g=>{
+    if(q&&!g.term.toLowerCase().includes(q)&&!g.definition.toLowerCase().includes(q))return;
+    html+='<div class="glossary-card" onclick="this.classList.toggle(\'open\')">';
+    html+='<div class="glossary-term">'+g.term+'<span class="toggle-icon">&#x203A;</span></div>';
+    html+='<div class="glossary-def">'+g.definition+'</div></div>';
+  });
+  grid.innerHTML=html||'<div class="empty-state">No terms match your search.</div>';
+}
+
+// ═══ EVENT LISTENERS ═══
+document.getElementById('searchInput').addEventListener('input',()=>{expandedTicker=null;render();});
+['tierFilter','subIndustryFilter','archetypeFilter','capFilter','cycleFilter'].forEach(id=>{
+  document.getElementById(id).addEventListener('change',()=>{expandedTicker=null;render();});
+});
+document.getElementById('clearBtn').addEventListener('click',()=>{
+  document.getElementById('searchInput').value='';
+  ['tierFilter','subIndustryFilter','archetypeFilter','capFilter','cycleFilter'].forEach(id=>{document.getElementById(id).value='';});
+  activeFactors.clear();
+  document.querySelectorAll('.factor-toggle').forEach(b=>b.classList.remove('active'));
+  expandedTicker=null;render();
+});
+document.querySelectorAll('.grid-table thead th').forEach(th=>{
+  th.addEventListener('click',()=>{
+    var col=th.dataset.col;if(!col)return;
+    if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=true;}
+    render();
+  });
+});
+document.querySelectorAll('.factor-toggle').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    var f=btn.dataset.factor;
+    if(activeFactors.has(f)){activeFactors.delete(f);btn.classList.remove('active');}
+    else{activeFactors.add(f);btn.classList.add('active');}
+    render();
+  });
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBrief();});
+document.getElementById('glossarySearch').addEventListener('input',function(){renderGlossary(this.value);});
+
+// ═══ SVG FLOWCHART CONNECTIONS ═══
+var svgConnections=[
+  {from:"Automobile Manufacturers",to:"Auto Parts & Components",xOff:0,color:"#2c5f8a",style:"dashed",withinTier:true},
+  {from:"Automobile Manufacturers",to:"Auto Retail & Dealers",xOff:-30,color:"#2c5f8a",style:"solid",label:"Vehicles"},
+  {from:"Auto Parts & Components",to:"Auto Retail & Dealers",xOff:20,color:"#2c5f8a",style:"solid",label:"Parts supply"},
+  {from:"Auto Parts & Components",to:"Consumer Distributors",xOff:0,color:"#2c5f8a",style:"dashed"},
+  {from:"Apparel & Luxury",to:"Specialty Retail",xOff:-20,color:"#2c5f8a",style:"solid",label:"Wholesale"},
+  {from:"Apparel & Luxury",to:"Broadline & E-Commerce",xOff:10,color:"#2c5f8a",style:"dashed"},
+  {from:"Homebuilders & Durables",to:"Home Improvement",xOff:0,color:"#2c5f8a",style:"solid",label:"Housing"},
+  {from:"Leisure Products & Toys",to:"Broadline & E-Commerce",xOff:20,color:"#2c5f8a",style:"dashed"},
+  {from:"Hotels & Cruises",to:"Broadline & E-Commerce",xOff:-15,color:"#c4842d",style:"dashed",label:"OTA booking"},
+  {from:"Restaurants",to:"Broadline & E-Commerce",xOff:30,color:"#c4842d",style:"dashed",label:"Delivery"}
+];
+
+function getNodeRect(name){
+  var allNodes=document.querySelectorAll('.fc-node');
+  var node=null;
+  for(var i=0;i<allNodes.length;i++){
+    var nm=allNodes[i].querySelector('.node-name');
+    if(nm&&nm.textContent===name){node=allNodes[i];break;}
+  }
+  var wrapper=document.querySelector('.flowchart-wrapper');
+  if(!node||!wrapper)return null;
+  var nr=node.getBoundingClientRect();
+  var wr=wrapper.getBoundingClientRect();
+  return{
+    x:nr.left+nr.width/2-wr.left,
+    y:nr.top+nr.height/2-wr.top,
+    top:nr.top-wr.top,bottom:nr.bottom-wr.top,
+    left:nr.left-wr.left,right:nr.right-wr.left,
+    w:nr.width,h:nr.height
+  };
+}
+
+function drawConnections(){
+  var svg=document.getElementById('flowchartSvg');
+  var wrapper=document.querySelector('.flowchart-wrapper');
+  if(!svg||!wrapper)return;
+  var wr=wrapper.getBoundingClientRect();
+  svg.setAttribute('width',wr.width);
+  svg.setAttribute('height',wr.height);
+  svg.setAttribute('viewBox','0 0 '+wr.width+' '+wr.height);
+  svg.innerHTML='';
+  var defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+  var markerColors={'#2c5f8a':1,'#c4842d':1,'#2d7d46':1};
+  Object.keys(markerColors).forEach(function(col){
+    var id='arr-'+col.replace('#','');
+    var m=document.createElementNS('http://www.w3.org/2000/svg','marker');
+    m.setAttribute('id',id);m.setAttribute('viewBox','0 0 8 6');
+    m.setAttribute('refX','8');m.setAttribute('refY','3');
+    m.setAttribute('markerWidth','6');m.setAttribute('markerHeight','5');
+    m.setAttribute('orient','auto');
+    var p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d','M0,0.5 L7,3 L0,5.5 Z');p.setAttribute('fill',col);p.setAttribute('opacity','0.7');
+    m.appendChild(p);defs.appendChild(m);
+  });
+  svg.appendChild(defs);
+  svgConnections.forEach(function(c){
+    var fr=getNodeRect(c.from),tr=getNodeRect(c.to);
+    if(!fr||!tr)return;
+    var col=c.color||'#888';
+    var markerId='arr-'+col.replace('#','');
+    var off=c.xOff||0;
+    var path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    var d;
+    if(c.withinTier){
+      var x1=fr.right+2,y1=fr.y,x2=tr.left-2,y2=tr.y;
+      var cx=(x1+x2)/2;
+      d='M'+x1+','+y1+' C'+cx+','+y1+' '+cx+','+y2+' '+x2+','+y2;
+    }else{
+      var x1=fr.x+off,y1=fr.bottom+2;
+      var x2=tr.x+off,y2=tr.top-2;
+      var gap=y2-y1;
+      var cy1=y1+gap*0.35;
+      var cy2=y2-gap*0.35;
+      d='M'+x1+','+y1+' C'+x1+','+cy1+' '+x2+','+cy2+' '+x2+','+y2;
+    }
+    path.setAttribute('d',d);
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke',col);
+    if(c.style==='solid'){path.setAttribute('stroke-width','1.5');path.setAttribute('opacity','0.4');}
+    else if(c.style==='dashed'){path.setAttribute('stroke-width','1');path.setAttribute('stroke-dasharray','8,5');path.setAttribute('opacity','0.3');}
+    else{path.setAttribute('stroke-width','1');path.setAttribute('stroke-dasharray','3,4');path.setAttribute('opacity','0.25');}
+    path.setAttribute('marker-end','url(#'+markerId+')');
+    svg.appendChild(path);
+    if(c.label){
+      var mx,my;
+      if(c.withinTier){mx=(fr.right+tr.left)/2;my=(fr.y+tr.y)/2;}
+      else{mx=(fr.x+tr.x)/2+off;my=(fr.bottom+tr.top)/2;}
+      var tw=c.label.length*4.8+12;
+      var rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+      rect.setAttribute('x',mx-tw/2);rect.setAttribute('y',my-7);
+      rect.setAttribute('width',tw);rect.setAttribute('height',14);
+      rect.setAttribute('fill','#1a1a2e');rect.setAttribute('rx','4');
+      rect.setAttribute('opacity','0.9');
+      svg.appendChild(rect);
+      var text=document.createElementNS('http://www.w3.org/2000/svg','text');
+      text.setAttribute('x',mx);text.setAttribute('y',my+3);
+      text.setAttribute('text-anchor','middle');
+      text.setAttribute('fill',col);text.setAttribute('opacity','0.7');
+      text.textContent=c.label;
+      svg.appendChild(text);
+    }
+  });
+}
+
+window.addEventListener('load',function(){setTimeout(drawConnections,300);});
+var _resizeTimer;
+window.addEventListener('resize',function(){clearTimeout(_resizeTimer);_resizeTimer=setTimeout(drawConnections,150);});
+
+// ═══ INIT ═══
+populateFilters();
+render();
+renderSignalChains();
+renderGlossary('');
+
 </script>
 </body>
 </html>
